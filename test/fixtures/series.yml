@@ -1,9 +1,6 @@
-# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+xenophobia:
+  name: Xenophobia
+  url: http://xenophobia.evolution-events.nl
 
-one:
-  name: MyString
-  url: MyString
-
-two:
-  name: MyString
-  url: MyString
+exit:
+  name: Exit

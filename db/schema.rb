@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130928202406) do
+ActiveRecord::Schema.define(version: 20130928204615) do
 
   create_table "emergency_contacts", force: true do |t|
     t.string   "name"

@@ -36,6 +36,9 @@ group :development, :test do
   gem 'rspec-rails'
 end
 
+# Add bootstrap for easy styling
+gem 'bootstrap-sass'
+
 # Use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.0.0'
 

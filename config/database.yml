@@ -11,7 +11,9 @@ development:
 # re-generated from your development database when you run "rspec".
 # Do not set this db to the same as development or production.
 test:
+  <<: *DEFAULTS
   database: db/test.sqlite3
 
 production:
+  <<: *DEFAULTS
   database: db/production.sqlite3

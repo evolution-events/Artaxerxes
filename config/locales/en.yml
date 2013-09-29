@@ -29,3 +29,6 @@ en:
     medical_detail:
       label: "Medical detail"
       notfound: "No medical details found"
+    emergency_contacts:
+      label: "Emergency contacts"
+      notfound: "No emergency contacts found"

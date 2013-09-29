@@ -49,10 +49,7 @@
 
 <%= render partial: "medical_details" %>
 
-<p>
-  <strong>In case of emergency contact:</strong>
-  <%= @user.emergency_contacts.map &:to_s %>
-</p>
+<%= render partial: "emergency_contacts" %>
 
 <%= link_to 'Edit', edit_user_path(@user) %> |
 <%= link_to 'Back', users_path %>

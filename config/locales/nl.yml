@@ -228,3 +228,6 @@ nl:
     medical_detail:
       label: "Medische informatie"
       notfound: "Geen medische informatie gevonden"
+    emergency_contacts:
+      label: "Contactpersonen bij noodgeval"
+      notfound: "Geen contactpersonen gevonden"

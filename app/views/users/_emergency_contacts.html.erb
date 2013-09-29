@@ -1,0 +1,7 @@
+<h2><%= t('user.emergency_contacts.label')%></h2>
+<% if @user.emergency_contacts.any? %>
+    <%= render partial: "emergency_contact", collection: @user.emergency_contacts %>
+  <% else %>
+      <p><%= t('user.emergency_contacts.notfound') %></p>
+<% end %>
+

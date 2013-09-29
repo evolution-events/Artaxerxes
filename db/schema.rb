@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130928204615) do
+ActiveRecord::Schema.define(version: 20130929090627) do
 
   create_table "emergency_contacts", force: true do |t|
     t.string   "name"
@@ -77,6 +77,8 @@ ActiveRecord::Schema.define(version: 20130928204615) do
     t.boolean  "hide_last_name"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.boolean  "remember_address"
+    t.boolean  "remember_emergency_contacts"
   end
 
 end

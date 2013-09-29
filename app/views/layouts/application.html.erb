@@ -7,8 +7,10 @@
   <%= csrf_meta_tags %>
 </head>
 <body>
+  <%= render partial: 'common/navbar' %>
 
-<%= yield %>
+  <%= yield %>
 
+  <%= content_for :footer_script %>
 </body>
 </html>

@@ -1,0 +1,15 @@
+<div class="navbar">
+  <div class="navbar-inner">
+    <div class="container">
+      <ul class="nav">
+        <li><a href="<%= root_path %>">Home</a></li>
+        <li><a href="<%= users_path %>">Users</a></li>
+        <li><a href="<%= registrations_path %>">Registrations</a></li>
+        <li><a href="<%= events_path %>">Events</a></li>
+        <li><a href="<%= series_index_path %>">Series</a></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<% content_for(:footer_script, navbar_active_link_script) %>

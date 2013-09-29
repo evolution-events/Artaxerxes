@@ -45,11 +45,7 @@
   <%= @user.hide_last_name %>
 </p>
 
-<p>
-  <strong>Address:</strong>
-  <%= @user.address %>
-</p>
-
+<%= render partial: "address", locals: { address: @user.address } %>
 <p>
   <strong>Medical details:</strong>
   <%= @user.medical_details.map &:to_s %>

@@ -1,0 +1,9 @@
+<h2><%= t('user.address.label') %></h2>
+<% if address %>
+  <%= address.address %>
+  <%= address.postal_code %> <%= address.city %>
+  <%= address.country %>
+<% else %>
+  <p><%= t('user.address.notfound') %></p>
+<% end %>
+

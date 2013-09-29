@@ -23,4 +23,6 @@ en:
   user:
     remember_address: "Remember my address for future registrations"
     remember_emergency_contacts: "Remember my emergency contacts for future registrations"
-
+    address:
+      label: "Address"
+      notfound: "Address not found"

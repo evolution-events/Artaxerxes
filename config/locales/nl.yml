@@ -222,3 +222,7 @@ nl:
   user:
     remember_address: "Onthoud mijn adres voor toekomstige inschrijvingen"
     remember_emergency_contacts: "Onthoud mijn noodcontacten voor toekomstige inschrijvingen" #this is f*cking ugly
+    address:
+      label: "Adres"
+      notfound: "Adres niet gevonden"
+

@@ -1,0 +1,15 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  name: Matthijs Kooijman
+  relation: partner
+  phone_number: +31687654321
+  remarks: 
+  user: brenda
+
+two:
+  name: Kees
+  relation: parent
+  phone_number: +316888888888
+  remarks: 
+  user: matthijs

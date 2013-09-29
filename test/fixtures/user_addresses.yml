@@ -1,0 +1,15 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  address: Kalverstraat 1
+  postal_code: 1234AA
+  city: Amsterdam
+  country: NL
+  user_id: matthijs
+
+two:
+  address: Dorpstraat 10
+  postal_code: 0000AB
+  city: Ons Dorp
+  country: NL
+  user_id: rené

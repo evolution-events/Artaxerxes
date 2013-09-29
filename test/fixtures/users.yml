@@ -1,0 +1,31 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+brenda:
+  first_name: Brenda
+  preposition: 
+  last_name: Hellenthal
+  username: brenda
+  birthdate: 1981-01-10
+  phone_number: +31612345678
+  remember_address: false
+  remember_emergency_contacts: true
+
+matthijs:
+  first_name: Matthijs
+  preposition: 
+  last_name: Kooijman
+  username: matthijs
+  birthdate: 1989-02-03
+  phone_number: +31687654321
+  remember_address: true
+  remember_emergency_contacts: true
+
+rené:
+  first_name: René
+  preposition: van den 
+  last_name: Berg
+  username: rene
+  birthdate: 1980-03-01
+  phone_number: +31601010101
+  remember_address: true
+  remember_emergency_contacts: false

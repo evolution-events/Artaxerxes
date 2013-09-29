@@ -1,0 +1,14 @@
+<h2><%= t('dashboard.registrations') %></h2>
+<%=
+if user.registrations.any? then
+  content_tag('ul') do
+    content_tag('li') do
+      render partial: "registration", collection: user.registrations
+    end
+  end
+else
+  content_tag('p') do
+    t('dashboard.no_registrations')
+  end
+end
+%>

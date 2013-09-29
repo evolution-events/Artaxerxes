@@ -35,3 +35,5 @@ en:
   dashboard:
     future_events: "Future Events"
     no_future_events: "No future events"
+    registrations: "Registrations"
+    no_registrations: "No registrations"

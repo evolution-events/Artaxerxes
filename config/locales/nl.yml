@@ -234,3 +234,5 @@ nl:
   dashboard:
     future_events: "Toekomstige evenementen"
     no_future_events: "Geen toekomstige evenementen"
+    registrations: "Inschrijvingen"
+    no_registrations: "Geen inschrijvingen"

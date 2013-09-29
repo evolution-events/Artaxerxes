@@ -19,8 +19,8 @@
 # To learn more, please read the Rails Internationalization guide
 # available at http://guides.rubyonrails.org/i18n.html.
 
-en:
+nl:
   user:
-    remember_address: "Remember my address for future registrations"
-    remember_emergency_contacts: "Remember my emergency contacts for future registrations"
+    remember_address: "Onthoud mijn adres voor toekomstige inschrijvingen"
+    remember_emergency_contacts: "Onthoud mijn noodcontacten voor toekomstige inschrijvingen" #this is f*cking ugly
 

@@ -47,6 +47,16 @@
     <%= f.label :hide_last_name %><br>
     <%= f.check_box :hide_last_name %>
   </div>
+  <div class="field">
+    <%= f.label t('user.remember_emergency_contacts') %><br>
+    <%= f.check_box :remember_emergency_contacts %>
+  </div>
+  <div class="field">
+    <%= f.label t('user.remember_address') %><br>
+    <%= f.check_box :remember_address %>
+  </div>
+
+
   <div class="actions">
     <%= f.submit %>
   </div>

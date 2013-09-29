@@ -5,11 +5,11 @@ one:
   postal_code: 1234AA
   city: Amsterdam
   country: NL
-  user_id: matthijs
+  user: matthijs
 
 two:
   address: Dorpstraat 10
   postal_code: 0000AB
   city: Ons Dorp
   country: NL
-  user_id: rené
+  user: rené

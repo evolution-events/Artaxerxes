@@ -18,3 +18,7 @@
 # Ignore rvm-generated files
 .ruby-gemset
 .ruby-version
+
+# Ignore vim swap files
+*.swp
+*.swo

@@ -2,18 +2,18 @@
 
 one:
   name: Allergisch
-  type: other_allergy
+  kind: other_allergy
   description: Allergisch voor van alles
   user_id: rené
 
 one:
   name: Chairman
-  type: condition
+  kind: condition
   description: Voorzitter van Evolution Events, dus kan soms wat te lang op de praatstoel zitten...
   user_id: rené
 
 two:
   name: Uitsteller
-  type: condition
+  kind: condition
   description: Chronische uitsteller
   user_id: matthijs

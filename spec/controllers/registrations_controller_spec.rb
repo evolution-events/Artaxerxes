@@ -23,7 +23,7 @@ describe RegistrationsController do
   # This should return the minimal set of attributes required to create a valid
   # Registration. As you add validations to Registration, be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) { { "user" => "" } }
+  let(:valid_attributes) { { "user_id" => "" } }
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
@@ -85,14 +85,14 @@ describe RegistrationsController do
       it "assigns a newly created but unsaved registration as @registration" do
         # Trigger the behavior that occurs when invalid params are submitted
         Registration.any_instance.stub(:save).and_return(false)
-        post :create, {:registration => { "user" => "invalid value" }}, valid_session
+        post :create, {:registration => { "user_id" => "invalid value" }}, valid_session
         assigns(:registration).should be_a_new(Registration)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         Registration.any_instance.stub(:save).and_return(false)
-        post :create, {:registration => { "user" => "invalid value" }}, valid_session
+        post :create, {:registration => { "user_id" => "invalid value" }}, valid_session
         response.should render_template("new")
       end
     end
@@ -106,8 +106,8 @@ describe RegistrationsController do
         # specifies that the Registration created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        Registration.any_instance.should_receive(:update).with({ "user" => "" })
-        put :update, {:id => registration.to_param, :registration => { "user" => "" }}, valid_session
+        Registration.any_instance.should_receive(:update).with({ "user_id" => "" })
+        put :update, {:id => registration.to_param, :registration => { "user_id" => "" }}, valid_session
       end
 
       it "assigns the requested registration as @registration" do
@@ -128,7 +128,7 @@ describe RegistrationsController do
         registration = Registration.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         Registration.any_instance.stub(:save).and_return(false)
-        put :update, {:id => registration.to_param, :registration => { "user" => "invalid value" }}, valid_session
+        put :update, {:id => registration.to_param, :registration => { "user_id" => "invalid value" }}, valid_session
         assigns(:registration).should eq(registration)
       end
 
@@ -136,7 +136,7 @@ describe RegistrationsController do
         registration = Registration.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         Registration.any_instance.stub(:save).and_return(false)
-        put :update, {:id => registration.to_param, :registration => { "user" => "invalid value" }}, valid_session
+        put :update, {:id => registration.to_param, :registration => { "user_id" => "invalid value" }}, valid_session
         response.should render_template("edit")
       end
     end

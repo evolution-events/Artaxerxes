@@ -1,0 +1,14 @@
+<h2><%= t('dashboard.future_events') %></h2>
+<%=
+if @future_events.any? then
+  content_tag('ul') do
+    content_tag('li') do
+      render partial: "future_event", collection: @future_events
+    end
+  end
+else
+  content_tag('p') do
+    t('dashboard.no_future_events')
+  end
+end
+%>

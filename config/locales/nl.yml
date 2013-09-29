@@ -231,3 +231,6 @@ nl:
     emergency_contacts:
       label: "Contactpersonen bij noodgeval"
       notfound: "Geen contactpersonen gevonden"
+  dashboard:
+    future_events: "Toekomstige evenementen"
+    no_future_events: "Geen toekomstige evenementen"

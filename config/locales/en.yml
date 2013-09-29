@@ -32,3 +32,6 @@ en:
     emergency_contacts:
       label: "Emergency contacts"
       notfound: "No emergency contacts found"
+  dashboard:
+    future_events: "Future Events"
+    no_future_events: "No future events"

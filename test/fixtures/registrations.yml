@@ -1,0 +1,16 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  user: brenda
+  event: exit2_take1 
+  status: active
+
+two:
+  user: matthijs
+  event: xenophobia1
+  status: active
+
+three:
+  user: rené
+  event: exit2_take1
+  status: canceled

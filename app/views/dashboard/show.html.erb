@@ -2,4 +2,6 @@
 
 <%= render partial: 'future_events' %>
 
-<%= render partial: 'registrations', locals: { user: @current_user } %>
+<% if @current_user %>
+  <%= render partial: 'registrations', locals: { user: @current_user } %>
+<% end %>

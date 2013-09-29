@@ -29,7 +29,7 @@ extinction:
   location_info: Koningin Wilhelminalaan 24, best ver weg en een hoop werk om schoon te maken
   description: Lovecraftian horror in 1927. Nou ja, ...
   url: http://extinction.evolution-events.nl
-  series: 
+  series:
 
 xenophobia1:
   name: Xenophobia 1
@@ -39,5 +39,16 @@ xenophobia1:
   location_name: De Blokken
   location_info: Ligt in Baarle Nassau en heeft een awesome beheerder
   description: post-post-apo larp enzo
-  url: http://xenophobia.evolution-events.nl
+  url:
+  series: xenophobia
+
+xenophobia2:
+  name: Xenophobia 2
+  title:
+  start_date: 2014-03-21
+  end_date: 2014-03-23
+  location_name: "'t Campvelt"
+  location_info: Ergens in the middle of Doornspijk
+  description: post-post-apo larp 2, en niemand weet waar ze zitten. En iets met Kinderpostzegels.
+  url:
   series: xenophobia

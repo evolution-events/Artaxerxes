@@ -1,5 +1,5 @@
 Xerxes::Application.routes.draw do
-  root to: 'users#index'
+  root to: 'dashboard#show'
 
   resources :registrations
 

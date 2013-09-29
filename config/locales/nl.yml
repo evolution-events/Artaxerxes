@@ -225,4 +225,6 @@ nl:
     address:
       label: "Adres"
       notfound: "Adres niet gevonden"
+    medical_detail:
+      label: "Medische informatie"
 

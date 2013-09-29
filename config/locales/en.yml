@@ -26,3 +26,5 @@ en:
     address:
       label: "Address"
       notfound: "Address not found"
+    medical_detail:
+      label: "Medical detail"

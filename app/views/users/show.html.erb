@@ -46,10 +46,9 @@
 </p>
 
 <%= render partial: "address", locals: { address: @user.address } %>
-<p>
-  <strong>Medical details:</strong>
-  <%= @user.medical_details.map &:to_s %>
-</p>
+
+<h2><%= t('user.medical_detail.label') %></h2>
+<%= render partial: "medical_detail", collection: @user.medical_details %>
 
 <p>
   <strong>In case of emergency contact:</strong>

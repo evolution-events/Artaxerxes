@@ -227,4 +227,4 @@ nl:
       notfound: "Adres niet gevonden"
     medical_detail:
       label: "Medische informatie"
-
+      notfound: "Geen medische informatie gevonden"

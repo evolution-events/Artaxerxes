@@ -47,8 +47,7 @@
 
 <%= render partial: "address", locals: { address: @user.address } %>
 
-<h2><%= t('user.medical_detail.label') %></h2>
-<%= render partial: "medical_detail", collection: @user.medical_details %>
+<%= render partial: "medical_details" %>
 
 <p>
   <strong>In case of emergency contact:</strong>

@@ -48,6 +48,17 @@ ActiveRecord::Schema.define(version: 20130929090627) do
     t.datetime "updated_at"
   end
 
+  create_table "registrations", force: true do |t|
+    t.integer  "user_id"
+    t.integer  "event_id"
+    t.string   "status"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "registrations", ["event_id"], name: "index_registrations_on_event_id"
+  add_index "registrations", ["user_id"], name: "index_registrations_on_user_id"
+
   create_table "series", force: true do |t|
     t.string   "name"
     t.string   "url"

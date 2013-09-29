@@ -1,4 +1,6 @@
 Xerxes::Application.routes.draw do
+  resources :registrations
+
   resources :users
 
   resources :events

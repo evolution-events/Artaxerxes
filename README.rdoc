@@ -1,3 +1,5 @@
+{<img src="https://travis-ci.org/matthijskooijman/xerxes.png?branch=master" alt="Build Status" />}[https://travis-ci.org/matthijskooijman/xerxes]
+
 == README
 
 This README would normally document whatever steps are necessary to get the

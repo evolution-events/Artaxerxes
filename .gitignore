@@ -22,3 +22,6 @@
 # Ignore vim swap files
 *.swp
 *.swo
+
+# Everyone can have their own secret token in development
+/config/secret_token

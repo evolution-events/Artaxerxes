@@ -7,6 +7,12 @@
 # no regular words or you'll be exposed to dictionary attacks.
 # You can use `rake secret` to generate a secure secret key.
 
+secret_token_file = Rails.root.join('config', 'secret_token')
+
+unless File.file?(secret_token_file)
+  File.write secret_token_filename, SecureRandom.hex(64)
+end
+
 # Make sure your secret_key_base is kept private
 # if you're sharing your code publicly.
-Xerxes::Application.config.secret_key_base = 'e3c25745d81896daa4a3ecd6305cfe5fdfc5987e7edc749c8c71d24b9a2f51dabb1ffc1b150f5b85ed8d0e3c17948d9f553436c1bfa33ef966fcc2f31d5c3511'
+Xerxes::Application.config.secret_key_base = File.read(secret_token_file).chomp

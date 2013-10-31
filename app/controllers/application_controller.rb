@@ -6,7 +6,10 @@ class ApplicationController < ActionController::Base
   before_action :set_current_user
 
   def set_current_user
-   @current_user = User.find_by(username: params['current_user'])
+    if params['current_user']
+      session[:user] = params['current_user']
+    end
+    @current_user = User.find_by(username: session[:user])
   end
 end
 

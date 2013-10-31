@@ -10,7 +10,7 @@
 secret_token_file = Rails.root.join('config', 'secret_token')
 
 unless File.file?(secret_token_file)
-  File.write secret_token_filename, SecureRandom.hex(64)
+  File.write secret_token, SecureRandom.hex(64)
 end
 
 # Make sure your secret_key_base is kept private

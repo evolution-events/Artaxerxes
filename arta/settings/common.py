@@ -51,7 +51,7 @@ USE_TZ = True
 
 # This list of languages will be provided
 LANGUAGES = (
-    ('nl', _('Dutch'))
+    ('nl', _('Dutch')),
     ('en', _('English')),
 )
 

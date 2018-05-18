@@ -2,6 +2,8 @@
 from os.path import abspath, basename, dirname, join, normpath
 import sys
 
+# Django imports
+from django.utils.translation import ugettext_lazy as _
 
 # ##### PATH CONFIGURATION ################################
 
@@ -34,6 +36,24 @@ PROJECT_TEMPLATES = [
 # add apps/ to the Python path
 sys.path.append(normpath(join(PROJECT_ROOT, 'apps')))
 
+# ##### Internationalization ##############################
+LANGUAGE_CODE = 'nl'
+TIME_ZONE = 'Europe/Amsterdam'
+
+# Internationalization
+USE_I18N = True
+
+# Localisation
+USE_L10N = True
+
+# enable timezone awareness by default
+USE_TZ = True
+
+# This list of languages will be provided
+LANGUAGES = (
+    ('nl', _('Dutch'))
+    ('en', _('English')),
+)
 
 # ##### APPLICATION CONFIGURATION #########################
 
@@ -51,6 +71,7 @@ DEFAULT_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',

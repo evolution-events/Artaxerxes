@@ -4,6 +4,8 @@ exclude =
     doc,
     __pycache__,
     .tox,
+    */wsgi.py,
+    manage.py,
 
 ignore =
     # as per Django's Coding Style

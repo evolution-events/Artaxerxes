@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import ArtaUser, Address
+from .models import ArtaUser, Address, EmergencyContact
 
 
 class AddressInline(admin.StackedInline):
@@ -10,8 +10,15 @@ class AddressInline(admin.StackedInline):
     extra = 0
 
 
+class EmergencyContactInline(admin.StackedInline):
+    model = EmergencyContact
+    can_delete = True
+    max_num = EmergencyContact.MAX_PER_USER
+    extra = 0
+
+
 class ArtaUserAdmin(UserAdmin):
-    inlines = (AddressInline, )
+    inlines = (AddressInline, EmergencyContactInline,)
     list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'is_active')
 
 

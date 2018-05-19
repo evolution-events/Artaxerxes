@@ -11,3 +11,4 @@ django = "*"
 
 [dev-packages]
 "flake8" = "*"
+coverage = "*"

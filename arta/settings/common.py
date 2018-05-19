@@ -65,6 +65,7 @@ DEFAULT_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'apps.people.apps.PeopleConfig',
 ]
 
 # Middlewares
@@ -102,6 +103,8 @@ TEMPLATES = [
 # Internationalization
 USE_I18N = False
 
+# #### USER CONFIGURATION #################################
+AUTH_USER_MODEL = 'people.ArtaUser'
 
 # ##### SECURITY CONFIGURATION ############################
 

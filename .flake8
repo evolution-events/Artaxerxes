@@ -11,6 +11,14 @@ exclude =
 ignore =
     # as per Django's Coding Style
     W601,
+    # Python2-specific comma warnings
+    C814,
+    # Do not require presence of docstrings (which is not always useful
+    # for modules, or small inline classes such as Meta classes in
+    # django).
+    D100, D101, D102, D104, D105, D106
+
+# TODO: Enable B902, if https://github.com/PyCQA/flake8-bugbear/issues/19 is fixed
 
 # This requires the flake8-per-file-ignores package to be installed
 per-file-ignores =

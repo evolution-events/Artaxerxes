@@ -12,6 +12,15 @@ ignore =
     # as per Django's Coding Style
     W601,
 
+# This requires the flake8-per-file-ignores package to be installed
+per-file-ignores =
+  # Settings use `import *`, which is usually not a great idea, but
+  # cannot be helped in the settings, so ignore errors resulting from
+  # this. It might be more explicit to put this exception in the files
+  # themselves, but flake8 does not support this.
+  # https://gitlab.com/pycqa/flake8/issues/399
+  arta/settings/*.py:F401,F403,F405
+
 # Build an own format string
 format = %(code)s %(path)s::%(row)s %(text)s
 

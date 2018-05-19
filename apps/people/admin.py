@@ -7,6 +7,7 @@ class AddressInline(admin.StackedInline):
     model = Address
     can_delete = True
     fk_name = 'user'
+    extra = 0
 
 
 class ArtaUserAdmin(UserAdmin):

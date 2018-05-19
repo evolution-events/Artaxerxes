@@ -5,10 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 
 
 class EmergencyContact(models.Model):
-    """
-    Contact information of the person whom should be notified when an
-    emergency occurred which involved the user that this EmergencyContact is connected to.
-    """
+    """Contact information a person to be notified in an emergency involving the associated user."""
 
     MAX_PER_USER = 3
 

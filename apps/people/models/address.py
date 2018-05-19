@@ -5,9 +5,8 @@ from django.utils.translation import ugettext_lazy as _
 
 
 class Address(models.Model):
-    """
-    Address information linked to a single ArtaUser
-    """
+    """Address information linked to a single ArtaUser."""
+
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     address = models.CharField(max_length=100, verbose_name=_('Address'))
     postalcode = models.CharField(max_length=10, verbose_name=_('Postal code'))

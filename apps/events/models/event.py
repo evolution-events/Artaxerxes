@@ -7,9 +7,8 @@ from .registration import Registration
 
 
 class Event(models.Model):
-    """
-    Information about an Event.
-    """
+    """Information about an Event."""
+
     series = models.ForeignKey(Series, null=True, blank=True, verbose_name=_('Series this event is part of'), on_delete=models.CASCADE)
     title = models.CharField(max_length=100, verbose_name=_('Title'), help_text=_('Actual subtitle when within series. Do not forget the X when this is your only title.'))
     description = models.TextField(verbose_name=_('Description'), help_text=_('Event details like what is included or not'))

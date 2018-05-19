@@ -5,9 +5,11 @@ from django.utils.translation import ugettext_lazy as _
 
 class Registration(models.Model):
     """
-    Information about a Registration. A Registration is the link between a User
-    and an Event.
+    Information about a Registration.
+
+    A Registration is the link between a User and an Event.
     """
+
     STATUS_REGISTERED = 0
     STATUS_WAITINGLIST = 1
     STATUS_CANCELLED = 2

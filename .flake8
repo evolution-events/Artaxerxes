@@ -6,6 +6,7 @@ exclude =
     .tox,
     */wsgi.py,
     manage.py,
+    */migrations/*,
 
 ignore =
     # as per Django's Coding Style

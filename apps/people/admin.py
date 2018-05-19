@@ -1,7 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .models import ArtaUser, Address
-from django.utils.translation import gettext as _, ngettext, ugettext_lazy
 
 
 class AddressInline(admin.StackedInline):

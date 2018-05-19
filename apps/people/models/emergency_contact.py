@@ -13,7 +13,8 @@ class EmergencyContact(models.Model):
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     contact_name = models.CharField(max_length=100, verbose_name=_('Name of contact'))
-    relation = models.CharField(max_length=100, verbose_name=_('Relation to contact'), help_text=_('For example: parent, partner, friend etc.'))
+    relation = models.CharField(max_length=100, verbose_name=_('Relation to contact'),
+                                help_text=_('For example: parent, partner, friend etc.'))
     phone_number = models.CharField(max_length=100, verbose_name=_('Phone number of contact'))
     remarks = models.TextField(verbose_name=_('Remarks'))
 

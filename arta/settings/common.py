@@ -66,6 +66,7 @@ DEFAULT_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'apps.people.apps.PeopleConfig',
+    'apps.events.apps.EventsConfig',
 ]
 
 # Middlewares

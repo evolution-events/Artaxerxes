@@ -24,7 +24,9 @@ class Registration(models.Model):
     status = models.IntegerField(verbose_name=_('Status'), choices=STATUS_CHOICES, null=False)
 
     def __str__(self):
-        return _('%(user)s - %(event)s - %(status)s') % {'user': self.user, 'event': self.event, 'status': self.get_status_display()}
+        return _('%(user)s - %(event)s - %(status)s') % {
+            'user': self.user, 'event': self.event, 'status': self.get_status_display()
+        }
 
     class Meta:
         verbose_name = _('registration')

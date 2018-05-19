@@ -19,9 +19,9 @@ class EventAdmin(admin.ModelAdmin):
 class RegistrationAdmin(admin.ModelAdmin):
     list_display = ('event_title', 'user_name', 'status')
     # add a search field to quickly search by name and title
-    search_fields = [ 'user__first_name', 'user__last_name', 'event__title', 'event__series__name']
+    search_fields = ['user__first_name', 'user__last_name', 'event__title', 'event__series__name']
     list_select_related = ['user', 'event__series']
-    list_filter = ['status', ]
+    list_filter = ['status']
 
     def event_title(self, obj):
         if obj.event.series:

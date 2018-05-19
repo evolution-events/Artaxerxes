@@ -25,7 +25,7 @@ class Registration(models.Model):
 
     def __str__(self):
         return _('%(user)s - %(event)s - %(status)s') % {
-            'user': self.user, 'event': self.event, 'status': self.get_status_display()
+            'user': self.user, 'event': self.event, 'status': self.get_status_display(),
         }
 
     class Meta:

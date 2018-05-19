@@ -20,7 +20,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': join(PROJECT_ROOT, 'run', 'dev.sqlite3'),
-    }
+    },
 }
 
 # ##### APPLICATION CONFIGURATION #########################

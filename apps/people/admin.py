@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import ArtaUser, Address, EmergencyContact
+
+from .models import Address, ArtaUser, EmergencyContact
 
 
 class AddressInline(admin.StackedInline):

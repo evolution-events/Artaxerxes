@@ -1,7 +1,6 @@
 # Python imports
 from os.path import join
 
-# project imports
 from .common import *
 
 # ##### DEBUG CONFIGURATION ###############################

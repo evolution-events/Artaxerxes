@@ -1,8 +1,7 @@
 # Python imports
-from os.path import abspath, basename, dirname, join, normpath
 import sys
+from os.path import join, abspath, dirname, basename, normpath
 
-# Django imports
 from django.utils.translation import ugettext_lazy as _
 
 # ##### PATH CONFIGURATION ################################

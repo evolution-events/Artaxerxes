@@ -1,6 +1,8 @@
 from django.contrib import admin
-from .models import Series, Event, Registration
-from django.utils.translation import gettext as _, ugettext_lazy
+from django.utils.translation import gettext as _
+from django.utils.translation import ugettext_lazy
+
+from .models import Event, Series, Registration
 
 
 class EventAdmin(admin.ModelAdmin):

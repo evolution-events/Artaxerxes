@@ -1,0 +1,19 @@
+language: python
+python:
+  - "3.5"
+  - "3.6"
+
+services:
+
+env:
+
+install:
+  - pip install pipenv
+  - pipenv sync --dev
+
+script:
+  - pipenv run -- coverage run ./manage.py test
+  - pipenv run flake8
+
+after_success:
+  - coverage report -m

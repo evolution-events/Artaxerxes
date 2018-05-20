@@ -9,11 +9,14 @@ env:
 
 install:
   - pip install pipenv
-  - pipenv sync --dev
+    # This should really be sync instead of install, but that doesn't
+    # have --system: https://github.com/pypa/pipenv/issues/2227
+  - pipenv install --system --ignore-pipfile --deploy --dev
 
 script:
-  - pipenv run -- coverage run ./manage.py test
-  - pipenv run flake8
+  - make flake8
+  - make check
+  - make test
 
 after_success:
   - coverage report -m

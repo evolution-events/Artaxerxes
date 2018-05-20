@@ -31,6 +31,9 @@ all:
 	@echo "  test/dev     Runs the tests with development settings"
 	@echo "  test/prod    Runs the tests with production settings"
 	@echo "  update/dev   Shortcut for setup and refresh"
+	@echo "  shell        Create a virtualenv (if needed) and run a shell"
+	@echo "                 inside it. All other commands should be run"
+	@echo "                 inside this shell"
 
 
 # performs the tests and measures code coverage
@@ -50,7 +53,7 @@ clean:
 ensure_virtual_env:
 	@if [ -z $$VIRTUAL_ENV ]; then \
 		echo "You don't have a virtualenv enabled."; \
-		echo "Please enable the virtualenv first!"; \
+		echo "Please enable the virtualenv first (make shell)!"; \
 		exit 1; \
 	fi
 
@@ -87,7 +90,7 @@ migrate: ensure_virtual_env
 # sets up the development environment by installing required dependencies,
 #	migrates the apps and creates a dummy user (django::django)
 setup/dev: ensure_virtual_env
-	@pip install -r requirements/development.txt
+	@pipenv sync --dev
 	$(MAKE) migrate DJANGO_TEST_SETTINGS_FILE=development
 	@echo "from django.contrib.auth.models import User; User.objects.filter(email='admin@example.com').delete(); User.objects.create_superuser(username='django', email='admin@example.com', password='django')" | python manage.py shell
 
@@ -106,3 +109,7 @@ refresh/prod:
 	$(MAKE) refresh DJANGO_TEST_SETTINGS_FILE=production
 
 update/dev: setup/dev refresh/dev
+
+# runs a shell inside the virtualenv created by pipenv
+shell:
+	pipenv shell

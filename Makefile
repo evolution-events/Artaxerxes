@@ -8,29 +8,27 @@ DJANGO_TEST_POSTFIX := --settings=$(DJANGO_TEST_SETTINGS) --pythonpath=$(PYTHONP
 
 
 .PHONY: all clean coverage ensure_virtual_env flake8 flake lint \
-		test test/dev test/prod \
-		migrate setup/dev refresh refresh/dev refresh/prod update/dev
+		django_check check test test/dev test/prod migrate \
+		setup update shell
 
 
 all:
 	@echo "Hello $(LOGNAME)! Welcome to django-project-skeleton"
 	@echo ""
 	@echo "  clean        Removes all temporary files"
+	@echo "  check        Run all relevant pre-commit checks"
 	@echo "  coverage     Runs the tests and shows code coverage"
 	@echo "  flake8       Runs flake8 to check for PEP8 compliance"
-	@echo "                 = flake / lint"
+	@echo "  django_check Runs django's check command"
 	@echo "  migrate      Applies all migrations"
-	@echo "  refresh      Refreshes the project by migrating the apps and"
-	@echo "                 collecting static assets"
-	@echo "  refresh/dev  Refreshes with development settings"
-	@echo "  refresh/prod Refreshes with production settings"
-	@echo "  setup/dev    Sets up a development environment by installing"
-	@echo "                 necessary apps, running migrations and creating"
-	@echo "                 a superuser (django::django)"
+	@echo "  update       Update the development environment (after pulling in"
+	@echo "                 changes), syncing dependencies, running migrations,"
+	@echo "                 etc."
+	@echo "  setup        Sets up a development environment by installing"
+	@echo "                 necessary apps, running migrations, etc."
 	@echo "  test         Runs the tests"
 	@echo "  test/dev     Runs the tests with development settings"
 	@echo "  test/prod    Runs the tests with production settings"
-	@echo "  update/dev   Shortcut for setup and refresh"
 	@echo "  shell        Create a virtualenv (if needed) and run a shell"
 	@echo "                 inside it. All other commands should be run"
 	@echo "                 inside this shell"
@@ -57,6 +55,9 @@ ensure_virtual_env:
 		exit 1; \
 	fi
 
+# Run all pre-commit checks
+check: flake8 django_check test
+
 
 # runs flake8 to check for PEP8 compliance
 flake8: ensure_virtual_env
@@ -66,13 +67,15 @@ flake: flake8
 
 lint: flake8
 
+# runs some django checks for common problems
+django_check: ensure_virtual_env
+	@$(PYTHON_BIN)/coverage run $(PYTHON_BIN)/django-admin.py check $(DJANGO_TEST_POSTFIX)
 
 # runs the tests
-#	While we just have a bare project layout, this is more or less a dummy.
 test: ensure_virtual_env
 	@echo "Using setting file '$(DJANGO_TEST_SETTINGS_FILE)'..."
 	@echo ""
-	@$(PYTHON_BIN)/coverage run $(PYTHON_BIN)/django-admin.py check $(DJANGO_TEST_POSTFIX)
+	@$(PYTHON_BIN)/coverage run $(PYTHON_BIN)/django-admin.py test $(DJANGO_TEST_POSTFIX)
 
 # runs the tests with development settings
 test/dev:
@@ -82,33 +85,19 @@ test/dev:
 test/prod:
 	$(MAKE) test DJANGO_TEST_SETTINGS_FILE=production
 
-
 # migrates the installed apps
 migrate: ensure_virtual_env
 	$(PYTHON_BIN)/django-admin.py migrate $(DJANGO_TEST_POSTFIX)
 
 # sets up the development environment by installing required dependencies,
-#	migrates the apps and creates a dummy user (django::django)
-setup/dev: ensure_virtual_env
-	@pipenv sync --dev
-	$(MAKE) migrate DJANGO_TEST_SETTINGS_FILE=development
-	@echo "from django.contrib.auth.models import User; User.objects.filter(email='admin@example.com').delete(); User.objects.create_superuser(username='django', email='admin@example.com', password='django')" | python manage.py shell
+setup: ensure_virtual_env
+	$(MAKE) refresh
 
-# refreshes the project by migrating and collecting static assets
+# refreshes the project by updating dependencies and running migrations
 refresh: ensure_virtual_env
 	$(MAKE) clean
+	@pipenv sync --dev
 	$(MAKE) migrate
-	$(PYTHON_BIN)/django-admin.py collectstatic --noinput $(DJANGO_TEST_POSTFIX)
-
-# refreshes with development settings
-refresh/dev:
-	$(MAKE) refresh DJANGO_TEST_SETTINGS_FILE=development
-
-# refreshes with production settings
-refresh/prod:
-	$(MAKE) refresh DJANGO_TEST_SETTINGS_FILE=production
-
-update/dev: setup/dev refresh/dev
 
 # runs a shell inside the virtualenv created by pipenv
 shell:

@@ -1,0 +1,11 @@
+{% load i18n %}
+
+<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="{% url 'people:index' %}" id="dropdownpeople" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Personal' %}</a>
+    <div class="dropdown-menu" aria-labelledby="dropdownpeople">
+        <a class="dropdown-item" href="{% url 'people:index' %}">{% trans 'Index' %}</a>
+        <a class="dropdown-item" href="#">{% trans 'Personal information' %}</a>
+        <a class="dropdown-item" href="#">{% trans 'Medical information' %}</a>
+        <a class="dropdown-item" href="#">{% trans 'Emergency contacts' %}</a>
+    </div>
+</li>

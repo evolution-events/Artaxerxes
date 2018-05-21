@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 
 def main_index_view(request):
         """
-        A welcoming page to the user
+        Present a welcoming page to the user.
 
         TODO: dit willen we hier niet houden, maar we moeten even uitzoeken waar het wel heen moet
         """
@@ -14,7 +14,5 @@ def main_index_view(request):
 
 @login_required
 def person_index_view(request):
-        """
-        A welcoming page to the user
-        """
+        """Render a list of users."""
         return render(request, 'people/index.html', {'user': request.user})

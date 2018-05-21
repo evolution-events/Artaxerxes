@@ -9,6 +9,7 @@ python_version = "3.5"
 [packages]
 django = "*"
 django-reversion = "*"
+django-allauth = "*"
 
 [dev-packages]
 "flake8" = "*"

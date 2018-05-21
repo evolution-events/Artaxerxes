@@ -103,3 +103,15 @@
     date_joined: 2018-05-21 12:45:08+00:00
     groups: []
     user_permissions: []
+- model: events.event
+  pk: 1
+  fields: {series: 1, name: '', title: De Waard, description: "In de prijs is inbegrepen:
+      slaapplaatsen, avondeten op zaterdag, ontbijt/lunch, aanmaaklimonade, thee en
+      koffie.\r\n\r\nZorg ervoor dat je nu zo snel mogelijk betaalt, dan is je inschrijving\r\ncompleet.
+      Betalen kan door ${registration::price} over te maken op NL52INGB0001297429
+      \r\nten name van Evolution Events, Capelle a/d IJssel. Vermeld bij de\r\nboeking
+      het volgende:\r\n\r\n\t${event::Naam} / ${registrant::Naam} / Nr ${registration::id}\r\n\r\nVoor
+      nieuwe spelers: op de site vind je informatie over het schrijven van een personage.",
+    start_date: 2015-03-13, end_date: 2015-05-15, url: '', email: '', location_name: De
+      Veldhoeve, location_url: 'https://www.ivn.nl/veldhoeve', location_info: "Zuideresweg
+      10\r\n9441 TZ\r\nOrvelte"}

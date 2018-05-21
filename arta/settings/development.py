@@ -26,3 +26,7 @@ DATABASES = {
 # ##### APPLICATION CONFIGURATION #########################
 
 INSTALLED_APPS = DEFAULT_APPS
+
+FIXTURE_DIRS = [
+    join(PROJECT_ROOT, 'fixtures'),
+]

@@ -6,6 +6,7 @@ from django.utils.translation import ugettext_lazy
 from .models import Event, Series, Registration
 
 
+@admin.register(Event)
 class EventAdmin(VersionAdmin):
     list_display = ('event_title', 'start_date', 'end_date', 'location_name')
 
@@ -17,6 +18,7 @@ class EventAdmin(VersionAdmin):
     event_title.short_description = ugettext_lazy("Series: title")
 
 
+@admin.register(Registration)
 class RegistrationAdmin(VersionAdmin):
     list_display = ('event_title', 'user_name', 'status')
     # add a search field to quickly search by name and title
@@ -36,12 +38,6 @@ class RegistrationAdmin(VersionAdmin):
     user_name.short_description = ugettext_lazy("User")
 
 
+@admin.register(Series)
 class SeriesAdmin(VersionAdmin):
         pass
-
-
-# Register your models here.
-
-admin.site.register(Series, SeriesAdmin)
-admin.site.register(Event, EventAdmin)
-admin.site.register(Registration, RegistrationAdmin)

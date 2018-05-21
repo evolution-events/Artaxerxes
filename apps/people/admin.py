@@ -19,11 +19,7 @@ class EmergencyContactInline(admin.StackedInline):
     extra = 0
 
 
+@admin.register(ArtaUser)
 class ArtaUserAdmin(UserAdmin, VersionAdmin):
     inlines = (AddressInline, EmergencyContactInline)
     list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'is_active')
-
-
-# Register your models here.
-
-admin.site.register(ArtaUser, ArtaUserAdmin)

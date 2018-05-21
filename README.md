@@ -1,31 +1,25 @@
 Initial setup
 =============
-Unless otherwise specified, run these from the root directory after
-cloning this repository.
+To create enter the virtual environment (can be used later as well):
 
- - Create a virtual environment using `pipenv`:
+        make shell
 
-        pipenv --three
+To install dependencies and create the initial environment:
 
- - Activate the virtual environment (should be used whenever working
-   with this repository later as well):
+        make setup
 
-        pipenv shell
-
- - Install all dependencies (can later be used to upate to newer package
-   versions committed to Pipfile.lock as well):
-
-        pipenv sync
-
- - Create an initial database (can later be used to upgrade the database
-   as well).
-
-        ./manage.py migrate
-
- - Create an initial super user:
+To create an initial user:
 
         ./manage.py createsuperuser
 
- - Run a development server:
+Later, you can update the environment (install new dependencies when
+Pipfile/Pipfile.lock changed, or run new migrations):
 
-        ./manage.py runserver
+        make update
+
+Before committing / pushing
+===========================
+To check your code complies to the formatting guidelines and passes
+tests, run:
+
+        make check

@@ -4,20 +4,22 @@ The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/1.11/topics/http/urls/
 """
 from django.contrib import admin
-# Django imports
 from django.conf.urls import url, include
-from django.contrib.auth import views as auth_views
+from django.contrib.auth.decorators import login_required
 
 from apps.people import views as people_views
+
+# Workaround to let the admin site use the regular login form instead of its own, see
+# https://django-allauth.readthedocs.io/en/latest/advanced.html#admin
+# TODO: This does not work when a user is logged in, but does not have admin site permissions.
+admin.site.login = login_required(admin.site.login)
+
 
 urlpatterns = [
     # Examples:
     # url(r'^blog/', include('blog.urls', namespace='blog')),
 
-    # provide the most basic login/logout functionality
-    url(r'^login/$', auth_views.login,
-        {'template_name': 'core/login.html'}, name='core_login'),
-    url(r'^logout/$', auth_views.logout, name='core_logout'),
+    url(r'^accounts/', include('allauth.urls')),
 
     # enable the admin interface
     url(r'^admin/', admin.site.urls),

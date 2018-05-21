@@ -61,7 +61,12 @@ DEFAULT_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'reversion',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
     'apps.people.apps.PeopleConfig',
     'apps.events.apps.EventsConfig',
 ]
@@ -92,6 +97,7 @@ TEMPLATES = [
                 'django.template.context_processors.media',
                 'django.template.context_processors.static',
                 'django.template.context_processors.tz',
+                'django.template.context_processors.request',
                 'django.contrib.messages.context_processors.messages',
             ],
         },
@@ -103,6 +109,16 @@ USE_I18N = False
 
 # #### USER CONFIGURATION #################################
 AUTH_USER_MODEL = 'people.ArtaUser'
+
+AUTHENTICATION_BACKENDS = (
+    # Normal password authentication. TODO: Needed?
+    'django.contrib.auth.backends.ModelBackend',
+    # Allauth for login by e-mail or using external parties
+    'allauth.account.auth_backends.AuthenticationBackend',
+)
+
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = "optional"
 
 # ##### SECURITY CONFIGURATION ############################
 

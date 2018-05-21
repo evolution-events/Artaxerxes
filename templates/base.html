@@ -48,13 +48,13 @@
         {% block footer %}
         {% if user.is_authenticated %}
             <span class="welcome-user d-none d-md-inline">{% trans "Welcome" %} {{ user.get_full_name }}</span>
-            <a class="btn btn-sm btn-default" role="button" href="{% url 'core_logout' %}">{% trans "Log out" %}</a>
+            <a class="btn btn-sm btn-default" role="button" href="{% url 'account_logout' %}">{% trans "Log out" %}</a>
             <!--<a class="btn btn-sm btn-default" role="button" href="{# url 'password_change' #}">{% trans "Change password" %}</a>-->
             {% if user.is_staff %}
                 <a class="btn btn-sm btn-info" role="button" href="{% url 'admin:index' %}">{% trans "Admin" %}</a>
             {% endif %}
         {% else %}
-            <a href="{% url 'core_login' %}">{% trans "Log in" %}</a>
+            <a href="{% url 'account_login' %}">{% trans "Log in" %}</a>
         {% endif %}
         {% endblock footer %}
     </div>

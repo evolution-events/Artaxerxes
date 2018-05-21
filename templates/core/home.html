@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block pagetitle %}{% trans 'Welcome' %}{% endblock pagetitle%}
+
+
+{% block content %}{% if not user.is_authenticated %}
+	<p>
+	{% url 'login' as login_url %}
+	{% blocktrans trimmed with '<a href="'|add:login_url|add:'">'|safe as login_link and '</a>' as link_end %}
+	Welcome to Artaxerxes, the rigstration system of Evolution Events. Here you can sign up for our events and manage your personal data. Before you can do this, you have to {{login_link}}log in{{ link_end}}. After logging in pay attention to both header and footer of the page for several options to use this platform.
+	{% endblocktrans %}
+	</p>
+{% else %}
+	<p>
+	{% trans 'Welcome to Artaxerxes, the rigstration system of Evolution Events. Here you can sign up for our events and manage your personal data. Pay attention to both header and footer of the page for several options to use this platform.' %}
+	</p>
+{% endif %}
+
+
+{% endblock content%}

@@ -5,8 +5,9 @@ The `urlpatterns` list routes URLs to views. For more information please see:
 """
 from django.contrib import admin
 # Django imports
-from django.conf.urls import url
+from django.conf.urls import include, url
 from django.contrib.auth import views as auth_views
+from apps.people import views as people_views
 
 urlpatterns = [
     # Examples:
@@ -19,4 +20,10 @@ urlpatterns = [
 
     # enable the admin interface
     url(r'^admin/', admin.site.urls),
+
+    # url to the welcome page
+    url(r'^$', people_views.main_index_view, name='main_index_view'),
+
+    url(r'^people/', include('apps.people.urls')), # include urls of the people app
+    url(r'^events/', include('apps.events.urls')), # include urls of the people app
 ]

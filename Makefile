@@ -9,7 +9,7 @@ DJANGO_TEST_POSTFIX := --settings=$(DJANGO_TEST_SETTINGS) --pythonpath=$(PYTHONP
 
 .PHONY: all clean coverage ensure_virtual_env flake8 flake lint \
 		django_check check test test/dev test/prod migrate \
-		setup update shell
+		setup update shell sort
 
 
 all:
@@ -17,6 +17,7 @@ all:
 	@echo ""
 	@echo "  clean        Removes all temporary files"
 	@echo "  check        Run all relevant pre-commit checks"
+	@echo "  sort         Apply proper import sorting"
 	@echo "  coverage     Runs the tests and shows code coverage"
 	@echo "  flake8       Runs flake8 to check for PEP8 compliance"
 	@echo "  django_check Runs django's check command"
@@ -58,6 +59,9 @@ ensure_virtual_env:
 # Run all pre-commit checks
 check: flake8 django_check test
 
+# Fix import sorting
+sort:
+	isort -y
 
 # runs flake8 to check for PEP8 compliance
 flake8: ensure_virtual_env

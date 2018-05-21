@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/evolution-events/Artaxerxes.svg?branch=master)](https://travis-ci.org/evolution-events/Artaxerxes)
+
 Initial setup
 =============
 To create enter the virtual environment (can be used later as well):

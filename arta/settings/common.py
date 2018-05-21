@@ -32,9 +32,6 @@ PROJECT_TEMPLATES = [
     join(PROJECT_ROOT, 'templates'),
 ]
 
-# add apps/ to the Python path
-sys.path.append(normpath(join(PROJECT_ROOT, 'apps')))
-
 # ##### Internationalization ##############################
 LANGUAGE_CODE = 'nl'
 TIME_ZONE = 'Europe/Amsterdam'

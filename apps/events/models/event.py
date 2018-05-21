@@ -13,9 +13,13 @@ class Event(models.Model):
 
     series = models.ForeignKey(
         Series, null=True, blank=True, on_delete=models.CASCADE, verbose_name=_('Series this event is part of'))
+    name = models.CharField(
+        max_length=100, verbose_name=_('Name'),
+        help_text=_('Name of the event. Unique if this is a oneshot, name of the series plus a number if part of a '
+                    'series. Do not forget the X when this is your only title.'))
     title = models.CharField(
-        max_length=100, verbose_name=_('Title'),
-        help_text=_('Actual subtitle when within series. Do not forget the X when this is your only title.'))
+        max_length=100, verbose_name=_('Title'), blank=True,
+        help_text=_('Actual subtitle when within series. Do not forget the X if the name does not contain it.'))
     description = models.TextField(
         verbose_name=_('Description'), help_text=_('Event details like what is included or not'))
     start_date = models.DateField(verbose_name=_('Start date'))
@@ -36,7 +40,10 @@ class Event(models.Model):
     user = models.ManyToManyField(settings.AUTH_USER_MODEL, through=Registration)
 
     def __str__(self):
-        return self.title
+        if not self.title:
+            return self.name
+        else:
+            return "{0}: {1}".format(self.name, self.title)
 
     class Meta:
         verbose_name = _('event')

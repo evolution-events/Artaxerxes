@@ -5,8 +5,9 @@ The `urlpatterns` list routes URLs to views. For more information please see:
 """
 from django.contrib import admin
 # Django imports
-from django.conf.urls import include, url
+from django.conf.urls import url, include
 from django.contrib.auth import views as auth_views
+
 from apps.people import views as people_views
 
 urlpatterns = [

@@ -1,7 +1,9 @@
+import reversion
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 
+@reversion.register()
 class Series(models.Model):
     """Information about a Series of Events."""
 

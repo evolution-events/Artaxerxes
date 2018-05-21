@@ -1,9 +1,11 @@
+import reversion
 from django.db import models
 from django.conf import settings
 from django.utils.translation import gettext
 from django.utils.translation import ugettext_lazy as _
 
 
+@reversion.register()
 class Address(models.Model):
     """Address information linked to a single ArtaUser."""
 

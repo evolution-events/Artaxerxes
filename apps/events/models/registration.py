@@ -1,8 +1,10 @@
+import reversion
 from django.db import models
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 
+@reversion.register()
 class Registration(models.Model):
     """
     Information about a Registration.

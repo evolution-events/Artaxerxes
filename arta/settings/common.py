@@ -61,6 +61,7 @@ DEFAULT_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'reversion',
     'apps.people.apps.PeopleConfig',
     'apps.events.apps.EventsConfig',
 ]

@@ -1,3 +1,4 @@
+import reversion
 from django.db import models
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
@@ -6,6 +7,7 @@ from .series import Series
 from .registration import Registration
 
 
+@reversion.register()
 class Event(models.Model):
     """Information about an Event."""
 

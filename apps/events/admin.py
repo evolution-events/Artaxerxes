@@ -1,11 +1,12 @@
 from django.contrib import admin
+from reversion.admin import VersionAdmin
 from django.utils.translation import gettext as _
 from django.utils.translation import ugettext_lazy
 
 from .models import Event, Series, Registration
 
 
-class EventAdmin(admin.ModelAdmin):
+class EventAdmin(VersionAdmin):
     list_display = ('event_title', 'start_date', 'end_date', 'location_name')
 
     def event_title(self, obj):
@@ -16,7 +17,7 @@ class EventAdmin(admin.ModelAdmin):
     event_title.short_description = ugettext_lazy("Series: title")
 
 
-class RegistrationAdmin(admin.ModelAdmin):
+class RegistrationAdmin(VersionAdmin):
     list_display = ('event_title', 'user_name', 'status')
     # add a search field to quickly search by name and title
     search_fields = ['user__first_name', 'user__last_name', 'event__title', 'event__series__name']
@@ -35,8 +36,12 @@ class RegistrationAdmin(admin.ModelAdmin):
     user_name.short_description = ugettext_lazy("User")
 
 
+class SeriesAdmin(VersionAdmin):
+        pass
+
+
 # Register your models here.
 
-admin.site.register(Series)
+admin.site.register(Series, SeriesAdmin)
 admin.site.register(Event, EventAdmin)
 admin.site.register(Registration, RegistrationAdmin)

@@ -1,4 +1,5 @@
 from django.contrib import admin
+from reversion.admin import VersionAdmin
 from django.contrib.auth.admin import UserAdmin
 
 from .models import Address, ArtaUser, EmergencyContact
@@ -18,7 +19,7 @@ class EmergencyContactInline(admin.StackedInline):
     extra = 0
 
 
-class ArtaUserAdmin(UserAdmin):
+class ArtaUserAdmin(UserAdmin, VersionAdmin):
     inlines = (AddressInline, EmergencyContactInline)
     list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'is_active')
 

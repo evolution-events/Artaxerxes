@@ -24,6 +24,7 @@ class Registration(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=False, on_delete=models.CASCADE)
     event = models.ForeignKey('events.Event', null=False, on_delete=models.CASCADE)
     status = models.IntegerField(verbose_name=_('Status'), choices=STATUS_CHOICES, null=False)
+    registered_at = models.DateTimeField(verbose_name=_('Registration timestamp'), auto_now_add=True, null=False)
 
     def __str__(self):
         return _('%(user)s - %(event)s - %(status)s') % {

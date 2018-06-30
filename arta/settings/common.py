@@ -15,6 +15,9 @@ PROJECT_ROOT = dirname(DJANGO_ROOT)
 # the name of the whole site
 SITE_NAME = basename(DJANGO_ROOT)
 
+# the site ID for contrib.sites
+SITE_ID = 1
+
 # collect static files here
 STATIC_ROOT = join(PROJECT_ROOT, 'run', 'static')
 

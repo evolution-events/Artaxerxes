@@ -123,3 +123,9 @@
     location_name: De Veldhoeve
     location_url: https://www.ivn.nl/veldhoeve
     location_info: "Zuideresweg 10\r\n9441 TZ\r\nOrvelte"
+- model: events.series
+  pk: 1
+  fields:
+    name: Xenophobia
+    url: https://xenophobia.evolution-events.nl
+    email: artaxerxes-test@evolution-events.nl

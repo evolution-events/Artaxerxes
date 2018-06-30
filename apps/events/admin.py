@@ -1,6 +1,5 @@
 from django.contrib import admin
 from reversion.admin import VersionAdmin
-from django.utils.translation import gettext as _
 from django.utils.translation import ugettext_lazy
 
 from .models import Event, Series, Registration
@@ -9,6 +8,7 @@ from .models import Event, Series, Registration
 @admin.register(Event)
 class EventAdmin(VersionAdmin):
     list_display = ('display_name', 'start_date', 'end_date', 'location_name')
+
 
 @admin.register(Registration)
 class RegistrationAdmin(VersionAdmin):

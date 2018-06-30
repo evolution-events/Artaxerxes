@@ -39,11 +39,14 @@ class Event(models.Model):
         verbose_name=('Location information'), help_text=_('Address and additional information about the location'))
     user = models.ManyToManyField(settings.AUTH_USER_MODEL, through=Registration)
 
-    def __str__(self):
+    def display_name(self):
         if not self.title:
             return self.name
         else:
             return "{0}: {1}".format(self.name, self.title)
+
+    def __str__(self):
+        return self.display_name()
 
     class Meta:
         verbose_name = _('event')

@@ -4,7 +4,6 @@
     password: pbkdf2_sha256$100000$UWCYmYSsv24X$NdoT1TDMpenfSQKkg6rtCeHlIkXJajkBEhzevcgq3QA=
     last_login: 2018-05-21 11:55:35+00:00
     is_superuser: true
-    username: Brenda
     first_name: Brenda
     last_name: Hellenthal
     email: brenda@evolution-events.nl
@@ -19,7 +18,6 @@
     password: pbkdf2_sha256$100000$1RJ5vdU7eHkz$XoBjFR2t4Vrhc0XksGcZOFTbkz8YoLDQz3IONtaQtwo=
     last_login: 2018-05-21 12:12:43+00:00
     is_superuser: false
-    username: Cora
     first_name: Cora
     last_name: Korsman
     email: cora@evolution-events.nl
@@ -34,7 +32,6 @@
     password: pbkdf2_sha256$100000$xsqFoTM4fiXW$tqTgOoED73/DamIKurIEcmO4BWNgtX1QzTPw/fRJ2pc=
     last_login: 2018-05-21 12:40:40+00:00
     is_superuser: false
-    username: JanWillem
     first_name: Jan Willem
     last_name: Koudijs
     email: janwillem@evolution-events.nl
@@ -49,7 +46,6 @@
     password: pbkdf2_sha256$100000$mIywSDE1QZX6$cjg6eeAvlk9EtN7IRe/VQYGmgyAa9XvWzPeBg8YBPrg=
     last_login: 2018-05-21 12:42:48+00:00
     is_superuser: false
-    username: Karijn
     first_name: Karijn
     last_name: van der Heij
     email: karijn@evolution-events.nl
@@ -64,7 +60,6 @@
     password: pbkdf2_sha256$100000$JST6AfJWnpu1$ynP/tMYRbmqMEGQAOw7HCLq9trks5QtR8cwbitVpPPo=
     last_login: 2018-05-21 12:43:24+00:00
     is_superuser: true
-    username: Matthijs
     first_name: Matthijs
     last_name: Kooijman
     email: matthijs@evolution-events.nl
@@ -79,7 +74,6 @@
     password: pbkdf2_sha256$100000$QBZJto8WEGXz$eD2qpLUrDZmQNpm0q3DB+dXOLMA+nBXmCWBoGokaURk=
     last_login: 2018-05-21 12:44:28+00:00
     is_superuser: true
-    username: Rene
     first_name: "Ren\xE9"
     last_name: van den Berg
     email: rene@evolution-events.nl
@@ -94,7 +88,6 @@
     password: pbkdf2_sha256$100000$5KsqalhKma5G$pYbhqk23MS+eB8GZWcFQD38tmIjowazeYoX5bZauqPU=
     last_login: 2018-05-21 12:45:06+00:00
     is_superuser: false
-    username: Sander
     first_name: Sander
     last_name: Burger
     email: sander@evolution-events.nl

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block pagetitle %}{% trans 'Event list' %}{% endblock pagetitle%}
+
+
+{% block content %}
+
+<ul>
+{% for e in events %}
+  <li>{{e.display_name}}<br/>
+  {{e.datum}}<br/>
+  <a href="{{e.location_url}}">{{e.location_name}}</a><br/>
+  <p>{{e.description}}</p>
+  </li>
+{% endfor %}
+</ul>
+
+{% endblock content%}

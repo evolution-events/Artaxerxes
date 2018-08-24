@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block pagetitle %}{% trans 'Edit options' %}{% endblock pagetitle%}
+
+{% block content %}
+  {% if message %}
+    <p class="notification">{{ message }}</p>
+  {% endif %}
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <table class="table">
+    {{ opt_form.as_table }}
+    </table>
+    <button class="btn btn-success" type="submit">{% trans 'Save changes' %}</button>
+    <a class="btn btn-default" href="{% url 'events:eventlist' %}" role="button">{% trans 'Cancel' %}</a>
+  </form>
+{% endblock content %}

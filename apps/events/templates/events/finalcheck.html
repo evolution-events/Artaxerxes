@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load tags %}
+
+{% block pagetitle %}{% trans 'Final check' %}{% endblock pagetitle%}
+
+{% block content %}
+  {% if message %}
+    <p class="notification">{{ message }}</p>
+  {% endif %}
+
+  {% trans 'Please check your registration and read and agree to the conditions' %}
+  <h1>{{ event.display_name }}</h1>
+
+  {% if pdetails %}
+  <h2>{% trans 'Personal details' %}</h2>
+  <table class="table">
+      <tr><td>{% trans 'Address' %}</td><td>{{pdetails.address}}</td></tr>
+      <tr><td>{% trans 'Postal code' %}</td><td>{{pdetails.postalcode}}</td></tr>
+      <tr><td>{% trans 'City of residence' %}</td><td>{{pdetails.city}}</td></tr>
+      <tr><td>{% trans 'Country' %}</td><td>{{pdetails.country}}</td></tr>
+  </table>
+  {% endif %}
+
+  {% if mdetails %}
+  <h2>{% trans 'Medical details' %}</h2>
+  <table class="table">
+    <tr><td>{% trans 'Food allergies' %}</td><td>{{mdetails.food_allergies}}</td></tr>
+    <tr><td>{% trans 'Take into account' %}</td><td>{{mdetails.event_risks}}</td></tr>
+  </table>
+  {% endif %}
+
+  <h2>{% trans 'Agree to conditions' %}</h2>
+  <p> TODO: hier de voorwaarden of een link naar de voorwaarden (huisregels?) </p>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <table class="table">
+    {{ fc_form.as_table }}
+    </table>
+    <button class="btn btn-success" type="submit">{% trans 'Save changes' %}</button>
+    <a class="btn btn-default" href="{% url 'events:eventlist' %}" role="button">{% trans 'Cancel' %}</a>
+  </form>
+{% endblock content %}

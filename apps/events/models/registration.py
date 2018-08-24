@@ -12,11 +12,15 @@ class Registration(models.Model):
     A Registration is the link between a User and an Event.
     """
 
-    STATUS_REGISTERED = 0
-    STATUS_WAITINGLIST = 1
-    STATUS_CANCELLED = 2
+    STATUS_PREPARATION_IN_PROGRESS = 0
+    STATUS_PREPARATION_COMPLETE = 1
+    STATUS_REGISTERED = 2
+    STATUS_WAITINGLIST = 3
+    STATUS_CANCELLED = 4
 
     STATUS_CHOICES = (
+        (STATUS_PREPARATION_IN_PROGRESS, _('Preparation in progress')),
+        (STATUS_PREPARATION_COMPLETE, _('Preparation complete')),
         (STATUS_REGISTERED, _('Registered')),
         (STATUS_WAITINGLIST, _('Waiting list')),
         (STATUS_CANCELLED, _('Cancelled')),

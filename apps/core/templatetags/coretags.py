@@ -1,3 +1,4 @@
+import os
 from django import template
 from django.db.models.fields.files import FieldFile
 from django.utils.safestring import mark_safe

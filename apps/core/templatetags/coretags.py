@@ -1,8 +1,7 @@
-from django.utils.translation import gettext as _
-from django.utils.safestring import mark_safe
 from django import template
 from django.db.models.fields.files import FieldFile
-
+from django.utils.safestring import mark_safe
+from django.utils.translation import gettext as _
 
 register = template.Library()
 

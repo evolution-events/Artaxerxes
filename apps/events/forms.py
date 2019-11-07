@@ -1,7 +1,8 @@
 from django import forms
 from django.utils.translation import gettext as _
-from apps.people.models import Address
-from apps.people.models import MedicalDetails
+
+from apps.people.models import Address, MedicalDetails
+
 # from apps.events.models import EventOptions
 
 

@@ -1,9 +1,9 @@
-from django.utils import timezone
 from django.contrib import admin
-from reversion.admin import VersionAdmin
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy
+from reversion.admin import VersionAdmin
 
-from .models import Event, Series, Registration
+from .models import Event, Registration, Series
 
 
 @admin.register(Event)

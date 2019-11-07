@@ -1,7 +1,7 @@
 from django.contrib import admin
-from reversion.admin import VersionAdmin
-from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.admin import UserAdmin
+from django.utils.translation import ugettext_lazy as _
+from reversion.admin import VersionAdmin
 
 from .models import Address, ArtaUser, EmergencyContact
 

@@ -1,6 +1,6 @@
 # Python imports
 import sys
-from os.path import join, abspath, dirname, basename, normpath
+from os.path import abspath, basename, dirname, join, normpath
 
 from django.utils.translation import ugettext_lazy as _
 

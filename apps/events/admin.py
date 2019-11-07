@@ -38,4 +38,4 @@ class RegistrationAdmin(VersionAdmin):
 
 @admin.register(Series)
 class SeriesAdmin(VersionAdmin):
-        pass
+    pass

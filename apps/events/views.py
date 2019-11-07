@@ -13,8 +13,7 @@ from .models import Event, Registration
 
 @login_required
 def event_index_view(request):
-    """
-    Landing page for events.
+    """ Landing page for events.
 
     (TODO: really needed?)
     """
@@ -23,9 +22,7 @@ def event_index_view(request):
 
 @login_required
 def event_list_view(request):
-    """
-    List of all events that people can register for.
-    """
+    """ List of all events that people can register for. """
     # TODO: actually filter or select on events one can register for
     events = Event.objects.all()
 
@@ -34,9 +31,7 @@ def event_list_view(request):
 
 @login_required
 def registration_step_personal_details(request, eventid=None):
-    """
-    Step in registration process where user fills in personal details
-    """
+    """ Step in registration process where user fills in personal details """
 
     event = get_object_or_404(Event, pk=eventid)
     address = None
@@ -72,9 +67,7 @@ def registration_step_personal_details(request, eventid=None):
 
 @login_required
 def registration_step_medical_details(request, eventid=None):
-    """
-    Step in registration process where user fills in medical details
-    """
+    """ Step in registration process where user fills in medical details """
 
     mdetails = None
     if hasattr(request.user, 'medicaldetails'):
@@ -105,9 +98,7 @@ def registration_step_medical_details(request, eventid=None):
 
 @login_required
 def registration_step_options(request, eventid=None):
-    """
-    Step in registration process where user chooses options
-    """
+    """ Step in registration process where user chooses options """
 
     event = get_object_or_404(Event, pk=eventid)
     if request.method == 'POST':
@@ -135,9 +126,7 @@ def registration_step_options(request, eventid=None):
 
 @login_required
 def registration_step_final_check(request, eventid=None):
-    """
-    Step in registration process where user checks all information and agrees to conditions
-    """
+    """ Step in registration process where user checks all information and agrees to conditions """
 
     event = get_object_or_404(Event, pk=eventid)
     personal_details = Address.objects.filter(user=request.user).first()  # Returns None if nothing was found

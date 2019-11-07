@@ -16,7 +16,11 @@ ignore =
     # Do not require presence of docstrings (which is not always useful
     # for modules, or small inline classes such as Meta classes in
     # django).
-    D100, D101, D102, D104, D105, D106
+    D100, D101, D102, D104, D105, D106,
+    # Docstring should not bitch about whitespaces or blank lines """
+    D202, D210
+    # Periods on ends of docstrings should be allowed
+    D400
 
 # TODO: Enable B902, if https://github.com/PyCQA/flake8-bugbear/issues/19 is fixed
 

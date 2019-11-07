@@ -1,4 +1,5 @@
 import os
+
 from django import template
 from django.db.models.fields.files import FieldFile
 from django.utils.safestring import mark_safe
@@ -9,6 +10,7 @@ register = template.Library()
 
 @register.filter()
 def get_field_name(object, field):
+    """ Get the verbose name of the asked field of the object. """
     verbose_name = object._meta.get_field(field).verbose_name
     return verbose_name
 
@@ -16,8 +18,9 @@ def get_field_name(object, field):
 @register.filter()
 # From https://stackoverflow.com/a/7571539/8296763
 def human_readable(value, arg):
-    """
-    Outputs the human readable value of a field, especially useful for choice-fields that would otherwise
+    """ Output the human readable value of a field.
+
+    Especially useful for choice-fields that would otherwise
     show the key instead of the value.
     """
     if hasattr(value, 'get_' + str(arg) + '_display'):

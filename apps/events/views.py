@@ -11,12 +11,12 @@ from .forms import PersonalDetailForm, MedicalDetailForm, OptionsForm, FinalChec
 
 @login_required
 def event_index_view(request):
-        """
-        Landing page for events.
+    """
+    Landing page for events.
 
-        (TODO: really needed?)
-        """
-        return render(request, 'events/index.html', {'user': request.user})
+    (TODO: really needed?)
+    """
+    return render(request, 'events/index.html', {'user': request.user})
 
 
 @login_required
@@ -39,7 +39,7 @@ def registration_step_personal_details(request, eventid=None):
     event = get_object_or_404(Event, pk=eventid)
     address = None
     if hasattr(request.user, 'address'):
-            address = request.user.address
+        address = request.user.address
     if request.method == 'POST':
         pd_form = PersonalDetailForm(request.POST, instance=address)
         if pd_form.is_valid():
@@ -76,7 +76,7 @@ def registration_step_medical_details(request, eventid=None):
 
     mdetails = None
     if hasattr(request.user, 'medicaldetails'):
-            mdetails = request.user.medicaldetails
+        mdetails = request.user.medicaldetails
     event = get_object_or_404(Event, pk=eventid)
     if request.method == 'POST':
         md_form = MedicalDetailForm(request.POST, instance=mdetails)
@@ -147,17 +147,16 @@ def registration_step_final_check(request, eventid=None):
         if fc_form.is_valid():
 
             with reversion.create_revision():
-                fc_form.save()
-                registration = Registration.objects.filter(user=request.user, event=event)
+                cancelled = Registration.STATUS_CANCELLED
+                registration = Registration.objects.filter(user=request.user, event=event).exclude(status=cancelled)[0]
                 registration.status = Registration.STATUS_PREPARATION_COMPLETE
                 registration.save()
                 reversion.set_user(request.user)
-                reversion.set_comment(_("Registration preparation finalized via frontend. The following "
-                                      "fields changed: %(fields)s" % {'fields': ", ".join(fc_form.changed_data)}))
-            messages.success(request, _('Your options were successfully registered!'),
+                reversion.set_comment(_("Registration preparation finalized via frontend."))
+            messages.success(request, _('You have completed your preparation for registration!'),
                              extra_tags='bg-success')  # add bootstrap css class
 
-            return redirect('events:list')
+            return redirect('events:eventlist')
         else:
             messages.error(request, _('Please correct the error below.'), extra_tags='bg-danger')
     else:

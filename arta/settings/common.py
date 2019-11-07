@@ -72,6 +72,7 @@ DEFAULT_APPS = [
     'allauth.socialaccount.providers.google',
     'apps.people.apps.PeopleConfig',
     'apps.events.apps.EventsConfig',
+    'apps.core.apps.CoreConfig',
 ]
 
 # Middlewares

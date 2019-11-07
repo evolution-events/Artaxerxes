@@ -30,6 +30,13 @@
   </table>
   {% endif %}
 
+  {% if evoptions %}
+  <h2>{% trans 'Event options' %}</h2>
+  <table class="table">
+    <tr><td>{% trans 'TODO' %}</td><td>Display options</td></tr>
+  </table>
+  {% endif %}
+
   <h2>{% trans 'Agree to conditions' %}</h2>
   <p> TODO: hier de voorwaarden of een link naar de voorwaarden (huisregels?) </p>
   <form method="post" enctype="multipart/form-data">

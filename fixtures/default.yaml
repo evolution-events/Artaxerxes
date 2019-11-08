@@ -119,9 +119,150 @@
     location_name: De Veldhoeve
     location_url: https://www.ivn.nl/veldhoeve
     location_info: "Zuideresweg 10\r\n9441 TZ\r\nOrvelte"
+- model: events.event
+  pk: 2
+  fields:
+    series: null
+    name: On the Styx
+    title: Run 3
+    description: "The gods of
+      Olympus have fallen on hard times. It is the era of cynicism. Faith is hard
+      to come by and their stories have become funny anecdotes and theatre plays,
+      rather than dogma. Without priests, temples or followers, using their divine
+      influence on the world is more difficult every day."
+    start_date: 2020-07-17
+    end_date: 2020-07-20
+    url: 'https://onthestyx.evolution-events.nl/'
+    email: styx@evolution-events.nl
+    location_name: De Hammermolen
+    location_url: 'https://www.hammermolen.nl/'
+    location_info: "Hammermolen 15\r\n6086 BE  Neer"
 - model: events.series
   pk: 1
   fields:
     name: Xenophobia
     url: https://xenophobia.evolution-events.nl
     email: artaxerxes-test@evolution-events.nl
+- model: registrations.registrationfield
+  fields:
+    name: type
+    title: Registration Type
+    event: 2
+    field_type: choice
+- model: registrations.registrationfieldoption
+  fields:
+    field: [type]
+    title: Crew
+    invite_only: [EE Bestuur]
+    slots: 5
+    price: 100
+- model: registrations.registrationfieldoption
+  fields:
+    field: [type]
+    title: Player
+    slots: 16
+    price: 200
+- model: registrations.registrationfield
+  fields:
+    name: small_purse
+    title: Small purse ticket
+    event: 2
+    depends: [type, Player]
+    field_type: choice
+- model: registrations.registrationfieldoption
+  fields:
+    field: [small_purse]
+    title: "No"
+    order: 0
+- model: registrations.registrationfieldoption
+  fields:
+    field: [small_purse]
+    title: "Yes"
+    price: -50
+- model: registrations.registrationfield
+  fields:
+    name: nationality
+    title: Nationality
+    event: 2
+    depends: [type, Player]
+    field_type: choice
+- model: registrations.registrationfieldoption
+  fields:
+    field: [nationality]
+    title: Dutch
+    slots: 8
+- model: registrations.registrationfieldoption
+  fields:
+    field: [nationality]
+    title: International
+    slots: 8
+- model: registrations.registrationfield
+  fields:
+    name: gender
+    title: Character Gender
+    event: 2
+    depends: [type, Player]
+    field_type: choice
+- model: registrations.registrationfieldoption
+  fields:
+    field: [gender]
+    title: Either is fine
+    slots: 8
+    order: 0
+- model: registrations.registrationfieldoption
+  fields:
+    field: [gender]
+    title: Male God
+    slots: 8
+- model: registrations.registrationfieldoption
+  fields:
+    field: [gender]
+    title: Female God
+    slots: 8
+- model: registrations.registrationfield
+  fields:
+    name: alcohol
+    title: Alcohol Package
+    event: 2
+    field_type: choice
+    allow_change_until: 2019-07-01
+- model: registrations.registrationfieldoption
+  fields:
+    field: [alcohol]
+    title: "No"
+    order: 0
+- model: registrations.registrationfieldoption
+  fields:
+    field: [alcohol]
+    title: "Yes"
+    price: 15
+- model: registrations.registrationfield
+  fields:
+    name: extra_nights
+    title: Stay extra nights
+    event: 2
+    field_type: choice
+    allow_change_until: 2019-07-01
+- model: registrations.registrationfieldoption
+  fields:
+    field: [extra_nights]
+    title: No, leave on sunday or monday
+    order: 0
+- model: registrations.registrationfieldoption
+  fields:
+    field: [extra_nights]
+    title: Yes, leave on tuesday
+    price: 10
+    order: 1
+- model: registrations.registrationfieldoption
+  fields:
+    field: [extra_nights]
+    title: Yes, leave on wednesday
+    price: 20
+    order: 2
+- model: registrations.registrationfieldoption
+  fields:
+    field: [extra_nights]
+    title: Yes, leave on thursday
+    price: 30
+    order: 3

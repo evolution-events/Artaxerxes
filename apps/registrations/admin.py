@@ -8,7 +8,45 @@ from apps.events.models import Event
 from .models import Registration, RegistrationField, RegistrationFieldOption, RegistrationFieldValue
 
 
-class RegistrationFieldInline(admin.TabularInline):
+class LimitDependsMixin:
+    """
+    Mixin intended to limit the choices for a ForeignKey field in the admin based on another field.
+
+    This is based on https://stackoverflow.com/a/29455444/740048 but slightly generalized. This can probably be made
+    even more general (by doing the actual filter configuration in the Admin classes instead, or in a function that
+    returns a dynamic mixin).
+    """
+
+    def get_form(self, request, obj=None, **kwargs):
+        """ Called for ModelAdmin instances """
+        self.instance = obj
+        return super().get_form(request, obj=obj, **kwargs)
+
+    def get_formset(self, request, obj=None, **kwargs):
+        """ Called for InlineModelAdmin instances """
+        self.instance = obj
+        return super().get_formset(request, obj=obj, **kwargs)
+
+    def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
+        # For the "depends" foreignkey, only offer options that are associated with the same event.
+        if db_field.name == 'depends' and self.instance:
+            # Note that for inline admins, self.instance is the parent instance, not the per-inline-row instance. Since
+            # a single form is shared by all inline rows, we are called only once and can only filter based on the
+            # parent (which is ok for this particular case).
+            if isinstance(self.instance, Event):
+                check = {'field__event': self.instance}
+            elif isinstance(self.instance, RegistrationField):
+                check = {'field__event': self.instance.event}
+            elif isinstance(self.instance, RegistrationFieldOption):
+                check = {'field__event': self.instance.field.event}
+            else:
+                assert(False)
+            objects = db_field.remote_field.model.objects
+            kwargs['queryset'] = objects.filter(**check)
+        return super().formfield_for_foreignkey(db_field, request=request, **kwargs)
+
+
+class RegistrationFieldInline(LimitDependsMixin, admin.TabularInline):
     model = RegistrationField
     extra = 0
     # Show edit link for fields, to allow editing options for the field
@@ -41,19 +79,19 @@ class RegistrationAdmin(VersionAdmin):
     user_name.short_description = ugettext_lazy("User")
 
 
-class RegistrationFieldOptionInline(admin.TabularInline):
+class RegistrationFieldOptionInline(LimitDependsMixin, admin.TabularInline):
     model = RegistrationFieldOption
     extra = 0
 
 
 @admin.register(RegistrationField)
-class RegistratFieldAdmin(VersionAdmin):
+class RegistratFieldAdmin(LimitDependsMixin, VersionAdmin):
     inlines = [RegistrationFieldOptionInline]
     prepopulated_fields = {"name": ("title",)}
 
 
 @admin.register(RegistrationFieldOption)
-class RegistratFieldOptionAdmin(VersionAdmin):
+class RegistratFieldOptionAdmin(LimitDependsMixin, VersionAdmin):
     pass
 
 

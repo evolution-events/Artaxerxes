@@ -21,6 +21,8 @@ ignore =
     D202, D210
     # Periods on ends of docstrings should be allowed
     D400
+    # Allow docstrings not in the imperative mood
+    D401
 
 # TODO: Enable B902, if https://github.com/PyCQA/flake8-bugbear/issues/19 is fixed
 

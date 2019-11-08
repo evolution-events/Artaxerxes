@@ -1,3 +1,6 @@
+- model: auth.group
+  fields:
+    name: EE Bestuur
 - model: people.artauser
   pk: 1
   fields:
@@ -10,7 +13,7 @@
     is_staff: true
     is_active: true
     date_joined: 2018-05-21 10:49:37+00:00
-    groups: []
+    groups: [['EE Bestuur']]
     user_permissions: []
 - model: people.artauser
   pk: 2
@@ -24,7 +27,7 @@
     is_staff: true
     is_active: true
     date_joined: 2018-05-21 12:12:46+00:00
-    groups: []
+    groups: [['EE Bestuur']]
     user_permissions: []
 - model: people.artauser
   pk: 3
@@ -38,7 +41,7 @@
     is_staff: true
     is_active: true
     date_joined: 2018-05-21 12:39:54+00:00
-    groups: []
+    groups: [['EE Bestuur']]
     user_permissions: []
 - model: people.artauser
   pk: 4
@@ -52,7 +55,7 @@
     is_staff: true
     is_active: true
     date_joined: 2018-05-21 12:42:21+00:00
-    groups: []
+    groups: [['EE Bestuur']]
     user_permissions: []
 - model: people.artauser
   pk: 5
@@ -66,7 +69,7 @@
     is_staff: true
     is_active: true
     date_joined: 2018-05-21 12:43:04+00:00
-    groups: []
+    groups: [['EE Bestuur']]
     user_permissions: []
 - model: people.artauser
   pk: 6
@@ -80,7 +83,7 @@
     is_staff: true
     is_active: true
     date_joined: 2018-05-21 12:43:59+00:00
-    groups: []
+    groups: [['EE Bestuur']]
     user_permissions: []
 - model: people.artauser
   pk: 7
@@ -94,7 +97,7 @@
     is_staff: true
     is_active: true
     date_joined: 2018-05-21 12:45:08+00:00
-    groups: []
+    groups: [['EE Bestuur']]
     user_permissions: []
 - model: events.event
   pk: 1

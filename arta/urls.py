@@ -27,6 +27,8 @@ urlpatterns = [
     # url to the welcome page
     url(r'^$', people_views.main_index_view, name='main_index_view'),
 
-    url(r'^people/', include('apps.people.urls')),  # include urls of the people app
-    url(r'^events/', include('apps.events.urls')),  # include urls of the events app
+    # Include urls of the apps
+    url(r'^people/', include('apps.people.urls')),
+    url(r'^events/', include('apps.events.urls')),
+    url(r'^registrations/', include('apps.registrations.urls')),
 ]

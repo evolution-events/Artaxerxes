@@ -3,7 +3,17 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy
 from reversion.admin import VersionAdmin
 
-from .models import Registration
+from apps.events.models import Event
+
+from .models import Registration, RegistrationField, RegistrationFieldOption, RegistrationFieldValue
+
+
+class RegistrationFieldInline(admin.TabularInline):
+    model = RegistrationField
+    extra = 0
+    # Show edit link for fields, to allow editing options for the field
+    show_change_link = True
+    prepopulated_fields = {"name": ("title",)}
 
 
 @admin.register(Registration)
@@ -29,3 +39,24 @@ class RegistrationAdmin(VersionAdmin):
     def user_name(self, obj):
         return obj.user.get_full_name()
     user_name.short_description = ugettext_lazy("User")
+
+
+class RegistrationFieldOptionInline(admin.TabularInline):
+    model = RegistrationFieldOption
+    extra = 0
+
+
+@admin.register(RegistrationField)
+class RegistratFieldAdmin(VersionAdmin):
+    inlines = [RegistrationFieldOptionInline]
+    prepopulated_fields = {"name": ("title",)}
+
+
+@admin.register(RegistrationFieldOption)
+class RegistratFieldOptionAdmin(VersionAdmin):
+    pass
+
+
+@admin.register(RegistrationFieldValue)
+class RegistratFieldValueAdmin(VersionAdmin):
+    pass

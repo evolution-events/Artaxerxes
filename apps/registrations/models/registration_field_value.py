@@ -15,7 +15,7 @@ class RegistrationFieldValue(models.Model):
 
     def __str__(self):
         if self.option:
-            value = self.option.name
+            value = self.option.title
         else:
             value = self.string_value
 

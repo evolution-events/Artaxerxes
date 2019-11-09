@@ -3,7 +3,7 @@ from django.db.models import Q
 from django.utils.translation import gettext as _
 
 from apps.people.models import Address, MedicalDetails
-from apps.registrations.models import RegistrationField
+from apps.registrations.models import RegistrationField, RegistrationFieldValue
 
 # from apps.events.models import EventOptions
 
@@ -64,3 +64,48 @@ class RegistrationOptionsForm(forms.Form):
                 form_field = forms.CharField(label=field.title)
             form_field.readonly = True
             self.fields[field.name] = form_field
+
+    def add_error_by_code(self, field_name, code, **kwargs):
+        # Add an error for the given field, reusing the predefined error messages for that field.
+        field = self.fields[field_name]
+        msg = field.error_messages[code]
+        self.add_error(field_name, forms.ValidationError(msg, code=code, values=kwargs))
+
+    def clean(self):
+        # Most validation is implicit based on the generated form (e.g. based on required, choices, etc.)
+        super().clean()
+        d = self.cleaned_data
+
+        fields = self.event.registration_fields.filter(Q(invite_only=None) | Q(invite_only__user=self.user))
+        for field in fields:
+            # If the dependencies for this option are not satisfied, ignore it
+            if field.depends and d.get(field.depends.field.name, None) != field.depends:
+                continue
+
+            if field.field_type == RegistrationField.TYPE_CHOICE:
+                try:
+                    option = d[field.name]
+                except KeyError:
+                    self.add_error_by_code(field.name, 'required')
+                else:
+                    if option.depends and d.get(option.depends.field.name, None) != option.depends:
+                        self.add_error_by_code(field.name, 'invalid_choice', value=option.title)
+
+    def save(self, registration):
+        d = self.cleaned_data
+
+        fields = self.event.registration_fields.filter(Q(invite_only=None) | Q(invite_only__user=self.user))
+        for field in fields:
+            # If the dependencies for this option are not satisfied, delete any values for it that might be present
+            if field.depends and d.get(field.depends.field.name, None) != field.depends:
+                RegistrationFieldValue.objects.filter(registration=registration, field=field).delete()
+                continue
+
+            (value, created) = RegistrationFieldValue.objects.get_or_create(registration=registration, field=field)
+            if field.field_type == RegistrationField.TYPE_CHOICE:
+                value.option = d[field.name]
+            else:
+                value.string_value = d[field.name]
+            value.save()
+
+            # TODO: Handle allow_change_until

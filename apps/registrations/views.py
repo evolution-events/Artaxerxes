@@ -98,15 +98,14 @@ def registration_step_options(request, registrationid=None):
     if request.method == 'POST':
         opt_form = RegistrationOptionsForm(registration.event, request.user, data=request.POST)
         if opt_form.is_valid():
-            # TODO save form and link event?, user?
-            """with reversion.create_revision():
-                opt_form.save()
+            with reversion.create_revision():
+                opt_form.save(registration)
                 reversion.set_user(request.user)
                 reversion.set_comment(_("Options updated via frontend. The following "
                                       "fields changed: %(fields)s" % {'fields': ", ".join(opt_form.changed_data)}))
             messages.success(request, _('Your options were successfully registered!'),
                              extra_tags='bg-success')  # add bootstrap css class
-            """
+
             return redirect('registrations:finalcheckform', registrationid=registration.id)
         else:
             messages.error(request, _('Please correct the error below.'), extra_tags='bg-danger')

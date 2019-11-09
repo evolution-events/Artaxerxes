@@ -1,4 +1,5 @@
 from django import forms
+from django.db.models import Q
 from django.utils.translation import gettext as _
 
 from apps.people.models import Address, MedicalDetails
@@ -25,6 +26,18 @@ class FinalCheckForm(forms.Form):
     # TODO: is this an object, or freeform Form? Link to conditions should be provided. Here (helptext) or in template?
 
 
+class RegistrationOptionField(forms.ModelChoiceField):
+    """ Field that allows selecting from multiple options, including price and status info. """
+
+    def label_from_instance(self, obj):
+        label = obj.title
+        if obj.price is not None:
+            label += " (€{})".format(obj.price)
+        if obj.full:
+            label += " FULL"
+        return label
+
+
 class RegistrationOptionsForm(forms.Form):
     """ A dynamic form showing registration options for a given event. """
 
@@ -32,32 +45,22 @@ class RegistrationOptionsForm(forms.Form):
         """ Create a new form for the given user to register to event. """
         super().__init__(**kwargs)
 
-        self.add_fields(event, user)
+        self.event = event
+        self.user = user
+        self.add_fields()
 
-    def add_fields(self, event, user):
+    def add_fields(self):
         """ Add form fields based on the RegistrationFields in the database. """
-        groups = user.groups.all()
-        for registration_field in event.registration_fields.all():
-            if registration_field.invite_only and registration_field.invite_only not in groups:
-                continue
-
+        fields = self.event.registration_fields.filter(Q(invite_only=None) | Q(invite_only__user=self.user))
+        for field in fields:
             # TODO: Handle depends
             # TODO: Handle allow_change_until
 
-            if registration_field.field_type == RegistrationField.TYPE_CHOICE:
-                choices = []
-                for option in registration_field.options.all():
-                    if option.invite_only and option.invite_only not in groups:
-                        continue
-
-                    # TODO: Handle depends
-                    # TODO: Handle slots/full
-                    title = option.title
-                    if option.price is not None:
-                        title += " (€{})".format(option.price)
-                    choices.append((option.pk, title))
-                field = forms.ChoiceField(choices=choices, label=registration_field.title)
-            elif registration_field.field_type == RegistrationField.TYPE_STRING:
-                field = forms.CharField(label=registration_field.title)
-            field.readonly = True
-            self.fields[registration_field.name] = field
+            if field.field_type == RegistrationField.TYPE_CHOICE:
+                # TODO: Handle depends
+                options = field.options.filter(Q(invite_only=None) | Q(invite_only__user=self.user))
+                form_field = RegistrationOptionField(queryset=options, label=field.title, empty_label=None)
+            elif field.field_type == RegistrationField.TYPE_STRING:
+                form_field = forms.CharField(label=field.title)
+            form_field.readonly = True
+            self.fields[field.name] = form_field

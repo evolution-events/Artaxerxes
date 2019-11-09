@@ -26,3 +26,7 @@ class RegistrationFieldValue(models.Model):
     class Meta:
         verbose_name = _('registration field value')
         verbose_name_plural = _('registration field values')
+
+        constraints = [
+            models.UniqueConstraint(fields=['registration', 'field'], name='one_value_per_field_per_registration'),
+        ]

@@ -7,7 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 class RegistrationFieldValue(models.Model):
     """ The actual value for a given field on a given registration. """
 
-    registration = models.ForeignKey('registrations.Registration', on_delete=models.CASCADE)
+    registration = models.ForeignKey('registrations.Registration', related_name='options', on_delete=models.CASCADE)
     field = models.ForeignKey('registrations.RegistrationField', on_delete=models.CASCADE)
     option = models.ForeignKey('registrations.RegistrationFieldOption', null=True, blank=True,
                                on_delete=models.CASCADE)

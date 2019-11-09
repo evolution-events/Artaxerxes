@@ -54,6 +54,11 @@ class RegistrationFieldInline(LimitDependsMixin, admin.TabularInline):
     prepopulated_fields = {"name": ("title",)}
 
 
+class RegistrationFieldValueInline(admin.TabularInline):
+    model = RegistrationFieldValue
+    extra = 0
+
+
 @admin.register(Registration)
 class RegistrationAdmin(VersionAdmin):
     list_display = ('event_display_name', 'user_name', 'status', 'registered_at_milliseconds')
@@ -61,6 +66,7 @@ class RegistrationAdmin(VersionAdmin):
     search_fields = ['user__first_name', 'user__last_name', 'event__title', 'event__series__name']
     list_select_related = ['user', 'event__series']
     list_filter = ['status']
+    inlines = [RegistrationFieldValueInline]
 
     def registered_at_milliseconds(self, obj):
         tz = timezone.get_current_timezone()

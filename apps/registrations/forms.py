@@ -18,12 +18,6 @@ class MedicalDetailForm(forms.ModelForm):
         fields = ['food_allergies', 'event_risks']
 
 
-class OptionsForm(forms.Form):
-    tempfield = forms.CharField(label=_('Temporary field'), required=False)
-
-    # TODO: actual sensible fields when we get the options sorted out. See issue #9
-
-
 class FinalCheckForm(forms.Form):
     agree = forms.BooleanField(label=_('Agree to conditions'), required=True)
 

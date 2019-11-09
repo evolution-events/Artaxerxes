@@ -30,10 +30,12 @@
   </table>
   {% endif %}
 
-  {% if evoptions %}
+  {% if registration %}
   <h2>{% trans 'Event options' %}</h2>
   <table class="table">
-    <tr><td>{% trans 'TODO' %}</td><td>Display options</td></tr>
+    {% for value in registration.options.all %}
+    <tr><td>{{ value.field.title }}</td><td>{{ value.display_value }}</td></tr>
+    {% endfor %}
   </table>
   {% endif %}
 

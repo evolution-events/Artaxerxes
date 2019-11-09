@@ -124,7 +124,6 @@ def registration_step_final_check(request, registrationid=None):
     registration = get_object_or_404(Registration, pk=registrationid)
     personal_details = Address.objects.filter(user=request.user).first()  # Returns None if nothing was found
     medical_details = MedicalDetails.objects.filter(user=request.user).first()  # Returns None if nothing was found
-    # TODO: get chosen event options and pass them on when rendering the page
     # TODO: Check registration status?
 
     if request.method == 'POST':

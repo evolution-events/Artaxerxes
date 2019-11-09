@@ -1,6 +1,7 @@
 import reversion
 from django.conf import settings
 from django.db import models
+from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -38,3 +39,10 @@ class Registration(models.Model):
     class Meta:
         verbose_name = _('registration')
         verbose_name_plural = _('registrations')
+
+    # Put this outside of the meta class, so we can access the STATUS_ constants
+    # https://stackoverflow.com/a/8366758/740048
+    Meta.constraints = [
+        models.UniqueConstraint(fields=['event', 'user'], condition=~Q(status=STATUS_CANCELLED),
+                                name='one_registration_per_user_per_event'),
+    ]

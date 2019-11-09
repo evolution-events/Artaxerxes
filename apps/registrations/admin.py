@@ -40,7 +40,7 @@ class LimitDependsMixin:
             elif isinstance(self.instance, RegistrationFieldOption):
                 check = {'field__event': self.instance.field.event}
             else:
-                assert(False)
+                raise AssertionError()
             objects = db_field.remote_field.model.objects
             kwargs['queryset'] = objects.filter(**check)
         return super().formfield_for_foreignkey(db_field, request=request, **kwargs)

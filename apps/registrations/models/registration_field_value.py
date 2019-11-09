@@ -23,6 +23,11 @@ class RegistrationFieldValue(models.Model):
             'field': self.field.name, 'registration': self.registration, 'value': value,
         }
 
+    def display_value(self):
+        if self.field.field_type == self.field.TYPE_CHOICE:
+            return self.option.title
+        return self.string_value
+
     class Meta:
         verbose_name = _('registration field value')
         verbose_name_plural = _('registration field values')

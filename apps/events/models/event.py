@@ -38,6 +38,15 @@ class Event(models.Model):
         max_length=100, verbose_name=_('Location url'), blank=True, help_text=_('Url of location website'))
     location_info = models.TextField(
         verbose_name=('Location information'), help_text=_('Address and additional information about the location'))
+
+    registration_opens_at = models.DateTimeField(
+        verbose_name=_('Registration opens at'), null=True, blank=True,
+        help_text=('At this time registration is open for everyone.'))
+    public = models.BooleanField(
+        verbose_name=_('Public'), default=False,
+        help_text=('When checked, the event is visible to users. If registration is not open yet, they can prepare a '
+                   'registration already.'))
+
     user = models.ManyToManyField(settings.AUTH_USER_MODEL, through=Registration)
 
     def display_name(self):

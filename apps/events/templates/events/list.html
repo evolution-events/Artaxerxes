@@ -13,7 +13,7 @@
   <a href="{{e.location_url}}">{{e.location_name}}</a><br/>
   <p>{{e.description}}</p>
   {# TODO Choose one of these links to show, depending on state of event #}
-  <a href="{% url 'registrations:personaldetailform' eventid=e.id %}" class="btn btn-sm btn-info" role="button">{% trans 'Prepare registration' %}</a>
+  <a href="{% url 'registrations:prepare_registration' eventid=e.id %}" class="btn btn-sm btn-info" role="button">{% trans 'Prepare registration' %}</a>
   <a href="" class="btn btn-sm btn-info" role="button">{% trans 'Register' %}</a>
   </li>
 {% endfor %}

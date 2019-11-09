@@ -2,15 +2,13 @@
 import reversion
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.forms import CharField, ChoiceField, Form
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext as _
 
 from apps.events.models import Event
 from apps.people.models import Address, MedicalDetails
-from apps.registrations.models import RegistrationField
 
-from .forms import FinalCheckForm, MedicalDetailForm, PersonalDetailForm
+from .forms import FinalCheckForm, MedicalDetailForm, PersonalDetailForm, RegistrationOptionsForm
 from .models import Registration
 
 
@@ -87,7 +85,7 @@ def registration_step_options(request, eventid=None):
 
     event = get_object_or_404(Event, pk=eventid)
     if request.method == 'POST':
-        opt_form = build_registration_options_form(request.POST, request.user, event)
+        opt_form = RegistrationOptionsForm(event, request.user, data=request.POST)
         if opt_form.is_valid():
             # TODO save form and link event?, user?
             """with reversion.create_revision():
@@ -102,41 +100,11 @@ def registration_step_options(request, eventid=None):
         else:
             messages.error(request, _('Please correct the error below.'), extra_tags='bg-danger')
     else:
-        opt_form = build_registration_options_form(None, request.user, event)
+        opt_form = RegistrationOptionsForm(event, request.user)
     return render(request, 'registrations/editoptions.html', {
         'opt_form': opt_form,
         'event': event,
     })
-
-
-def build_registration_options_form(data, user, event):
-    """ Build a form for registration options. """
-    form = Form(data)
-    groups = user.groups.all()
-    for registration_field in event.registration_fields.all():
-        if registration_field.invite_only and registration_field.invite_only not in groups:
-            continue
-
-        # TODO: Handle depends
-        # TODO: Handle allow_change_until
-
-        if registration_field.field_type == RegistrationField.TYPE_CHOICE:
-            choices = []
-            for option in registration_field.options.all():
-                if option.invite_only and option.invite_only not in groups:
-                    continue
-
-                # TODO: Handle depends
-                # TODO: Handle slots/full
-                title = option.title
-                if option.price is not None:
-                    title += " (€{})".format(option.price)
-                choices.append((option.pk, title))
-            field = ChoiceField(choices=choices, label=registration_field.title)
-        elif registration_field.field_type == RegistrationField.TYPE_STRING:
-            field = CharField(label=registration_field.title)
-        form.fields[registration_field.name] = field
-    return form
 
 
 @login_required

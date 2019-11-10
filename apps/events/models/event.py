@@ -24,7 +24,7 @@ class EventManager(models.Manager):
         )
 
 
-@reversion.register()
+@reversion.register(follow=('registration_fields',))
 class Event(models.Model):
     """Information about an Event."""
 

@@ -8,7 +8,7 @@ class RegistrationFieldManager(models.Manager):
         return self.get(name=name)
 
 
-@reversion.register()
+@reversion.register(follow=('event', 'options'))
 class RegistrationField(models.Model):
     """ A field that should get a value during registration for a specific event.  """
 

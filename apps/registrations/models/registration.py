@@ -5,7 +5,7 @@ from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
 
-@reversion.register()
+@reversion.register(follow=('options',))
 class Registration(models.Model):
     """
     Information about a Registration.

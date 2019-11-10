@@ -11,7 +11,7 @@ class RegistrationFieldOptionManager(models.Manager):
         return self.get(field=field, title__iexact=option)
 
 
-@reversion.register()
+@reversion.register(follow=('field',))
 class RegistrationFieldOption(models.Model):
     """ One of multiple options that can be assigned to a given field. """
 

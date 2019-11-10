@@ -1,11 +1,27 @@
 import reversion
 from django.conf import settings
 from django.db import models
+from django.db.models import Q
+from django.db.models.functions import Now
 from django.utils.translation import ugettext_lazy as _
 
+from apps.core.utils import QExpr
 from apps.registrations.models import Registration
 
 from .series import Series
+
+
+class EventManager(models.Manager):
+    def for_user(self, user):
+        """ Returns events annotated with e.g. visibility for the given user. """
+        # This does not use the user yet, but this makes it easier to change that later
+        # This essentially duplicates the similarly-named methods on the model below.
+        #
+        return self.get_queryset().annotate(
+            registration_is_open=QExpr(~Q(registration_opens_at=None) & Q(registration_opens_at__lt=Now())),
+            is_visible=QExpr(public=True),
+            preregistration_is_open=QExpr(Q(registration_is_open=False) & Q(is_visible=True)),
+        )
 
 
 @reversion.register()
@@ -48,6 +64,8 @@ class Event(models.Model):
                    'registration already.'))
 
     user = models.ManyToManyField(settings.AUTH_USER_MODEL, through=Registration)
+
+    objects = EventManager()
 
     def display_name(self):
         if not self.title:

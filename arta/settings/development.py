@@ -27,8 +27,19 @@ DATABASES = {
 
 # ##### APPLICATION CONFIGURATION #########################
 
-INSTALLED_APPS = DEFAULT_APPS
+INSTALLED_APPS = DEFAULT_APPS + [
+    'debug_toolbar',
+]
 
 FIXTURE_DIRS = [
     join(PROJECT_ROOT, 'fixtures'),
+]
+
+# Debug toolbar must be as early as possible, but after things that encode, such as gzip (which we do not use
+# currently, so inserting at the start is probably good enough).
+MIDDLEWARE.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
+
+# Used by debug toolbar
+INTERNAL_IPS = [
+    '127.0.0.1',
 ]

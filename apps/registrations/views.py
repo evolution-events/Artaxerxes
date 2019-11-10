@@ -108,7 +108,8 @@ def registration_step_options(request, registrationid=None):
 
     # TODO: Check registration status?
     if request.method == 'POST':
-        opt_form = RegistrationOptionsForm(registration.event, request.user, data=request.POST)
+        opt_form = RegistrationOptionsForm(registration.event, request.user, registration=registration,
+                                           data=request.POST)
         if opt_form.is_valid():
             with reversion.create_revision():
                 opt_form.save(registration)
@@ -127,7 +128,7 @@ def registration_step_options(request, registrationid=None):
         else:
             messages.error(request, _('Please correct the error below.'), extra_tags='bg-danger')
     else:
-        opt_form = RegistrationOptionsForm(registration.event, request.user)
+        opt_form = RegistrationOptionsForm(registration.event, request.user, registration=registration)
     return render(request, 'registrations/editoptions.html', {
         'opt_form': opt_form,
         'registration': registration,

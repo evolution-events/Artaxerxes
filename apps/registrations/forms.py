@@ -41,13 +41,28 @@ class RegistrationOptionField(forms.ModelChoiceField):
 class RegistrationOptionsForm(forms.Form):
     """ A dynamic form showing registration options for a given event. """
 
-    def __init__(self, event, user, **kwargs):
+    def __init__(self, event, user, registration=None, **kwargs):
         """ Create a new form for the given user to register to event. """
+
+        if registration:
+            kwargs['initial'] = self.values_for_registration(registration)
+
         super().__init__(**kwargs)
 
         self.event = event
         self.user = user
         self.add_fields()
+
+    def values_for_registration(self, registration):
+        values = {}
+        for option in registration.options.all():
+            if option.field.field_type == RegistrationField.TYPE_CHOICE:
+                value = option.option
+            else:
+                value = option.string_value
+
+            values[option.field.name] = value
+        return values
 
     def add_fields(self):
         """ Add form fields based on the RegistrationFields in the database. """

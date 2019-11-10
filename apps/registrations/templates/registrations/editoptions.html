@@ -13,7 +13,7 @@
     <table class="table">
     {{ opt_form.as_table }}
     </table>
-    <button class="btn btn-success" type="submit">{% trans 'Save changes' %}</button>
-    <a class="btn btn-default" href="{% url 'events:eventlist' %}" role="button">{% trans 'Cancel' %}</a>
+    <a class="btn btn-default" href="{% url 'registrations:medicaldetailform' registration.id %}" role="button">{% trans 'Back' %}</a>
+    <button class="btn btn-success" type="submit">{% trans 'Next step' %}</button>
   </form>
 {% endblock content %}

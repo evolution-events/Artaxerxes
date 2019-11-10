@@ -12,12 +12,19 @@
   {{e.datum}}<br/>
   <a href="{{e.location_url}}">{{e.location_name}}</a><br/>
   <p>{{e.description}}</p>
+  {% if e.registration_opens_at and not e.registration_is_open %}
+  <p>
+  {% blocktrans with at=e.registration_opens_at %}
+  Registration opens at {{ at }}.
+  {% endblocktrans %}
+  </p>
+  {% endif %}
   {% if e.preregistration_is_open %}
   {# TODO Choose one of these links to show, depending on state of event #}
-  <a href="{% url 'registrations:prepare_registration' eventid=e.id %}" class="btn btn-sm btn-info" role="button">{% trans 'Prepare registration' %}</a>
+  <a href="{% url 'registrations:register' eventid=e.id %}" class="btn btn-sm btn-info" role="button">{% trans 'Prepare registration' %}</a>
   {% endif %}
   {% if e.registration_is_open %}
-  <a href="" class="btn btn-sm btn-info" role="button">{% trans 'Register' %}</a>
+  <a href="{% url 'registrations:register' eventid=e.id %}" class="btn btn-sm btn-info" role="button">{% trans 'Register' %}</a>
   {% endif %}
   </li>
 {% endfor %}

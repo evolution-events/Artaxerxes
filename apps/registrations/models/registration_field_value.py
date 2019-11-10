@@ -14,14 +14,7 @@ class RegistrationFieldValue(models.Model):
     string_value = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):
-        if self.option:
-            value = self.option.title
-        else:
-            value = self.string_value
-
-        return _('Value for %(field)s for %(registration)s: %(value)s') % {
-            'field': self.field.name, 'registration': self.registration, 'value': value,
-        }
+        return self.display_value()
 
     def display_value(self):
         if self.field.field_type == self.field.TYPE_CHOICE:

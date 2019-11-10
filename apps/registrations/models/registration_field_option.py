@@ -28,9 +28,7 @@ class RegistrationFieldOption(models.Model):
     objects = RegistrationFieldOptionManager()
 
     def __str__(self):
-        return _('Option %(title)s for %(field)s for %(event)s') % {
-            'title': self.title, 'field': self.field.name, 'event': self.field.event,
-        }
+        return self.title
 
     def natural_key(self):
         return self.field.natural_key() + (self.title,)

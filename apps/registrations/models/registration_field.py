@@ -32,9 +32,7 @@ class RegistrationField(models.Model):
     objects = RegistrationFieldManager()
 
     def __str__(self):
-        return _('Field %(name)s for %(event)s') % {
-            'name': self.name, 'event': self.event,
-        }
+        return self.name
 
     def natural_key(self):
         return (self.name,)

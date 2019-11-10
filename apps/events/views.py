@@ -16,7 +16,6 @@ def event_index_view(request):
 @login_required
 def event_list_view(request):
     """ List of all events that people can register for. """
-    # TODO: actually filter or select on events one can register for
-    events = Event.objects.all()
+    events = Event.objects.for_user(request.user).filter(is_visible=True)
 
     return render(request, 'events/list.html', {'user': request.user, 'events': events})

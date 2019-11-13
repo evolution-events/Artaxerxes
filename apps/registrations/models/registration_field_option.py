@@ -1,14 +1,23 @@
 import reversion
 from django.db import models
+from django.db.models import Count, Q
 from django.utils.translation import ugettext_lazy as _
 
-from .registration_field import RegistrationField
+from . import Registration, RegistrationField
 
 
 class RegistrationFieldOptionManager(models.Manager):
     def get_by_natural_key(self, field, option):
         field = RegistrationField.objects.get_by_natural_key(field)
         return self.get(field=field, title__iexact=option)
+
+    def with_used_slots(self):
+        return self.get_queryset().annotate(
+            used_slots=Count(
+                'registrationfieldvalue',
+                filter=Q(registrationfieldvalue__registration__status=Registration.STATUS_REGISTERED),
+            ),
+        )
 
 
 @reversion.register(follow=('field',))

@@ -13,7 +13,14 @@ from .series import Series
 
 class EventManager(models.Manager):
     def for_user(self, user):
-        """ Returns events annotated with e.g. visibility for the given user. """
+        """
+        Returns events annotated with properties applicable for the given user.
+
+         - is_visible: True when the user can view this event
+         - pregistration_is_open: True when the user can prepare a registration (becomes False again when
+           registration_is_open becomes True).
+         - registration_is_open: True when the user can finalize a registration.
+        """
         # This does not use the user yet, but this makes it easier to change that later
         # This essentially duplicates the similarly-named methods on the model below.
         #

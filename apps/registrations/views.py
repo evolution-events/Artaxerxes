@@ -3,6 +3,7 @@ import reversion
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.forms import ValidationError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext as _
 from django.views.generic.base import View
@@ -12,6 +13,7 @@ from apps.people.models import Address, MedicalDetails
 
 from .forms import FinalCheckForm, MedicalDetailForm, PersonalDetailForm, RegistrationOptionsForm
 from .models import Registration
+from .services import RegistrationStatusService
 
 
 class RegistrationStartView(LoginRequiredMixin, View):
@@ -150,7 +152,15 @@ def registration_step_final_check(request, registrationid=None):
     if request.method == 'POST':
         fc_form = FinalCheckForm(request.POST)
         if fc_form.is_valid():
-            # TODO Finalize registration
+            try:
+                RegistrationStatusService.finalize_registration(registration)
+            except ValidationError as ex:
+                messages.error(request, ex)
+
+                # TODO: Redirect elsewhere? Or Maybe remove this except clause when status is checked above?
+                return redirect('registrations:finalcheckform', registration.pk)
+
+            # TODO: Show result
             return redirect('events:eventlist')
         else:
             messages.error(request, _('Please correct the error below.'), extra_tags='bg-danger')

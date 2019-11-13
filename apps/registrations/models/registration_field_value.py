@@ -18,7 +18,10 @@ class RegistrationFieldValue(models.Model):
 
     def display_value(self):
         if self.field.field_type == self.field.TYPE_CHOICE:
-            return self.option.title
+            if self.option:
+                return self.option.title
+            else:
+                return "<value unset>"
         return self.string_value
 
     class Meta:

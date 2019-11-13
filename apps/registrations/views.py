@@ -21,9 +21,9 @@ class RegistrationStartView(LoginRequiredMixin, View):
     def get(self, request, eventid):
         event = get_object_or_404(Event, pk=eventid)
         registration, created = Registration.objects.get_or_create(
-            event=event, user=request.user, defaults={'status': Registration.STATUS_PREPARATION_IN_PROGRESS},
+            event=event, user=request.user, defaults={'status': Registration.statuses.PREPARATION_IN_PROGRESS},
         )
-        if registration.status == Registration.STATUS_PREPARATION_IN_PROGRESS:
+        if registration.status.PREPARATION_IN_PROGRESS:
             return redirect('registrations:personaldetailform', registrationid=registration.id)
         else:
             return redirect('registrations:finalcheckform', registrationid=registration.id)
@@ -51,7 +51,7 @@ def registration_step_personal_details(request, registrationid=None):
                                       "fields changed: %(fields)s" % {'fields': ", ".join(pd_form.changed_data)}))
 
             # TODO: send verification e-mail for e-address after figuring out what to use
-            # Make registration and set status to 'in STATUS_PREPARATION_IN_PROGRESS'
+            # Make registration and set status to PREPARATION_IN_PROGRESS
             return redirect('registrations:medicaldetailform', registrationid=registration.id)
         else:
             messages.error(request, _('Please correct the error below.'), extra_tags='bg-danger')
@@ -119,9 +119,9 @@ def registration_step_options(request, registrationid=None):
                 reversion.set_comment(_("Options updated via frontend. The following "
                                       "fields changed: %(fields)s" % {'fields': ", ".join(opt_form.changed_data)}))
 
-            if registration.status == Registration.STATUS_PREPARATION_IN_PROGRESS:
+            if registration.status.PREPARATION_IN_PROGRESS:
                 with reversion.create_revision():
-                    registration.status = Registration.STATUS_PREPARATION_COMPLETE
+                    registration.status = Registration.statuses.PREPARATION_COMPLETE
                     registration.save()
                     reversion.set_user(request.user)
                     reversion.set_comment(_("Registration preparation finalized via frontend."))

@@ -12,14 +12,14 @@ class RegistrationStatusService:
     @staticmethod
     def finalize_registration(registration):
         """
-        Finalizes a registration by setting its status to STATUS_REGISTERED and doing additional needed bookkeeping.
+        Finalizes a registration by setting its status to REGISTERED and doing additional needed bookkeeping.
 
-        Current status must be STATUS_PREPARATION_COMPLETE, otherwise a ValidationError is raised.
+        Current status must be PREPARATION_COMPLETE, otherwise a ValidationError is raised.
 
         When there are sufficient slots available for the options selected by this registration, the status is set to
-        STATUS_REGISTERED. If not, status is changed to STATUS_WAITINGLIST.
+        REGISTERED. If not, status is changed to STATUS_WAITINGLIST.
         """
-        if registration.status != Registration.STATUS_PREPARATION_COMPLETE:
+        if not registration.status.PREPARATION_COMPLETE:
             raise ValidationError(_("Registration not ready for finalization"))
 
         with transaction.atomic():
@@ -34,9 +34,9 @@ class RegistrationStatusService:
             )
 
             if any(o.full or o.used_slots >= o.slots for o in options_with_slots):
-                registration.status = Registration.STATUS_WAITINGLIST
+                registration.status = Registration.statuses.WAITINGLIST
             else:
-                registration.status = Registration.STATUS_REGISTERED
+                registration.status = Registration.statuses.REGISTERED
 
                 # Set full for any options where we used the last slot
                 for o in options_with_slots:

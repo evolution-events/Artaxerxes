@@ -15,7 +15,7 @@ class RegistrationFieldOptionManager(models.Manager):
         return self.get_queryset().annotate(
             used_slots=Count(
                 'registrationfieldvalue',
-                filter=Q(registrationfieldvalue__registration__status=Registration.STATUS_REGISTERED),
+                filter=Q(registrationfieldvalue__registration__status=Registration.statuses.REGISTERED),
             ),
         )
 

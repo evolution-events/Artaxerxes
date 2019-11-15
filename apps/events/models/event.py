@@ -1,7 +1,7 @@
 import reversion
 from django.conf import settings
 from django.db import models
-from django.db.models import Q
+from django.db.models import Max, Q
 from django.db.models.functions import Now
 from django.utils.translation import ugettext_lazy as _
 
@@ -12,7 +12,7 @@ from .series import Series
 
 
 class EventManager(models.Manager):
-    def for_user(self, user):
+    def for_user(self, user, with_registration_status=False):
         """
         Returns events annotated with properties applicable for the given user.
 
@@ -20,15 +20,27 @@ class EventManager(models.Manager):
          - pregistration_is_open: True when the user can prepare a registration (becomes False again when
            registration_is_open becomes True).
          - registration_is_open: True when the user can finalize a registration.
+         - registration_status: The status of the registration for the user for this event, or None when no
+           registration is present. Cancelled registrations are ignored by this status.
         """
         # This does not use the user yet, but this makes it easier to change that later
         # This essentially duplicates the similarly-named methods on the model below.
         #
-        return self.get_queryset().annotate(
+        qs = self.get_queryset().annotate(
             registration_is_open=QExpr(~Q(registration_opens_at=None) & Q(registration_opens_at__lt=Now())),
             is_visible=QExpr(public=True),
             preregistration_is_open=QExpr(Q(registration_is_open=False) & Q(is_visible=True)),
         )
+        if with_registration_status:
+            # This looks for all non-cancelled registrations related to this event and user. Due to a constraint, this
+            # should be either one or none, never multiple. This uses the Max function to get at the status of that one
+            # registration, but e.g. Sum would also have worked. When no registrations are present, this returns None
+            # (since MAX(NULL) is still NULL).
+            qs = qs.annotate(registration_status=Max(
+                'registration__status',
+                filter=Q(registration__user=user) & ~Q(registration__status=Registration.statuses.CANCELLED),
+            ))
+        return qs
 
 
 @reversion.register(follow=('registration_fields',))

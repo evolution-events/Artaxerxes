@@ -6,8 +6,28 @@
 
 {% block content %}
 
+<h2>Past events</h2>
 <ul>
-{% for e in events %}
+{% for e in events.history %}
+  <li>{{e.display_name}}<br/>
+{% endfor %}
+</ul>
+
+<h2>Registered events</h2>
+<ul>
+{% for e in events.active %}
+  <li>{{e.display_name}}<br/>
+  {% if e.registration_status.REGISTERED %}
+  {% trans 'Registered' %}
+  {% else %}
+  {% trans 'On waiting list' %}
+  {% endif %}
+{% endfor %}
+</ul>
+
+<h2>Upcoming events</h2>
+<ul>
+{% for e in events.future %}
   <li>{{e.display_name}}<br/>
   {{e.datum}}<br/>
   <a href="{{e.location_url}}">{{e.location_name}}</a><br/>

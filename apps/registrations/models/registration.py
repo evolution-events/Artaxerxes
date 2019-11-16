@@ -27,7 +27,8 @@ class Registration(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=False, on_delete=models.CASCADE)
     event = models.ForeignKey('events.Event', null=False, on_delete=models.CASCADE)
     status = ConstantChoiceField(verbose_name=_('Status'), constants=statuses, null=False)
-    registered_at = models.DateTimeField(verbose_name=_('Registration timestamp'), auto_now_add=True, null=False)
+    created_at = models.DateTimeField(verbose_name=_('Creation timestamp'), auto_now_add=True, null=False)
+    registered_at = models.DateTimeField(verbose_name=_('Registration timestamp'), blank=True, null=True)
 
     def __str__(self):
         return _('%(user)s - %(event)s - %(status)s') % {

@@ -1,5 +1,6 @@
 from django.db import transaction
 from django.db.models import Q
+from django.db.models.functions import Now
 from django.forms import ValidationError
 from django.utils.translation import gettext as _
 
@@ -44,4 +45,5 @@ class RegistrationStatusService:
                         o.full = True
                         o.save()
 
+            registration.registered_at = Now()
             registration.save()

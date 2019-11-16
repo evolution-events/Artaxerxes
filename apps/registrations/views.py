@@ -6,7 +6,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.forms import ValidationError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext as _
-from django.views.generic.base import View
+from django.views.generic import DetailView, View
 
 from apps.events.models import Event
 from apps.people.models import Address, MedicalDetails
@@ -27,6 +27,14 @@ class RegistrationStartView(LoginRequiredMixin, View):
             return redirect('registrations:personaldetailform', registrationid=registration.id)
         else:
             return redirect('registrations:finalcheckform', registrationid=registration.id)
+
+
+class RegistrationDetailView(DetailView):
+    """ View a single Registration. """
+
+    context_object_name = 'registration'
+    model = Registration
+    template_name = 'registrations/registration_detail.html'
 
 
 @login_required

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load coretags %}
+
+{% block pagetitle %}
+{% blocktrans with event=registration.event %}
+Registration for {{event}}
+{% endblocktrans %}
+{% endblock pagetitle%}
+
+{% block content %}
+<h2>
+{% blocktrans with event=registration.event %}
+Registration for {{event}}
+{% endblocktrans %}
+</h2>
+<table class="table">
+  <tr><td>{% trans 'Status' %}</td><td>{{ registration.status.label }}</td></tr>
+  {% if registration.status.ACTIVE %}
+  <tr><td>{% trans 'Registered at' %}</td><td>{{ registration.registered_at }}</td></tr>
+  {% endif %}
+</table>
+
+{% if registration.options.all %}
+<h2>{% trans 'Event options' %}</h2>
+<table class="table">
+  {% for value in registration.options.all %}
+  <tr><td>{{ value.field.title }}</td><td>{{ value.display_value }}</td></tr>
+  {% endfor %}
+</table>
+{% endif %}
+{% endblock %}

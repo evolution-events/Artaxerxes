@@ -44,4 +44,6 @@ class Registration(models.Model):
     Meta.constraints = [
         models.UniqueConstraint(fields=['event', 'user'], condition=~Q(status=statuses.CANCELLED),
                                 name='one_registration_per_user_per_event'),
+        models.CheckConstraint(check=~Q(status__in=statuses.ACTIVE) | Q(registered_at__isnull=False),
+                               name='active_registration_has_timestamp'),
     ]

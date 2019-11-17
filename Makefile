@@ -99,7 +99,6 @@ setup: ensure_virtual_env
 
 # refreshes the project by updating dependencies and running migrations
 update: ensure_virtual_env
-	$(MAKE) clean
 	@pipenv sync --dev
 	$(MAKE) migrate
 

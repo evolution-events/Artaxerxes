@@ -17,7 +17,7 @@ To create an initial user:
 Later, you can update the environment (install new dependencies when
 Pipfile/Pipfile.lock changed, or run new migrations):
 
-        make update
+        make refresh
 
 Before committing / pushing
 ===========================

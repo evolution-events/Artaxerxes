@@ -9,7 +9,7 @@ DJANGO_TEST_POSTFIX := --settings=$(DJANGO_TEST_SETTINGS) --pythonpath=$(PYTHONP
 
 .PHONY: all clean coverage ensure_virtual_env flake8 flake lint \
 		django_check check test test/dev test/prod migrate \
-		setup update shell sort
+		setup refresh shell sort
 
 
 all:
@@ -22,7 +22,7 @@ all:
 	@echo "  flake8       Runs flake8 to check for PEP8 compliance"
 	@echo "  django_check Runs django's check command"
 	@echo "  migrate      Applies all migrations"
-	@echo "  update       Update the development environment (after pulling in"
+	@echo "  refresh      Update the development environment (after pulling in"
 	@echo "                 changes), syncing dependencies, running migrations,"
 	@echo "                 etc."
 	@echo "  setup        Sets up a development environment by installing"
@@ -98,7 +98,7 @@ setup: ensure_virtual_env
 	$(MAKE) refresh
 
 # refreshes the project by updating dependencies and running migrations
-update: ensure_virtual_env
+refresh: ensure_virtual_env
 	@pipenv sync --dev
 	$(MAKE) migrate
 

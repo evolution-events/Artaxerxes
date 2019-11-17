@@ -99,9 +99,9 @@ setup: ensure_virtual_env
 
 # refreshes the project by updating dependencies and running migrations
 refresh: ensure_virtual_env
-	@pipenv sync --dev
+	@poetry install
 	$(MAKE) migrate
 
 # runs a shell inside the virtualenv created by pipenv
 shell:
-	pipenv shell
+	poetry shell

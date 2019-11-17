@@ -2,22 +2,71 @@
 
 Initial setup
 =============
-To create enter the virtual environment (can be used later as well):
+This project uses [poetry][] to manage its dependencies. Before
+starting, make sure that Poetry is installed. The project itself uses a
+shell-script based installer, but it is probably better to just install
+it using pip:
 
-        make shell
+	pip3 install poetry
 
-To install dependencies and create the initial environment:
+Using `pip3` is typically right to use python3 on Linux, on systems with
+just python3 installed, you might need to use `pip` instead.
 
-        make setup
+[poetry]: https://poetry.eustace.io/
 
-To create an initial user:
+Poetry will create a virtualenv automatcally in the background. To do so
+and enter it, run:
+
+	poetry shell
+
+(or `make shell` as a shortcut)
+
+Then, inside this shell, install dependencies using
+
+	poetry install
+
+This uses the version from the `poetry.lock` file, recreating exactly the
+environment used to commit that file. This command can also be used
+later, after puling an updated `poetry.lock` file.
+
+To create a database, run django's `migrate` command:
+
+        ./manage.py migrate
+
+Install dependencies and setting up the database can also be done use
+`make setup` as a shortcut.
+
+To get started, either create a superuser with an otherwise empty
+database:
 
         ./manage.py createsuperuser
 
+Or load fixture data using:
+
+	./manage.py loaddata fixtures/default.yaml
+
+(the users loaded by this have password 'evolution')
+
+Updating
+========
 Later, you can update the environment (install new dependencies when
-Pipfile/Pipfile.lock changed, or run new migrations):
+poetry.lock changed, or run new migrations):
 
         make refresh
+
+Alternatively, you can also run `poetry install` or `./manage.py migrate`
+directly.
+
+To actually update `poetry.lock` by installing new versions of
+dependencies, use:
+
+	`poetry update`
+
+Production vs development
+=========================
+By default, `poetry` installs the development dependencies. To install
+just production dependencies, add `--no-dev` to e.g. `poetry install`
+and `poetry update`.
 
 Before committing / pushing
 ===========================

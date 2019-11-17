@@ -91,7 +91,7 @@ test/prod:
 
 # migrates the installed apps
 migrate: ensure_virtual_env
-	$(PYTHON_BIN)/django-admin.py migrate $(DJANGO_TEST_POSTFIX)
+	$(CURDIR)/manage.py migrate $(DJANGO_TEST_POSTFIX)
 
 # sets up the development environment by installing required dependencies,
 setup: ensure_virtual_env

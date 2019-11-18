@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "Artaxerxes"
+version = "0.1.0"
+description = ""
+authors = []
+
+[tool.poetry.dependencies]
+python = "^3.5"
+django = "^2.2"
+django-reversion = "*"
+django-allauth = "*"
+django-konst = "*"
+
+[tool.poetry.dev-dependencies]
+flake8 = "*"
+coverage = "*"
+flake8-per-file-ignores = "*"
+flake8-bugbear = "*"
+flake8-comprehensions = "*"
+flake8-mutable = "*"
+flake8-mypy = "*"
+flake8-docstrings = "*"
+flake8-print = "*"
+flake8-tuple = "*"
+flake8-commas = "*"
+flake8-isort = "*"
+pyyaml = "*"
+django-debug-toolbar = "*"

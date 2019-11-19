@@ -100,9 +100,8 @@
     groups: [['EE Bestuur']]
     user_permissions: []
 - model: events.event
-  pk: 1
   fields:
-    series: 1
+    series: [Xenophobia]
     name: Xenophobia III
     title: De Waard
     description: "In de prijs is inbegrepen: slaapplaatsen, avondeten op zaterdag,
@@ -120,7 +119,6 @@
     location_url: https://www.ivn.nl/veldhoeve
     location_info: "Zuideresweg 10\r\n9441 TZ\r\nOrvelte"
 - model: events.event
-  pk: 2
   fields:
     series: null
     name: On the Styx
@@ -138,7 +136,6 @@
     location_url: 'https://www.hammermolen.nl/'
     location_info: "Hammermolen 15\r\n6086 BE  Neer"
 - model: events.series
-  pk: 1
   fields:
     name: Xenophobia
     url: https://xenophobia.evolution-events.nl
@@ -147,7 +144,7 @@
   fields:
     name: type
     title: Registration Type
-    event: 2
+    event: [On the Styx]
     field_type: choice
 - model: registrations.registrationfieldoption
   fields:
@@ -166,7 +163,7 @@
   fields:
     name: small_purse
     title: Small purse ticket
-    event: 2
+    event: [On the Styx]
     depends: [type, Player]
     field_type: choice
 - model: registrations.registrationfieldoption
@@ -183,7 +180,7 @@
   fields:
     name: nationality
     title: Nationality
-    event: 2
+    event: [On the Styx]
     depends: [type, Player]
     field_type: choice
 - model: registrations.registrationfieldoption
@@ -200,7 +197,7 @@
   fields:
     name: gender
     title: Character Gender
-    event: 2
+    event: [On the Styx]
     depends: [type, Player]
     field_type: choice
 - model: registrations.registrationfieldoption
@@ -223,7 +220,7 @@
   fields:
     name: alcohol
     title: Alcohol Package
-    event: 2
+    event: [On the Styx]
     field_type: choice
     allow_change_until: 2019-07-01
 - model: registrations.registrationfieldoption
@@ -240,7 +237,7 @@
   fields:
     name: extra_nights
     title: Stay extra nights
-    event: 2
+    event: [On the Styx]
     field_type: choice
     allow_change_until: 2019-07-01
 - model: registrations.registrationfieldoption

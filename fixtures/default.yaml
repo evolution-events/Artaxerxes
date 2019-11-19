@@ -118,6 +118,7 @@
     location_name: De Veldhoeve
     location_url: https://www.ivn.nl/veldhoeve
     location_info: "Zuideresweg 10\r\n9441 TZ\r\nOrvelte"
+    public: True
 - model: events.event
   fields:
     series: null
@@ -135,6 +136,16 @@
     location_name: De Hammermolen
     location_url: 'https://www.hammermolen.nl/'
     location_info: "Hammermolen 15\r\n6086 BE  Neer"
+    registration_opens_at: 2019-11-01 20:00:00
+    public: True
+- model: events.event
+  fields:
+    series: null
+    name: Exhumation
+    description: "Xombie!"
+    start_date: 2020-11-01
+    end_date: 2020-11-03
+    public: True
 - model: events.series
   fields:
     name: Xenophobia
@@ -263,3 +274,29 @@
     title: Yes, leave on thursday
     price: 30
     order: 3
+
+- model: registrations.registrationfield
+  fields:
+    name: type
+    title: Registration Type
+    event: [Exhumation]
+    field_type: choice
+- model: registrations.registrationfieldoption
+  fields:
+    field: [Exhumation, type]
+    title: Crew
+    invite_only: [EE Bestuur]
+    slots: 10
+    price: 45
+- model: registrations.registrationfieldoption
+  fields:
+    field: [Exhumation, type]
+    title: Player
+    slots: 40
+    price: 80
+- model: registrations.registrationfieldoption
+  fields:
+    field: [Exhumation, type]
+    title: NPC
+    slots: 20
+    price: 60

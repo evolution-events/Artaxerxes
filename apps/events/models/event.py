@@ -12,6 +12,9 @@ from .series import Series
 
 
 class EventManager(models.Manager):
+    def get_by_natural_key(self, name):
+        return self.get(name=name)
+
     def for_user(self, user, with_registration_status=False):
         """
         Returns events annotated with properties applicable for the given user.
@@ -98,6 +101,9 @@ class Event(models.Model):
 
     def __str__(self):
         return self.display_name()
+
+    def natural_key(self):
+        return (self.name,)
 
     class Meta:
         verbose_name = _('event')

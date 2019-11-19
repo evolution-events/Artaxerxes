@@ -70,10 +70,13 @@ class RegistrationAdmin(VersionAdmin):
 
     def registered_at_milliseconds(self, obj):
         tz = timezone.get_current_timezone()
-        localtime = obj.registered_at.astimezone(tz)
-        millis = localtime.microsecond / 1000
+        if obj.registered_at:
+            localtime = obj.registered_at.astimezone(tz)
+            millis = localtime.microsecond / 1000
+            return localtime.strftime("%d %b %Y %H:%M:%S.{millis:03}").format(millis=int(millis))
+        else:
+            return ''
 
-        return localtime.strftime("%d %b %Y %H:%M:%S.{millis:03}").format(millis=int(millis))
     registered_at_milliseconds.short_description = ugettext_lazy("Registered at")
 
     def event_display_name(self, obj):

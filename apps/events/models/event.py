@@ -59,7 +59,8 @@ class Event(models.Model):
         max_length=100, verbose_name=_('Title'), blank=True,
         help_text=_('Actual subtitle when within series. Do not forget the X if the name does not contain it.'))
     description = models.TextField(
-        verbose_name=_('Description'), help_text=_('Event details like what is included or not'))
+        verbose_name=_('Description'), blank=True,
+        help_text=_('Event details like what is included or not'))
     start_date = models.DateField(verbose_name=_('Start date'))
     end_date = models.DateField(verbose_name=_('End date'))
     url = models.CharField(
@@ -69,12 +70,13 @@ class Event(models.Model):
         max_length=100, verbose_name=_('E-mail address of game masters / organisation'), blank=True,
         help_text=_('Can be left blank if event is part of a series, then value of series will be used.'))
     location_name = models.CharField(
-        max_length=100, verbose_name=_('Location name'),
+        max_length=100, verbose_name=_('Location name'), blank=True,
         help_text=_('Name of the location, will be used as link text if url is also available'))
     location_url = models.CharField(
         max_length=100, verbose_name=_('Location url'), blank=True, help_text=_('Url of location website'))
     location_info = models.TextField(
-        verbose_name=('Location information'), help_text=_('Address and additional information about the location'))
+        verbose_name=('Location information'), blank=True,
+        help_text=_('Address and additional information about the location'))
 
     registration_opens_at = models.DateTimeField(
         verbose_name=_('Registration opens at'), null=True, blank=True,

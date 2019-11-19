@@ -8,7 +8,7 @@ from . import Registration, RegistrationField
 
 class RegistrationFieldOptionManager(models.Manager):
     def get_by_natural_key(self, field, option):
-        field = RegistrationField.objects.get_by_natural_key(field)
+        field = RegistrationField.objects.get_by_natural_key(*field)
         return self.get(field=field, title__iexact=option)
 
     def with_used_slots(self):
@@ -40,7 +40,7 @@ class RegistrationFieldOption(models.Model):
         return self.title
 
     def natural_key(self):
-        return self.field.natural_key() + (self.title,)
+        return (self.field.natural_key(), self.title)
 
     class Meta:
         verbose_name = _('registration field option')

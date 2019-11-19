@@ -4,8 +4,8 @@ from django.utils.translation import ugettext_lazy as _
 
 
 class RegistrationFieldManager(models.Manager):
-    def get_by_natural_key(self, name):
-        return self.get(name=name)
+    def get_by_natural_key(self, eventname, fieldname):
+        return self.get(event__name=eventname, name=fieldname)
 
 
 @reversion.register(follow=('event', 'options'))
@@ -35,7 +35,7 @@ class RegistrationField(models.Model):
         return self.name
 
     def natural_key(self):
-        return (self.name,)
+        return (self.event.name, self.name)
 
     class Meta:
         verbose_name = _('registration field')

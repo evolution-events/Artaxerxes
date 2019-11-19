@@ -25,10 +25,12 @@ class EventManager(models.Manager):
         """
         # This does not use the user yet, but this makes it easier to change that later
         # This essentially duplicates the similarly-named methods on the model below.
-        #
+        # Split into two annotates because the latter depends on the former and order
+        # of these can not be guaranteed in the kwargs across systems.
         qs = self.get_queryset().annotate(
             registration_is_open=QExpr(~Q(registration_opens_at=None) & Q(registration_opens_at__lt=Now())),
             is_visible=QExpr(public=True),
+        ).annotate(
             preregistration_is_open=QExpr(Q(registration_is_open=False) & Q(is_visible=True)),
         )
         if with_registration_status:

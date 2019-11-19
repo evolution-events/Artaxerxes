@@ -148,14 +148,14 @@
     field_type: choice
 - model: registrations.registrationfieldoption
   fields:
-    field: [type]
+    field: [On the Styx, type]
     title: Crew
     invite_only: [EE Bestuur]
     slots: 5
     price: 100
 - model: registrations.registrationfieldoption
   fields:
-    field: [type]
+    field: [On the Styx, type]
     title: Player
     slots: 16
     price: 200
@@ -164,16 +164,16 @@
     name: small_purse
     title: Small purse ticket
     event: [On the Styx]
-    depends: [type, Player]
+    depends: [[On the Styx, type], Player]
     field_type: choice
 - model: registrations.registrationfieldoption
   fields:
-    field: [small_purse]
+    field: [On the Styx, small_purse]
     title: "No"
     order: 0
 - model: registrations.registrationfieldoption
   fields:
-    field: [small_purse]
+    field: [On the Styx, small_purse]
     title: "Yes"
     price: -50
 - model: registrations.registrationfield
@@ -181,16 +181,16 @@
     name: nationality
     title: Nationality
     event: [On the Styx]
-    depends: [type, Player]
+    depends: [[On the Styx, type], Player]
     field_type: choice
 - model: registrations.registrationfieldoption
   fields:
-    field: [nationality]
+    field: [On the Styx, nationality]
     title: Dutch
     slots: 8
 - model: registrations.registrationfieldoption
   fields:
-    field: [nationality]
+    field: [On the Styx, nationality]
     title: International
     slots: 8
 - model: registrations.registrationfield
@@ -198,22 +198,22 @@
     name: gender
     title: Character Gender
     event: [On the Styx]
-    depends: [type, Player]
+    depends: [[On the Styx, type], Player]
     field_type: choice
 - model: registrations.registrationfieldoption
   fields:
-    field: [gender]
+    field: [On the Styx, gender]
     title: Either is fine
     slots: 8
     order: 0
 - model: registrations.registrationfieldoption
   fields:
-    field: [gender]
+    field: [On the Styx, gender]
     title: Male God
     slots: 8
 - model: registrations.registrationfieldoption
   fields:
-    field: [gender]
+    field: [On the Styx, gender]
     title: Female God
     slots: 8
 - model: registrations.registrationfield
@@ -225,12 +225,12 @@
     allow_change_until: 2019-07-01
 - model: registrations.registrationfieldoption
   fields:
-    field: [alcohol]
+    field: [On the Styx, alcohol]
     title: "No"
     order: 0
 - model: registrations.registrationfieldoption
   fields:
-    field: [alcohol]
+    field: [On the Styx, alcohol]
     title: "Yes"
     price: 15
 - model: registrations.registrationfield
@@ -242,24 +242,24 @@
     allow_change_until: 2019-07-01
 - model: registrations.registrationfieldoption
   fields:
-    field: [extra_nights]
+    field: [On the Styx, extra_nights]
     title: No, leave on sunday or monday
     order: 0
 - model: registrations.registrationfieldoption
   fields:
-    field: [extra_nights]
+    field: [On the Styx, extra_nights]
     title: Yes, leave on tuesday
     price: 10
     order: 1
 - model: registrations.registrationfieldoption
   fields:
-    field: [extra_nights]
+    field: [On the Styx, extra_nights]
     title: Yes, leave on wednesday
     price: 20
     order: 2
 - model: registrations.registrationfieldoption
   fields:
-    field: [extra_nights]
+    field: [On the Styx, extra_nights]
     title: Yes, leave on thursday
     price: 30
     order: 3

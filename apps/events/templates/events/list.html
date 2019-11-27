@@ -40,7 +40,6 @@
   </p>
   {% endif %}
   {% if e.preregistration_is_open %}
-  {# TODO Choose one of these links to show, depending on state of event #}
   <a href="{% url 'registrations:register' eventid=e.id %}" class="btn btn-sm btn-info" role="button">{% trans 'Prepare registration' %}</a>
   {% endif %}
   {% if e.registration_is_open %}

@@ -29,7 +29,7 @@
 <ul>
 {% for e in events.future %}
   <li>{{e.display_name}}<br/>
-  {{e.datum}}<br/>
+  {{e.start_date}} - {{e.end_date}}<br/>
   <a href="{{e.location_url}}">{{e.location_name}}</a><br/>
   <p>{{e.description}}</p>
   {% if e.registration_opens_at and not e.registration_is_open %}

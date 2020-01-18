@@ -214,7 +214,7 @@
 - model: registrations.registrationfieldoption
   fields:
     field: [On the Styx, gender]
-    title: Either is fine
+    title: No preference
     slots: 8
     order: 0
 - model: registrations.registrationfieldoption

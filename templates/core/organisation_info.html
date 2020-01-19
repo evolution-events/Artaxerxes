@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block pagetitle %}{% trans "Information about Evolution Events" %}{% endblock pagetitle%}
+
+{% block content %}
+<h2>{% trans "Anything you want to know" %}</h2>
+<p>
+  <a href="https://www.evolution-events.nl">{% trans "Visit the Evolution Events website" %}</a><br/>
+  <a href="https://www.evolution-events.nl/algemeen/?pg=huisregels">{% trans "Especially the house rules" %}</a>
+</p>
+
+<h2>{% trans "Address" %}</h2>
+<p>
+  Stichting Evolution Events<br/>
+  Bevinlaan 203<br/>
+  3527 ED Utrecht<br/>
+</p>
+<p>
+  KvK 24385140
+</p>
+<p>
+  {% trans "E-mail to" %} <a href="mailto:algemeenbestuur@evolution-events.nl">algemeenbestuur@evolution-events.nl</a>
+</p>
+
+<h2>{% trans "Payments" %}</h2>
+<p>
+{% blocktrans %}
+Payments can be made to IBAN account NL52INGB0001297429, held by
+"Stichting Evolution Events" in Capelle aan den IJssel, NL. Please note
+your name, the event name and the registration number (from the
+confirmation e-mail) in the payment description.
+{% endblocktrans %}
+</p>
+<p>
+{% trans "Payment at the gate is only possible in exceptional cases. Always contact the treasurer well in advance for this." %}<br/>
+<a href="mailto:penningmeester@evolution-events.nl">penningmeester@evoution-events.nl</a>
+</p>
+{% endblock content%}

@@ -26,6 +26,7 @@ urlpatterns = [
     path('', people_views.main_index_view, name='main_index_view'),
 
     # Include urls of the apps
+    path('', include('apps.core.urls')),
     path('people/', include('apps.people.urls')),
     path('events/', include('apps.events.urls')),
     path('registrations/', include('apps.registrations.urls')),

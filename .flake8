@@ -23,6 +23,9 @@ ignore =
     D400
     # Allow docstrings not in the imperative mood
     D401
+    # Allow line breaks before binary operators (PEP8 allows before or
+    # after, but not mixing them, so flake8 forbids both by default)
+    W503
 
 # TODO: Enable B902, if https://github.com/PyCQA/flake8-bugbear/issues/19 is fixed
 

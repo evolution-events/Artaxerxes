@@ -17,7 +17,7 @@
 
 
 <body>
-    <nav class="navbar navbar-expand-md navbar-light bg-light mb-4">
+    <nav class="navbar navbar-expand-md navbar-light bg-light mb-4 justify-content-end">
       <a class="navbar-brand" href="#">EE Artaxerxes</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="{% trans 'Toggle navigation' %}">
         <span class="navbar-toggler-icon"></span>
@@ -34,9 +34,31 @@
             <li class="nav-item">
               <a class="nav-link" href="{% url 'core:organisation_info_view' %}">{% trans 'Info about organisation' %}</a>
             </li>
+            </ul> <!-- end first navbar ul -->
+              <ul class="navbar-nav text-right">
+                <li class="nav-item">
+                  <span class="nav-link">{% trans "Welcome" %} {{ user.get_full_name }}</span>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'account_logout' %}">{% trans "Log out" %}</a>
+                </li>
+                <!--
+                <li class="nav-item">
+                <a class="nav-link" href="{# url 'password_change' #}">{% trans "Change password" %}</a>
+                </li>-->
+                {% if user.is_staff %}
+                    <li class="nav-item">
+                      <a class="nav-link" href="{% url 'admin:index' %}">{% trans "Admin" %}</a>
+                    </li>
+                {% endif %}
+          {% else %}
+            </ul> <!-- end first navbar ul -->
+              <ul class="navbar-nav text-right">
+                <li class="nav-item">
+                  <a href="{% url 'account_login' %}">{% trans "Log in" %}</a>
+                </li>
           {% endif %}
-
-        </ul>
+        </ul> <!-- end last navbar ul -->
       </div>
     </nav>
     {% block messages %}
@@ -55,23 +77,6 @@
 
         {% endblock %}
     </main>
-
-    <footer class="footer" role="navigation">
-    <div class="container">
-        {% block footer %}
-        {% if user.is_authenticated %}
-            <span class="welcome-user d-none d-md-inline">{% trans "Welcome" %} {{ user.get_full_name }}</span>
-            <a class="btn btn-sm btn-default" role="button" href="{% url 'account_logout' %}">{% trans "Log out" %}</a>
-            <!--<a class="btn btn-sm btn-default" role="button" href="{# url 'password_change' #}">{% trans "Change password" %}</a>-->
-            {% if user.is_staff %}
-                <a class="btn btn-sm btn-info" role="button" href="{% url 'admin:index' %}">{% trans "Admin" %}</a>
-            {% endif %}
-        {% else %}
-            <a href="{% url 'account_login' %}">{% trans "Log in" %}</a>
-        {% endif %}
-        {% endblock footer %}
-    </div>
-    </footer>
 
     {% block javascript %} {# Javascript required for Bootstrap functionality #}
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>

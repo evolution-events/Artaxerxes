@@ -1,0 +1,17 @@
+{% extends 'account/login.html' %}
+{% load i18n %}
+
+
+{% block content %}
+  <h1>Sign in before registering for an event</h1>
+  <p>
+    {% trans "To register for our events, you must first sign in. This way, we can conveniently administer registrations, and you do not have to fill in your personal details for every registration." %}
+  </p>
+  <p>
+    {% trans "Questions? Problems?" %}
+  </p>
+  <p>
+    {% trans "Contact us at" %} <a href="mailto:inschrijvingen@evolution-events.nl">inschrijvingen@evolution-events.nl<a/>.
+  </p>
+  {{ block.super }}
+{% endblock %}

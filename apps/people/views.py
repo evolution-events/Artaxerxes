@@ -3,14 +3,6 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 
 
-def main_index_view(request):
-    """
-    Present a welcoming page to the user.
-
-    TODO: dit willen we hier niet houden, maar we moeten even uitzoeken waar het wel heen moet
-    """
-    return render(request, 'core/home.html')
-
 
 @login_required
 def person_index_view(request):

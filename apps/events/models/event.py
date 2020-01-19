@@ -93,11 +93,11 @@ class Event(models.Model):
 
     registration_opens_at = models.DateTimeField(
         verbose_name=_('Registration opens at'), null=True, blank=True,
-        help_text=('At this time registration is open for everyone.'))
+        help_text=_('At this time registration is open for everyone.'))
     public = models.BooleanField(
         verbose_name=_('Public'), default=False,
-        help_text=('When checked, the event is visible to users. If registration is not open yet, they can prepare a '
-                   'registration already.'))
+        help_text=_('When checked, the event is visible to users. If registration is not open yet, they can prepare a '
+                    'registration already.'))
 
     user = models.ManyToManyField(settings.AUTH_USER_MODEL, through=Registration)
 

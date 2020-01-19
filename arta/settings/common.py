@@ -2,7 +2,24 @@
 import sys
 from os.path import abspath, basename, dirname, join, normpath
 
+from django.core import serializers
 from django.utils.translation import ugettext_lazy as _
+
+
+# Work around Django bug https://code.djangoproject.com/ticket/31051
+# This effectively disables natural key dependency sorting for serialization, since that is not actually really
+# required in most cases (loaddata already handles unsorted lists, and test-db serialization does not use natural
+# keys).
+def _sort_dependencies(app_list):
+    ret = []
+    for app_config, model_list in app_list:
+        if model_list is None:
+            model_list = app_config.get_models()
+        ret.extend(model_list)
+    return ret
+
+
+serializers.sort_dependencies = _sort_dependencies
 
 # ##### PATH CONFIGURATION ################################
 

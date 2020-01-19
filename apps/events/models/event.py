@@ -1,7 +1,7 @@
 import reversion
 from django.conf import settings
 from django.db import models
-from django.db.models import Max, Q
+from django.db.models import Count, Max, Q
 from django.db.models.functions import Now
 from django.utils.translation import ugettext_lazy as _
 
@@ -57,6 +57,14 @@ class EventManager(models.Manager):
             ))
         return qs
 
+    def with_used_slots(self):
+        return self.get_queryset().annotate(
+            used_slots=Count(
+                'registration',
+                filter=Q(registration__status=Registration.statuses.REGISTERED),
+            ),
+        )
+
 
 @reversion.register(follow=('registration_fields',))
 class Event(models.Model):
@@ -98,6 +106,11 @@ class Event(models.Model):
         verbose_name=_('Public'), default=False,
         help_text=_('When checked, the event is visible to users. If registration is not open yet, they can prepare a '
                     'registration already.'))
+
+    slots = models.IntegerField(
+        null=True, blank=True,
+        help_text=_('Maximum number of attendees for this event. If omitted, no there is no limit.'))
+    full = models.BooleanField(default=False)
 
     user = models.ManyToManyField(settings.AUTH_USER_MODEL, through=Registration)
 

@@ -25,7 +25,7 @@ class RegistrationStatusService:
 
         with transaction.atomic():
             # Lock the event, to prevent multiple registrations from taking up the same slots
-            Event.objects.select_for_update().get(pk=registration.event.pk)
+            event = Event.objects.with_used_slots().select_for_update().get(pk=registration.event.pk)
             # This selects all options that are associated with the current registration and that have non-null slots.
             # annotated with the number of slots used.
             # TODO: This produces a fairly complex query, which should be checked for performance
@@ -34,12 +34,16 @@ class RegistrationStatusService:
                 Q(registrationfieldvalue__registration=registration) & ~Q(slots=None),
             )
 
+            # If the event has slots defined, we can treat it just like any option with slots
+            if event.slots is not None:
+                options_with_slots = [*options_with_slots, event]
+
             if any(o.full or o.used_slots >= o.slots for o in options_with_slots):
                 registration.status = Registration.statuses.WAITINGLIST
             else:
                 registration.status = Registration.statuses.REGISTERED
 
-                # Set full for any options where we used the last slot
+                # Set full for any options (or the event as a whole) where we used the last slot
                 for o in options_with_slots:
                     if o.slots - o.used_slots == 1:
                         o.full = True

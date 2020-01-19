@@ -9,15 +9,13 @@ services:
 env:
 
 install:
-  - pip install pipenv
-    # This should really be sync instead of install, but that doesn't
-    # have --system: https://github.com/pypa/pipenv/issues/2227
-  - pipenv install --system --ignore-pipfile --deploy --dev
+  - pip install poetry
+  - poetry install -n
 
 script:
-  - make flake8
-  - make check
-  - make test
+  - poetry run make flake8
+  - poetry run make check
+  - poetry run make test
 
 after_success:
-  - coverage report -m
+  - poetry run coverage report -m

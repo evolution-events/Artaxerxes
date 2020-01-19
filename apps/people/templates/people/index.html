@@ -1,26 +1,28 @@
 {% extends "base.html" %}
 {% load i18n %}
 
-{% block pagetitle %}{% trans 'Welcome' %}{% endblock pagetitle%}
+{% block pagetitle %}{% trans 'Personal details' %}{% endblock pagetitle%}
 
 
 {% block content %}
 
-<p>
-{% trans "Welcome," %} {{ user.get_full_name }}
-</p>
-<p>
-{% blocktrans %}
-Here some general welcome message and list of links? (Next to having those links in the main menu)
-{% endblocktrans %}
-</p>
+{% if pdetails %}
+<h2>{% trans 'Personal details' %}</h2>
+<table class="table">
+    <tr><td>{% trans 'Name' %}</td><td>{{user.get_full_name}}</td></tr>
+    <tr><td>{% trans 'Address' %}</td><td>{{pdetails.address}}</td></tr>
+    <tr><td>{% trans 'Postal code' %}</td><td>{{pdetails.postalcode}}</td></tr>
+    <tr><td>{% trans 'City of residence' %}</td><td>{{pdetails.city}}</td></tr>
+    <tr><td>{% trans 'Country' %}</td><td>{{pdetails.country}}</td></tr>
+</table>
+{% endif %}
 
-<ul>
-{% blocktrans %}
-<li>link personal information</li>
-<li>link to medical information</li>
-<li>link to emergency contacts</li>
-{% endblocktrans %}
-</ul>
+{% if mdetails %}
+<h2>{% trans 'Medical details' %}</h2>
+<table class="table">
+  <tr><td>{% trans 'Food allergies' %}</td><td>{{mdetails.food_allergies}}</td></tr>
+  <tr><td>{% trans 'Take into account' %}</td><td>{{mdetails.event_risks}}</td></tr>
+</table>
+{% endif %}
 
 {% endblock content%}

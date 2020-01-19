@@ -36,10 +36,15 @@ class EventManager(models.Manager):
             registration_is_open=QExpr(
                 Q(is_visible=True)
                 & ~Q(registration_opens_at=None)
-                & Q(registration_opens_at__lt=Now()),
+                & Q(registration_opens_at__lt=Now())
+                & Q(start_date__gt=Now()),
             ),
         ).annotate(
-            preregistration_is_open=QExpr(Q(registration_is_open=False) & Q(is_visible=True)),
+            preregistration_is_open=QExpr(
+                Q(is_visible=True)
+                & Q(registration_is_open=False)
+                & Q(start_date__gt=Now()),
+            ),
         )
         if with_registration_status:
             # This looks for all non-cancelled registrations related to this event and user. Due to a constraint, this

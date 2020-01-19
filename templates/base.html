@@ -25,13 +25,17 @@
       <div class="collapse navbar-collapse" id="navbarCollapse">
         <ul class="navbar-nav mr-auto">
           {% if user.is_authenticated %}
-                {% include "people/menu.html" %}
-                {% include "events/menu.html" %}
             <li class="nav-item">
               <a class="nav-link" href="{% url 'core:main_index_view' %}">Dashboard</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="{% url 'core:organisation_info_view' %}">{% trans 'Info about organisation' %}</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'people:index' %}">{% trans 'Personal information' %}</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'events:eventlist' %}">{% trans 'Overview registrations' %}</a>
             </li>
             </ul> <!-- end first navbar ul -->
               <ul class="navbar-nav text-right">

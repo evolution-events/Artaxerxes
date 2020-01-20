@@ -7,7 +7,7 @@ from ..services import RegistrationStatusService
 from .factories import RegistrationFactory, RegistrationFieldFactory, RegistrationFieldOptionFactory
 
 
-class TestAnnotations(TestCase):
+class TestRegistration(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.event = EventFactory(registration_opens_in_days=-1, public=True)

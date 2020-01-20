@@ -20,7 +20,7 @@ class EventManager(models.Manager):
         Returns events annotated with properties applicable for the given user.
 
          - is_visible: True when the user can view this event
-         - pregistration_is_open: True when the user can prepare a registration (becomes False again when
+         - preregistration_is_open: True when the user can prepare a registration (becomes False again when
            registration_is_open becomes True).
          - registration_is_open: True when the user can finalize a registration.
          - registration_status: The status of the registration for the user for this event, or None when no

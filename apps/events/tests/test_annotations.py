@@ -69,8 +69,8 @@ class TestAnnotations(TestCase):
             'future_public_open_now',
         })
 
-    def test_pregistration_is_open(self):
-        """ Test pregistration_is_open annotation. """
+    def test_preregistration_is_open(self):
+        """ Test preregistration_is_open annotation. """
         annotated = Event.objects.for_user(None)
         is_open = set(annotated.filter(preregistration_is_open=True))
         self.assertEventsWithTitles(is_open, {

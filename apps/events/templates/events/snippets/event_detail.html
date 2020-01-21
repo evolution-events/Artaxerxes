@@ -1,0 +1,14 @@
+{% load i18n %}
+
+{# This snippet contains the detailed information about an event. More info can be added by calling template #}
+<h3>{% trans "Location information" %}</h3>
+{{ e.location_info|linebreaks }}
+{% if e.location_url %}
+  <a class="towebsite" href="{{ e.location_url }}">{% trans "To location website" %}</a>
+{% endif %}
+
+<h3>{% trans "Description" %}</h3>
+<p>{{ e.description|linebreaks }}</p>
+
+<h3>{% trans "Price" %}</h3>
+<p>TODO: prijsbepaling met allerlei opties enzo</p>

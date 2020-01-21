@@ -1,0 +1,13 @@
+{% load i18n %}
+
+{# This snippet shows the summary of an event. #}
+{% if e.series %}
+  <span class="seriesname">{{e.series.name}}</span><br/>
+{% endif %}
+<span class="eventname">{{e.display_name}}</span><br/>
+<span class="eventdate">{{e.start_date}} - {{e.end_date}}</span><br/>
+
+<span class="location">{{ e.location_name }}</span><br/>
+{% if e.display_url %}
+  <a class="towebsite" href="{{ e.display_url }}">{% trans "To event website" %}</a>
+{% endif %}

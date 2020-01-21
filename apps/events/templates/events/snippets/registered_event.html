@@ -1,0 +1,36 @@
+{% load i18n %}
+
+{# This snippet draws 1 event that user is registered for with status of registration (waitinglist/registered) #}
+
+<li>
+<div class="future-event registered-event container">
+  <div class="event-summary row">
+    <div class="col-9">
+      {% include 'events/snippets/event_summary.html' with e=e %}
+    </div>
+    <div class="col-3">
+      {# TODO: betaalstatus weergeven in kleur en tekst #}
+      <span class="event-top-right registration-state-payed">
+        {% trans "Registration number" %}: TODO<br/>
+        {% trans "Status" %}: {{ e.registration_status.label }}<br/>
+      </span>
+      <a class="event-bottom-right details-link link-collapsed" data-toggle="collapse" data-target="#collapse-event-{{e.id}}" href="#">{% trans "Details" %}</a>
+    </div>
+  </div>
+  <div class="more-info more-info-collapsed collapse" id="collapse-event-{{e.id}}">
+    {% include 'events/snippets/event_detail.html' with e=e %}
+
+    <h3>{% trans "Cancel?" %}</h3>
+    <p>
+      {% if e.display_email %}
+        {% blocktrans with e.display_email|urlize as mail %}
+        Please send a mail to {{mail}}
+        {% endblocktrans %}
+      {% else %}
+        {% trans "Please send an e-mail to algemeenbestuur@evolution-events.nl"|urlize %}
+      {% endif %}
+    </p>
+
+  </div>
+</div>
+</li>

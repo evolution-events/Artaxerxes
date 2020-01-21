@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load i18n %}
 
-{% block pagetitle %}{% trans 'Welcome' %}{% endblock pagetitle%}
+{% block pagetitle %}{% trans 'Dashboard' %}{% endblock pagetitle%}
 
 
 {% block content %}
@@ -15,19 +15,18 @@
     {% trans "To see an overview of all your registrations, past and future, use the likewise named button in the menu." %}
   </p>
 
-TODO: events.future en events.registered ergens vandaan halen in een view
-
-<h2>{% trans "Future events - registration open" %}</h2>
+<h2>{% trans "Registration open" %}</h2>
 <ul>
 {% for e in events.future %}
-  {% include 'events/event_snippet.html' with e=e %}
+  {% include 'events/snippets/open_event.html' with e=e %}
 {% endfor %}
 </ul>
 
-<h2>{% trans "Future events - already registered" %}</h2>
+<h2>{% trans "Already registered" %}</h2>
 <ul>
-{% for e in events.registered %}
-  {% include 'events/event_snippet.html' with e=e %}
+{% for e in events.active %}
+  {% include 'events/snippets/registered_event.html' with e=e %}
 {% endfor %}
 </ul>
+
 {% endblock content%}

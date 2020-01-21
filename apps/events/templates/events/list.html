@@ -1,51 +1,23 @@
 {% extends "base.html" %}
 {% load i18n %}
 
-{% block pagetitle %}{% trans 'Event list' %}{% endblock pagetitle%}
+{% block pagetitle %}{% trans 'Registration list' %}{% endblock pagetitle%}
 
 
 {% block content %}
 
-<h2>Past events</h2>
-<ul>
-{% for e in events.history %}
-  <li>{{e.display_name}}<br/>
-{% endfor %}
-</ul>
-
-<h2>Registered events</h2>
+<h2>{% trans "Registered events" %}</h2>
+<h3>{% trans "Future" %}</h3>
 <ul>
 {% for e in events.active %}
-  <li>{{e.display_name}}<br/>
-  {% if e.registration_status.REGISTERED %}
-  {% trans 'Registered' %}
-  {% else %}
-  {% trans 'On waiting list' %}
-  {% endif %}
+  {% include 'events/snippets/registered_event.html' with e=e %}
 {% endfor %}
 </ul>
 
-<h2>Upcoming events</h2>
+<h3>{% trans "Past" %}
 <ul>
-{% for e in events.future %}
-  <li>{{e.display_name}}<br/>
-  {{e.start_date}} - {{e.end_date}}<br/>
-  <a href="{{e.location_url}}">{{e.location_name}}</a><br/>
-  <p>{{e.description}}</p>
-  {% if e.registration_opens_at and not e.registration_is_open %}
-  <p>
-  {% blocktrans with at=e.registration_opens_at %}
-  Registration opens at {{ at }}.
-  {% endblocktrans %}
-  </p>
-  {% endif %}
-  {% if e.preregistration_is_open %}
-  <a href="{% url 'registrations:register' eventid=e.id %}" class="btn btn-sm btn-info" role="button">{% trans 'Prepare registration' %}</a>
-  {% endif %}
-  {% if e.registration_is_open %}
-  <a href="{% url 'registrations:register' eventid=e.id %}" class="btn btn-sm btn-info" role="button">{% trans 'Register' %}</a>
-  {% endif %}
-  </li>
+{% for e in events.history %}
+  {% include 'events/snippets/registered_event.html' with e=e %}
 {% endfor %}
 </ul>
 

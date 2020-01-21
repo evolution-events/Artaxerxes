@@ -122,6 +122,22 @@ class Event(models.Model):
         else:
             return "{0}: {1}".format(self.name, self.title)
 
+    def display_url(self):
+        """ Return either own url or the one of the series event is part of, or empty string. """
+        if self.url:
+            return self.url
+        elif self.series and self.series.url:
+            return self.series.url
+        return ''
+
+    def display_email(self):
+        """ Return either own e-mail or the one of the series event is part of, or empty string. """
+        if self.email:
+            return self.email
+        elif self.series and self.series.email:
+            return self.series.email
+        return ''
+
     def __str__(self):
         return self.display_name()
 

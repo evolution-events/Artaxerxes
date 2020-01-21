@@ -21,7 +21,7 @@
   KvK 24385140
 </p>
 <p>
-  {% trans "E-mail to" %} <a href="mailto:algemeenbestuur@evolution-events.nl">algemeenbestuur@evolution-events.nl</a>
+  {% trans "E-mail to algemeenbestuur@evolution-events.nl"|urlize %}
 </p>
 
 <h2>{% trans "Payments" %}</h2>
@@ -34,7 +34,6 @@ confirmation e-mail) in the payment description.
 {% endblocktrans %}
 </p>
 <p>
-{% trans "Payment at the gate is only possible in exceptional cases. Always contact the treasurer well in advance for this." %}<br/>
-<a href="mailto:penningmeester@evolution-events.nl">penningmeester@evoution-events.nl</a>
+{% trans "Payment at the gate is only possible in exceptional cases. Always contact the treasurer well in advance for this at penningmeester@evolution-events.nl."|urlize %}
 </p>
 {% endblock content%}

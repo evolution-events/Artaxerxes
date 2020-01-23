@@ -24,13 +24,11 @@
 
     <h3>{% trans "Cancel?" %}</h3>
     <p>
-      {% if e.display_email %}
-        {% blocktrans with e.display_email|urlize as mail %}
-        Please send a mail to {{mail}}
-        {% endblocktrans %}
-      {% else %}
-        {% trans "Please send an e-mail to algemeenbestuur@evolution-events.nl"|urlize %}
-      {% endif %}
+      {% blocktrans trimmed with '<a href="https://www.evolution-events.nl/algemeen/?pg=huisregels">'|safe as link_start and '</a>' as link_end %}
+      If you want or have to cancel your registration, please contact us via e-mail (see above)
+      and make sure you have read {{ link_start }}the house rules{{ link_end }} concerning cancellation because a fee may be
+      due, depending on the time left till the event.
+      {% endblocktrans %}
     </p>
 
   </div>

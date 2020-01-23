@@ -12,3 +12,15 @@
 
 <h3>{% trans "Price" %}</h3>
 <p>TODO: prijsbepaling met allerlei opties enzo</p>
+
+<h3>{% trans "Contact" %}</h3>
+<p>
+  Got a question, suggestion or something else you want to tell us?
+  {% if e.display_email %}
+    {% blocktrans with e.display_email|urlize as mail %}
+    Please send a mail to {{mail}}
+    {% endblocktrans %}
+  {% else %}
+    {% trans "Please send an e-mail to algemeenbestuur@evolution-events.nl"|urlize %}
+  {% endif %}
+</p>

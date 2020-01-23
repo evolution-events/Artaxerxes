@@ -1,0 +1,13 @@
+body {
+    background-color:var(--dark);
+    color:var(--light);
+}
+
+.navbar {
+    box-shadow:0 0 5px var(--dark-gray);
+}
+
+h1 {
+    margin-bottom: 0.5em;
+    border-bottom: 1px solid var(--gray);
+}

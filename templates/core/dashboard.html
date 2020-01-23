@@ -16,14 +16,14 @@
   </p>
 
 <h2>{% trans "Registration open" %}</h2>
-<ul>
+<ul class="event-list">
 {% for e in events.future %}
   {% include 'events/snippets/open_event.html' with e=e %}
 {% endfor %}
 </ul>
 
 <h2>{% trans "Already registered" %}</h2>
-<ul>
+<ul class="event-list">
 {% for e in events.active %}
   {% include 'events/snippets/registered_event.html' with e=e %}
 {% endfor %}

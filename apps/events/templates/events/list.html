@@ -6,15 +6,15 @@
 
 {% block content %}
 
-<ul>
 <h2>{% trans "Future" %}</h2>
+<ul class="event-list">
 {% for e in events.active %}
   {% include 'events/snippets/registered_event.html' with e=e %}
 {% endfor %}
 </ul>
 
-<ul>
 <h2>{% trans "Past" %}</h2>
+<ul class="event-list">
 {% for e in events.history %}
   {% include 'events/snippets/registered_event.html' with e=e %}
 {% endfor %}

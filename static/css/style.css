@@ -11,3 +11,8 @@ h1 {
     margin-bottom: 0.5em;
     border-bottom: 1px solid var(--gray);
 }
+ul.event-list {
+    padding:0em;
+    list-style-type:none;
+    list-style-position:outside;
+}

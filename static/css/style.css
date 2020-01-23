@@ -1,5 +1,7 @@
 :root {
     --dark-gray: #1B1D1F;
+    --link-color: #c998ea;
+    --link-hover-color:#936da3;
 }
 
 body {
@@ -21,6 +23,12 @@ ul.event-list {
     list-style-type:none;
     list-style-position:outside;
 }
+a {
+    color:var(--link-color);
+}
+a:hover, a.visited:hover {
+    color:var(--link-hover-color);
+}
 /******************** Event blocks **********************/
 .event-summary {
     margin:1em 1em 0em 1em;
@@ -29,10 +37,6 @@ ul.event-list {
     border-radius:2em;
     padding:1em 0em 1em 1em;
     box-shadow:0 0 5px var(--dark-gray);
-}
-
-.event-block a {
-    color:var(--light);
 }
 
 .event-block .bigname {

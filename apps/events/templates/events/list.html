@@ -1,21 +1,20 @@
 {% extends "base.html" %}
 {% load i18n %}
 
-{% block pagetitle %}{% trans 'Registration list' %}{% endblock pagetitle%}
+{% block pagetitle %}{% trans 'Overview of your registrations' %}{% endblock pagetitle%}
 
 
 {% block content %}
 
-<h2>{% trans "Registered events" %}</h2>
-<h3>{% trans "Future" %}</h3>
 <ul>
+<h2>{% trans "Future" %}</h2>
 {% for e in events.active %}
   {% include 'events/snippets/registered_event.html' with e=e %}
 {% endfor %}
 </ul>
 
-<h3>{% trans "Past" %}
 <ul>
+<h2>{% trans "Past" %}</h2>
 {% for e in events.history %}
   {% include 'events/snippets/registered_event.html' with e=e %}
 {% endfor %}

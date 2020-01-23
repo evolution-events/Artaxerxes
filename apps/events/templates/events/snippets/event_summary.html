@@ -2,12 +2,14 @@
 
 {# This snippet shows the summary of an event. #}
 {% if e.series %}
-  <span class="seriesname">{{e.series.name}}</span><br/>
+  <div class="bigname">{{e.series.name}}</div>
+  <div class="subname">{{e.display_name}}</div>
+{% else %}
+  <div class="bigname">{{e.display_name}}</div>
 {% endif %}
-<span class="eventname">{{e.display_name}}</span><br/>
-<span class="eventdate">{{e.start_date}} - {{e.end_date}}</span><br/>
+<div class="eventdate">{{e.start_date}} - {{e.end_date}}</div>
 
-<span class="location">{{ e.location_name }}</span><br/>
+<div class="location">{{ e.location_name }}</div>
 {% if e.display_url %}
   <a class="towebsite" href="{{ e.display_url }}">{% trans "To event website" %}</a>
 {% endif %}

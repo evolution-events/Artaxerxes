@@ -3,18 +3,20 @@
 {# This snippet draws 1 event that user is registered for with status of registration (waitinglist/registered) #}
 
 <li>
-<div class="future-event registered-event container">
-  <div class="event-summary row">
+<div class="future-event registered-event event-block">
+  <div class="event-summary row justify-content-between">
     <div class="col-9">
       {% include 'events/snippets/event_summary.html' with e=e %}
     </div>
-    <div class="col-3">
+    <div class="col-3 d-flex align-items-end flex-column">
       {# TODO: betaalstatus weergeven in kleur en tekst #}
-      <span class="event-top-right registration-state-payed">
+      <div class="event-top-right registration-info registration-state-payed">
         {% trans "Registration number" %}: TODO<br/>
         {% trans "Status" %}: {{ e.registration_status.label }}<br/>
-      </span>
-      <a class="event-bottom-right details-link link-collapsed" data-toggle="collapse" data-target="#collapse-event-{{e.id}}" href="#">{% trans "Details" %}</a>
+      </div>
+      <div class="event-bottom-right mt-auto">
+        <a class="details-link collapsed" data-toggle="collapse" data-target="#collapse-event-{{e.id}}" href="#">{% trans "Details" %}</a>
+      </div>
     </div>
   </div>
   <div class="more-info more-info-collapsed collapse" id="collapse-event-{{e.id}}">

@@ -1,3 +1,7 @@
+:root {
+    --dark-gray: #1B1D1F;
+}
+
 body {
     background-color:var(--dark);
     color:var(--light);
@@ -11,8 +15,69 @@ h1 {
     margin-bottom: 0.5em;
     border-bottom: 1px solid var(--gray);
 }
+
 ul.event-list {
     padding:0em;
     list-style-type:none;
     list-style-position:outside;
+}
+/******************** Event blocks **********************/
+.event-summary {
+    margin:1em 1em 0em 1em;
+    background-color:var(--dark);
+    background-image:linear-gradient(var(--dark) 0, var(--dark-gray) 100%);
+    border-radius:2em;
+    padding:1em 0em 1em 1em;
+    box-shadow:0 0 5px var(--dark-gray);
+}
+
+.event-block a {
+    color:var(--light);
+}
+
+.event-block .bigname {
+    font-size:2em;
+}
+.event-block .subname {
+    font-size:1em;
+    font-style:italic;
+}
+.eventdate {
+    margin-top:0.5em;
+}
+
+.event-block .flex-column {
+    min-height:10em;
+}
+
+.event-block .event-top-right,
+.event-block .event-bottom-right {
+    width:100%;
+    padding:1em;
+    text-align:center;
+    border-left:2px solid var(--dark-gray);
+}
+.event-block .event-top-right {
+    border-radius:0 2em 0 2em;
+    border-bottom:2px solid var(--dark-gray);
+    margin:-1em -1em 0 0; /* Negate padding of event-block so we get to the edge */
+}
+
+.event-block .event-bottom-right {
+    border-radius:2em 0em 0em 0;
+    border-top:2px solid var(--dark-gray);
+    margin:0 -1em -1em 0; /*  Negate padding of event-block so we get to the edge*/
+}
+
+a.details-link.collapsed:after { content: '       \2207'} /* Arrow down */
+a.details-link:after { content: '       \0394'} /* Arrow up */
+
+/*** Detail block of an event ***/
+.event-block .more-info {
+    box-shadow:0 0 5px var(--dark-gray);
+    background-color:var(--dark-gray);
+    overflow:hidden;
+    margin:0 2.5em;
+    padding:0em 1em;
+    border-radius:0 0 2em 2em;
 }

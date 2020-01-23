@@ -3,33 +3,35 @@
 {# This snippet draws 1 event that is open for registration (so with (prepare to) register link) #}
 
 <li>
-<div class="future-event non-registered-event">
-  <div class="event-summary row">
+<div class="future-event non-registered-event event-block">
+  <div class="event-summary row justify-content-between">
     <div class="col-9">
       {% include 'events/snippets/event_summary.html' with e=e %}
     </div>
-    <div class="col-3">
-      {# Registration is not open yet but time of opening is known, show that #}
-      {% if e.registration_opens_at and not e.registration_is_open %}
-        <span class="event-top-right">
+    <div class="col-3 d-flex align-items-end flex-column">
+      <div class="event-top-right">
+        {# Registration is not open yet but time of opening is known, show that #}
+        {% if e.registration_opens_at and not e.registration_is_open %}
           {% blocktrans with at=e.registration_opens_at %}
           Registration opens at {{ at }}.
           {% endblocktrans %}
           <br/>
-        {# Show preregistration button if it is open #}
-        {% if e.preregistration_is_open %}
-          <a href="{% url 'registrations:register' eventid=e.id %}" role="button">{% trans 'Prepare registration' %}</a><br/>
+          {# Show preregistration button if it is open #}
+          {% if e.preregistration_is_open %}
+            <a href="{% url 'registrations:register' eventid=e.id %}" role="button">{% trans 'Prepare registration' %}</a><br/>
+          {% endif %}
         {% endif %}
-        </span>
-      {% endif %}
-      {# Show registration button if it is open #}
-      {% if e.registration_is_open %}
-        <a class="event-top-right toregistration" href="{% url 'registrations:register' eventid=e.id %}" role="button">{% trans 'Register' %}</a><br/>
-      {% endif %}
-      <a class="event-bottom-right details-link link-collapsed" data-toggle="collapse" data-target="#collapse-event-{{e.id}}" href="#">{% trans "Details" %}</a>
+        {# Show registration button if it is open #}
+        {% if e.registration_is_open %}
+          <a class="toregistration" href="{% url 'registrations:register' eventid=e.id %}" role="button">{% trans 'Register' %}</a><br/>
+        {% endif %}
+      </div>
+      <div class="event-bottom-right mt-auto">
+        <a class="details-link collapsed" data-toggle="collapse" data-target="#collapse-event-{{e.id}}" href="#">{% trans "Details" %}</a>
+      </div>
     </div>
   </div>
-  <div class="more-info more-info-collapsed collapse" id="collapse-event-{{e.id}}">
+  <div class="more-info collapse" id="collapse-event-{{e.id}}">
     {% include 'events/snippets/event_detail.html' with e=e %}
   </div>
 </div>

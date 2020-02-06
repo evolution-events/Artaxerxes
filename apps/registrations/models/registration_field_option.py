@@ -3,6 +3,8 @@ from django.db import models
 from django.db.models import Count, Q
 from django.utils.translation import ugettext_lazy as _
 
+from apps.core.fields import MonetaryField
+
 from . import Registration, RegistrationField
 
 
@@ -32,7 +34,7 @@ class RegistrationFieldOption(models.Model):
     invite_only = models.ForeignKey('auth.Group', null=True, blank=True, on_delete=models.SET_NULL)
     slots = models.IntegerField(null=True, blank=True)
     full = models.BooleanField(default=False)
-    price = models.FloatField(null=True, blank=True)
+    price = MonetaryField(null=True, blank=True)
 
     objects = RegistrationFieldOptionManager()
 

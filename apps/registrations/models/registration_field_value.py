@@ -24,6 +24,11 @@ class RegistrationFieldValue(models.Model):
                 return "<value unset>"
         return self.string_value
 
+    def price(self):
+        if self.field.field_type == self.field.TYPE_CHOICE and self.option:
+            return self.option.price
+        return None
+
     class Meta:
         verbose_name = _('registration field value')
         verbose_name_plural = _('registration field values')

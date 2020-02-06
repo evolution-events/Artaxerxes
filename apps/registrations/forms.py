@@ -2,6 +2,7 @@ from django import forms
 from django.db.models import Q
 from django.utils.translation import gettext as _
 
+from apps.core.templatetags.coretags import moneyformat
 from apps.people.models import Address, MedicalDetails
 from apps.registrations.models import RegistrationField, RegistrationFieldValue
 
@@ -32,7 +33,7 @@ class RegistrationOptionField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         label = obj.title
         if obj.price is not None:
-            label += " (€{})".format(obj.price)
+            label += " ({})".format(moneyformat(obj.price))
         if obj.full:
             label += " FULL"
         return label

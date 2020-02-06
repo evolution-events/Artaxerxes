@@ -42,10 +42,23 @@
 
   {% if registration and registration.options.all %}
   <h2>{% trans 'Event options' %}</h2>
-  <table class="table">
+  <table class="table registration-options">
     {% for value in registration.options.all %}
-    <tr><td>{{ value.field.title }}</td><td>{{ value.display_value }}</td></tr>
+    <tr>
+      <td>{{ value.field.title }}</td>
+      <td>{{ value.display_value }}</td>
+      {% if value.price is not None %}
+      <td class="price">{{ value.price | moneyformat }}</td>
+      {% else %}
+      <td class="noprice"></td>
+      {% endif %}
+    </tr>
     {% endfor %}
+    <tr class="total-price">
+      <td></td>
+      <td class="label">{% trans 'Total price' %}</td>
+      <td class="price">{{ registration.price | moneyformat }}</td>
+    </tr>
   </table>
   {% endif %}
   <a href="{% url 'registrations:personaldetailform' registration.id %}" class="btn btn-sm btn-info" role="button">{% trans 'Modify information' %}</a>

@@ -85,3 +85,8 @@ a.details-link:after { content: '       \0394'} /* Arrow up */
     padding:0em 1em;
     border-radius:0 0 2em 2em;
 }
+
+/*** Registration procedure - finalcheck ***/
+tr.total-price td.label {
+    text-align: right;
+}

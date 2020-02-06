@@ -150,7 +150,8 @@ def registration_step_options(request, registrationid=None):
 def registration_step_final_check(request, registrationid=None):
     """ Step in registration process where user checks all information and agrees to conditions """
 
-    registration = get_object_or_404(Registration, pk=registrationid)
+    qs = Registration.objects.with_price()
+    registration = get_object_or_404(qs, pk=registrationid)
     # Get a copy of the event annotated for this user
     event = Event.objects.for_user(request.user).get(pk=registration.event.pk)
     personal_details = Address.objects.filter(user=request.user).first()  # Returns None if nothing was found

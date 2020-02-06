@@ -71,6 +71,10 @@ LANGUAGES = (
     ('en', _('English')),
 )
 
+MONETARY_CURRENCY = '€'
+MONETARY_DECIMAL_PLACES = 2
+MONETARY_MAX_DIGITS = 12
+
 # ##### APPLICATION CONFIGURATION #########################
 
 # these are the apps

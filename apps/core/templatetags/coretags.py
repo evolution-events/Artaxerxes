@@ -1,9 +1,11 @@
 import os
 
 from django import template
+from django.conf import settings
 from django.db.models.fields.files import FieldFile
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
+from django.utils.formats import number_format
 
 register = template.Library()
 
@@ -44,3 +46,9 @@ def human_readable(value, arg):
         return '-'
     else:
         return returnvalue
+
+
+@register.filter()
+def moneyformat(value):
+    """ Properly format a numeric value as a monetary value. """
+    return settings.MONETARY_CURRENCY + number_format(value, decimal_pos=settings.MONETARY_DECIMAL_PLACES)

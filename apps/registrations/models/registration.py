@@ -1,10 +1,21 @@
 import reversion
 from django.conf import settings
 from django.db import models
-from django.db.models import Q
+from django.db.models import ExpressionWrapper, Q, Sum
 from django.utils.translation import ugettext_lazy as _
 from konst import Constant, ConstantGroup, Constants
 from konst.models.fields import ConstantChoiceField
+
+from apps.core.fields import MonetaryField
+
+
+class Manager(models.Manager):
+    def with_price(self):
+        return self.get_queryset().annotate(
+            price=ExpressionWrapper(
+                Sum('options__option__price'),
+                output_field=MonetaryField()),
+        )
 
 
 @reversion.register(follow=('options',))
@@ -29,6 +40,8 @@ class Registration(models.Model):
     status = ConstantChoiceField(verbose_name=_('Status'), constants=statuses, null=False)
     created_at = models.DateTimeField(verbose_name=_('Creation timestamp'), auto_now_add=True, null=False)
     registered_at = models.DateTimeField(verbose_name=_('Registration timestamp'), blank=True, null=True)
+
+    objects = Manager()
 
     def __str__(self):
         return _('%(user)s - %(event)s - %(status)s') % {

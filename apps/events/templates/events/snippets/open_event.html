@@ -16,10 +16,10 @@
           Registration opens at {{ at }}.
           {% endblocktrans %}
           <br/>
-          {# Show preregistration button if it is open #}
-          {% if e.preregistration_is_open %}
-            <a href="{% url 'registrations:register' eventid=e.id %}" role="button">{% trans 'Prepare registration' %}</a><br/>
-          {% endif %}
+        {% endif %}
+        {# Show preregistration button if it is open #}
+        {% if e.preregistration_is_open %}
+          <a href="{% url 'registrations:register' eventid=e.id %}" role="button">{% trans 'Prepare registration' %}</a><br/>
         {% endif %}
         {# Show registration button if it is open #}
         {% if e.registration_is_open %}

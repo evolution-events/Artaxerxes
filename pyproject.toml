@@ -10,6 +10,7 @@ django = "^2.2"
 django-reversion = "*"
 django-allauth = "*"
 django-konst = "*"
+django-airplane = "^0.3.1"
 
 [tool.poetry.dev-dependencies]
 flake8 = "*"

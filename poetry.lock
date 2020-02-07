@@ -62,6 +62,18 @@ bcrypt = ["bcrypt"]
 
 [[package]]
 category = "main"
+description = "Django app that caches CDN files for use when coding offline"
+name = "django-airplane"
+optional = false
+python-versions = "*"
+version = "0.3.1"
+
+[package.dependencies]
+Django = ">=1.11"
+requests = ">=2.13"
+
+[[package]]
+category = "main"
 description = "Integrated set of Django applications addressing authentication, registration, account management as well as 3rd party (social) account authentication."
 name = "django-allauth"
 optional = false
@@ -577,7 +589,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["pathlib2", "contextlib2", "unittest2"]
 
 [metadata]
-content-hash = "125e579c6f2171ae1bc54253820b17ecfd0e76b294b5374364bafd8a70a91bfd"
+content-hash = "a0c80a58d379e64bde569de961f6e2e36edc769dae8c8f7a279b92ebeb39a2bd"
 python-versions = "^3.5"
 
 [metadata.files]
@@ -634,6 +646,10 @@ defusedxml = [
 django = [
     {file = "Django-2.2.7-py3-none-any.whl", hash = "sha256:89c2007ca4fa5b351a51a279eccff298520783b713bf28efb89dfb81c80ea49b"},
     {file = "Django-2.2.7.tar.gz", hash = "sha256:16040e1288c6c9f68c6da2fe75ebde83c0a158f6f5d54f4c5177b0c1478c5b86"},
+]
+django-airplane = [
+    {file = "django-airplane-0.3.1.tar.gz", hash = "sha256:95f6c4d35e7684fb459c102b5b6380b9b1bb5db802b6aca2834a36f6d079a9ea"},
+    {file = "django_airplane-0.3.1-py2.py3-none-any.whl", hash = "sha256:38da0476b283e7e5f00b100ea92bfc5f7ac71497fe091c7351aedb5f9ecc7788"},
 ]
 django-allauth = [
     {file = "django-allauth-0.41.0.tar.gz", hash = "sha256:7ab91485b80d231da191d5c7999ba93170ef1bf14ab6487d886598a1ad03e1d8"},

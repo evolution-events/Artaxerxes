@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block precontent %}
+<div class="account-settings-menu">
+  <h3>Account settings</h3>
+  <ul>
+    <li><a href="{% url 'account_email' %}">{% trans "E-mail addresses" %}</a></li>
+    <li><a href="{% url 'account_change_password' %}">{% trans "Password" %}</a></li>
+    <li><a href="{% url 'socialaccount_connections' %}">{% trans "Social authentication" %}</a></li>
+  </ul>
+</div>
+{% endblock precontent %}

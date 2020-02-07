@@ -5,6 +5,12 @@ from os.path import abspath, basename, dirname, join, normpath
 from django.core import serializers
 from django.utils.translation import ugettext_lazy as _
 
+# Import local_settings, if they exist
+try:
+    from .local_settings import *
+except ImportError:
+    pass
+
 
 # Work around Django bug https://code.djangoproject.com/ticket/31051
 # This effectively disables natural key dependency sorting for serialization, since that is not actually really

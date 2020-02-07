@@ -38,30 +38,30 @@
               <a class="nav-link" href="{% url 'events:eventlist' %}">{% trans 'Overview registrations' %}</a>
             </li>
             </ul> <!-- end first navbar ul -->
-              <ul class="navbar-nav text-right">
+            <div class="navbar-nav dropdown">
+              <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">{% trans "Welcome" %} {{ user.get_full_name }}</a>
+              <ul class="dropdown-menu bg-dark">
                 <li class="nav-item">
-                  <span class="nav-link">{% trans "Welcome" %} {{ user.get_full_name }}</span>
+                  <a class="nav-link" href="{% url 'account_email' %}">{% trans "Account settings" %} </a>
                 </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="{% url 'account_logout' %}">{% trans "Log out" %}</a>
-                </li>
-                <!--
-                <li class="nav-item">
-                <a class="nav-link" href="{# url 'password_change' #}">{% trans "Change password" %}</a>
-                </li>-->
                 {% if user.is_staff %}
                     <li class="nav-item">
                       <a class="nav-link" href="{% url 'admin:index' %}">{% trans "Admin" %}</a>
                     </li>
                 {% endif %}
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'account_logout' %}">{% trans "Log out" %}</a>
+                </li>
+              </ul> <!-- end last navbar ul -->
+            </div>
           {% else %}
             </ul> <!-- end first navbar ul -->
               <ul class="navbar-nav text-right">
                 <li class="nav-item">
                   <a href="{% url 'account_login' %}">{% trans "Log in" %}</a>
                 </li>
+              </ul> <!-- end last navbar ul -->
           {% endif %}
-        </ul> <!-- end last navbar ul -->
       </div>
     </nav>
     {% block messages %}

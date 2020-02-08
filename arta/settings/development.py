@@ -1,5 +1,8 @@
 # Python imports
 from os.path import join
+import os
+
+import airplane
 
 from .common import *
 
@@ -29,6 +32,7 @@ DATABASES = {
 
 INSTALLED_APPS = DEFAULT_APPS + [
     'debug_toolbar',
+    'airplane',
 ]
 
 FIXTURE_DIRS = [
@@ -43,3 +47,18 @@ MIDDLEWARE.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
 INTERNAL_IPS = [
     '127.0.0.1',
 ]
+# ##### Airplane static files ###############################
+
+AIRPLANE_CACHE = join(PROJECT_ROOT, airplane.CACHE_DIR)
+STATICFILES_DIRS += (
+    AIRPLANE_CACHE,
+)
+
+# Create cache directory. It seems that the debug_toolbar tries to access all STATICFILES_DIRS before airplan gets a
+# chance to create it.
+os.makedirs(AIRPLANE_CACHE, exist_ok=True)
+
+# To use airplane, run with BUILD_CACHE to download files on every request (only when DEBUG=true), then change to
+# USE_CACHE when offline to use cached versions.
+# AIRPLANE_MODE = airplane.BUILD_CACHE
+# AIRPLANE_MODE = airplane.USE_CACHE

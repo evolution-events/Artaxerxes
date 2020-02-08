@@ -155,6 +155,9 @@ ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
+# Automatically login people after email-confirmation after signup.
+# For security, this only works in the same browse session as the initial signup.
+ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
 
 # ##### SECURITY CONFIGURATION ############################
 

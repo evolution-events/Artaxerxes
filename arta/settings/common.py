@@ -96,7 +96,8 @@ DEFAULT_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
+    # TODO: social accounts weer aanzetten als we ze handig hebben gemaakt
+    # 'allauth.socialaccount.providers.google',
     'apps.people.apps.PeopleConfig',
     'apps.events.apps.EventsConfig',
     'apps.registrations.apps.RegistrationsConfig',

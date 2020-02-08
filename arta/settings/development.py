@@ -1,6 +1,6 @@
 # Python imports
-from os.path import join
 import os
+from os.path import join
 
 import airplane
 

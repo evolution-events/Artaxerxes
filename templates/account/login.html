@@ -1,9 +1,10 @@
 {% extends 'account/login.html' %}
 {% load i18n %}
 
+{% block pagetitle %}{% trans 'Signing in' %}{% endblock pagetitle %}
 
 {% block content %}
-  <h1>Sign in before registering for an event</h1>
+  <h2>{% trans "Sign in before registering for an event" %}</h2>
   <p>
     {% trans "To register for our events, you must first sign in. This way, we can conveniently administer registrations, and you do not have to fill in your personal details for every registration." %}
   </p>

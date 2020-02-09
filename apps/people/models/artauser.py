@@ -36,6 +36,12 @@ class ArtaUser(AbstractBaseUser, PermissionsMixin):
 
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
 
+    consent_announcements = models.BooleanField(
+        verbose_name=_('Send updates'),
+        help_text=_('Keep me updated about new events. You will receive at most a few e-mails each year'),
+        default=False,
+    )
+
     objects = ArtaUserManager()
 
     EMAIL_FIELD = 'email'

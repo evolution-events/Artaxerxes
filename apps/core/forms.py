@@ -1,5 +1,6 @@
 from django import forms
 
+from apps.core.models import ConsentLog
 from apps.people.models import ArtaUser
 
 
@@ -17,3 +18,11 @@ class SignupFormBase(forms.Form):
         user.last_name = self.cleaned_data['last_name']
         user.consent_announcements = self.cleaned_data['consent_announcements']
         user.save()
+
+        if user.consent_announcements:
+            ConsentLog.objects.create(
+                user=user,
+                action=ConsentLog.actions.CONSENTED,
+                consent_name='announcements',
+                consent_description=self.fields['consent_announcements'].help_text,
+            )

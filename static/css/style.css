@@ -39,6 +39,14 @@ a:hover, a.visited:hover {
     font-style: italic;
 }
 
+input[name="consent_announcements"] {
+    margin-right: 0.5em;
+}
+
+input[name="consent_announcements"] + br {
+    display: none;
+}
+
 /******************** Event blocks **********************/
 .event-summary {
     margin:1em 1em 0em 1em;

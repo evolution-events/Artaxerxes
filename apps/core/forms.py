@@ -10,8 +10,10 @@ class SignupFormBase(forms.Form):
     # populated by the social provider if available.
     first_name = ArtaUser._meta.get_field('first_name').formfield(required=True)
     last_name = ArtaUser._meta.get_field('last_name').formfield(required=True)
+    consent_announcements = ArtaUser._meta.get_field('consent_announcements').formfield()
 
     def signup(self, request, user):
         user.first_name = self.cleaned_data['first_name']
         user.last_name = self.cleaned_data['last_name']
+        user.consent_announcements = self.cleaned_data['consent_announcements']
         user.save()

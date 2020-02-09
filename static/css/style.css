@@ -39,6 +39,11 @@ a:hover, a.visited:hover {
     font-style: italic;
 }
 
+.errorlist {
+    background-color: var(--danger);
+    color: var(--light);
+}
+
 input[name="consent_announcements"] {
     margin-right: 0.5em;
 }

@@ -33,6 +33,12 @@ a {
 a:hover, a.visited:hover {
     color:var(--link-hover-color);
 }
+
+/*** Forms **********************************************/
+.helptext {
+    font-style: italic;
+}
+
 /******************** Event blocks **********************/
 .event-summary {
     margin:1em 1em 0em 1em;

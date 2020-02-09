@@ -9,6 +9,10 @@ body {
     color:var(--light);
 }
 
+.table, .btn {
+    color:var(--light);
+}
+
 .navbar {
     box-shadow:0 0 5px var(--dark-gray);
 }

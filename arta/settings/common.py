@@ -158,6 +158,7 @@ ACCOUNT_AUTHENTICATION_METHOD = 'email'
 # Automatically login people after email-confirmation after signup.
 # For security, this only works in the same browse session as the initial signup.
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
+ACCOUNT_SIGNUP_FORM_CLASS = 'apps.core.forms.SignupFormBase'
 
 # ##### SECURITY CONFIGURATION ############################
 

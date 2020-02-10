@@ -69,6 +69,8 @@ def registration_step_personal_details(request, registrationid=None):
     else:
         ud_form = UserDetailsForm(instance=request.user, prefix="ud")
         pd_form = PersonalDetailForm(instance=address, prefix="pd")
+    # TODO: *if* there are other active registrations, this page should probably indicate that these will also be
+    # updated when this data is changed.
     return render(request, 'registrations/editpersonaldetails.html', {
         'pd_form': pd_form,
         'ud_form': ud_form,

@@ -25,6 +25,9 @@
   {% if pdetails %}
   <h2>{% trans 'Personal details' %}</h2>
   <table class="table">
+      <tr><td>{% trans 'Fistname' %}</td><td>{{user.first_name}}</td></tr>
+      <tr><td>{% trans 'Lastname' %}</td><td>{{user.last_name}}</td></tr>
+      <tr><td>{% trans 'E-mail address' %}</td><td>{{user.email}}</td></tr>
       <tr><td>{% trans 'Address' %}</td><td>{{pdetails.address}}</td></tr>
       <tr><td>{% trans 'Postal code' %}</td><td>{{pdetails.postalcode}}</td></tr>
       <tr><td>{% trans 'City of residence' %}</td><td>{{pdetails.city}}</td></tr>

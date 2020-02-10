@@ -12,7 +12,7 @@ class EmergencyContact(models.Model):
     MIN_PER_USER = 1
     MAX_PER_USER = 3
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='emergency_contacts')
     contact_name = models.CharField(max_length=100, verbose_name=_('Name of contact'))
     relation = models.CharField(max_length=100, verbose_name=_('Relation to contact'),
                                 help_text=_('For example: parent, partner, friend, etc.'))

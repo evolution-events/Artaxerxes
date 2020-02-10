@@ -43,6 +43,26 @@
   </table>
   {% endif %}
 
+  {% if emergency_contacts %}
+  <h2>{% trans 'Emergency contacts' %}</h2>
+  <table class="table">
+    <tr>
+        <th>Name</th>
+        <th>Relation</th>
+        <th>Phone number</th>
+        <th>Remarks</th>
+    </tr>
+    {% for contact in emergency_contacts %}
+    <tr>
+      <td>{{contact.contact_name}}</td>
+      <td>{{contact.relation}}</td>
+      <td>{{contact.phone_number}}</td>
+      <td>{{contact.remarks}}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% endif %}
+
   {% if registration and registration.options.all %}
   <h2>{% trans 'Event options' %}</h2>
   <table class="table registration-options">

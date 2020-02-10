@@ -192,6 +192,7 @@ def registration_step_final_check(request, registrationid=None):
     event = Event.objects.for_user(request.user).get(pk=registration.event.pk)
     personal_details = Address.objects.filter(user=request.user).first()  # Returns None if nothing was found
     medical_details = MedicalDetails.objects.filter(user=request.user).first()  # Returns None if nothing was found
+    emergency_contacts = request.user.emergency_contacts.all()
     # TODO: Check registration status?
 
     data = request.POST or None
@@ -216,6 +217,7 @@ def registration_step_final_check(request, registrationid=None):
         'event': event,
         'pdetails': personal_details,
         'mdetails': medical_details,
+        'emergency_contacts': emergency_contacts,
         'fc_form': fc_form,
         'modify_url': reverse('registrations:personaldetailform', args=(registration.id,)),
     })

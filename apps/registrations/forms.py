@@ -1,5 +1,6 @@
 from django import forms
 from django.db.models import Q
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
 from apps.core.templatetags.coretags import moneyformat
@@ -9,14 +10,28 @@ from apps.registrations.models import RegistrationField, RegistrationFieldValue
 # from apps.events.models import EventOptions
 
 
+class SpanWidget(forms.Widget):
+    """ Renders a value wrapped in a <span> tag. """
+
+    def render(self, name, value, attrs=None, renderer=None):
+        final_attrs = self.build_attrs(self.attrs, attrs)
+        return mark_safe(u'<span%s >%s</span>' % (
+            forms.utils.flatatt(final_attrs), value))
+
+
 class UserDetailsForm(forms.ModelForm):
     # Override the required attribute for these fields
     first_name = ArtaUser._meta.get_field('first_name').formfield(required=True)
     last_name = ArtaUser._meta.get_field('last_name').formfield(required=True)
+    email = forms.CharField(
+        disabled=True,
+        widget=SpanWidget,
+        help_text=_('You can change your e-mailaddress in your account settings'),
+    )
 
     class Meta:
         model = ArtaUser
-        fields = ['first_name', 'last_name']
+        fields = ['first_name', 'last_name', 'email']
 
 
 class PersonalDetailForm(forms.ModelForm):

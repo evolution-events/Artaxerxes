@@ -9,6 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 class EmergencyContact(models.Model):
     """Contact information a person to be notified in an emergency involving the associated user."""
 
+    MIN_PER_USER = 1
     MAX_PER_USER = 3
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

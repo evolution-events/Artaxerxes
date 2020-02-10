@@ -1,10 +1,11 @@
 from django import forms
 from django.db.models import Q
+from django.forms.formsets import DELETION_FIELD_NAME
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
 from apps.core.templatetags.coretags import moneyformat
-from apps.people.models import Address, ArtaUser, MedicalDetails
+from apps.people.models import Address, ArtaUser, EmergencyContact, MedicalDetails
 from apps.registrations.models import RegistrationField, RegistrationFieldValue
 
 # from apps.events.models import EventOptions
@@ -44,6 +45,43 @@ class MedicalDetailForm(forms.ModelForm):
     class Meta:
         model = MedicalDetails
         fields = ['food_allergies', 'event_risks']
+
+
+class BaseEmergencyContactFormSet(forms.BaseInlineFormSet):
+    def add_fields(self, form, index):
+        super().add_fields(form, index)
+        # Remove the "delete" checkboxes, since we implement this differently
+        del form.fields[DELETION_FIELD_NAME]
+
+    def _should_delete_form(self, form):
+        # The first min_num forms cannot be deleted. Since we do not have access to the form index, we instead rely on
+        # the use_required_attribute set by _construct_form below.
+        if form.use_required_attribute:
+            return False
+
+        # If all these fields are empty, return True and delete this contact
+        fields = ('contact_name',)
+        return not any(form.cleaned_data.get(i, False) for i in fields)
+
+    def _construct_form(self, i, **kwargs):
+        # By default, use_required_attribute is set to False for all forms in a FormSet, since forms might be extra and
+        # can be left empty, or when the delete checkbox is checked, attributes are no longer required.
+        # In this case, min_num of forms must always have a value and cannot be deleted, so emit the HTML required
+        # attribute for them as well.
+        if i < self.min_num:
+            kwargs['use_required_attribute'] = True
+        return super()._construct_form(i, **kwargs)
+
+
+EmergencyContactFormSet = forms.inlineformset_factory(
+    parent_model=ArtaUser,
+    model=EmergencyContact,
+    formset=BaseEmergencyContactFormSet,
+    fields=('contact_name', 'relation', 'phone_number', 'remarks'),
+    min_num=EmergencyContact.MIN_PER_USER,
+    max_num=EmergencyContact.MAX_PER_USER,
+    extra=EmergencyContact.MAX_PER_USER,
+)
 
 
 class FinalCheckForm(forms.Form):

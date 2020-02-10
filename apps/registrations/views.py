@@ -12,7 +12,8 @@ from django.views.generic import DetailView, View
 from apps.events.models import Event
 from apps.people.models import Address, MedicalDetails
 
-from .forms import FinalCheckForm, MedicalDetailForm, PersonalDetailForm, RegistrationOptionsForm, UserDetailsForm
+from .forms import (EmergencyContactFormSet, FinalCheckForm, MedicalDetailForm, PersonalDetailForm,
+                    RegistrationOptionsForm, UserDetailsForm)
 from .models import Registration
 from .services import RegistrationStatusService
 
@@ -101,7 +102,7 @@ def registration_step_medical_details(request, registrationid=None):
                 reversion.set_comment(_("Medical info updated via frontend. The following "
                                       "fields changed: %(fields)s" % {'fields': ", ".join(md_form.changed_data)}))
 
-            return redirect('registrations:optionsform', registrationid=registration.id)
+            return redirect('registrations:emergencycontactsform', registrationid=registration.id)
         else:
             messages.error(request, _('Please correct the error below.'), extra_tags='bg-danger')
     return render(request, 'registrations/editmedicaldetails.html', {
@@ -109,6 +110,34 @@ def registration_step_medical_details(request, registrationid=None):
         'registration': registration,
         'event': event,
         'back_url': reverse('registrations:personaldetailform', args=(registration.id,)),
+    })
+
+
+@login_required
+def registration_step_emergency_contacts(request, registrationid=None):
+    """ Step in registration process where user fills in emergency contacts """
+
+    registration = get_object_or_404(Registration, pk=registrationid)
+    # Get a copy of the event annotated for this user
+    event = Event.objects.for_user(request.user).get(pk=registration.event.pk)
+    data = request.POST or None
+    ec_formset = EmergencyContactFormSet(data=data, instance=request.user)
+
+    if request.method == 'POST':
+        if ec_formset.is_valid():
+            with reversion.create_revision():
+                ec_formset.save()
+                reversion.set_user(request.user)
+                reversion.set_comment(_("Emergency contacts updated via frontend."))
+
+            return redirect('registrations:optionsform', registrationid=registration.id)
+        else:
+            messages.error(request, _('Please correct the error below.'), extra_tags='bg-danger')
+    return render(request, 'registrations/editemergencycontacts.html', {
+        'ec_formset': ec_formset,
+        'registration': registration,
+        'event': event,
+        'back_url': reverse('registrations:medicaldetailform', args=(registration.id,)),
     })
 
 
@@ -149,7 +178,7 @@ def registration_step_options(request, registrationid=None):
         'opt_form': opt_form,
         'registration': registration,
         'event': event,
-        'back_url': reverse('registrations:medicaldetailform', args=(registration.id,)),
+        'back_url': reverse('registrations:emergencycontactsform', args=(registration.id,)),
     })
 
 

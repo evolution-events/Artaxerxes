@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block pagetitle %}{% trans 'Edit emergency contacts' %}{% endblock pagetitle%}
+
+{% block content %}
+  {% if message %}
+    <p class="notification">{{ message }}</p>
+  {% endif %}
+
+  <p>
+  {% blocktrans %}
+  Please specify at least one emergency contact, whom we can contact
+  in case something would happen to you.
+  {% endblocktrans %}
+  </p>
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ ec_formset.non_form_errors }}
+    {{ ec_formset.management_form }}
+    {% for ec_form in ec_formset %}
+    <h3>{% blocktrans with num=forloop.counter %}Contact #{{num}}{% endblocktrans %}</h3>
+    <table class="table table-borderless table-sm">
+    {{ ec_form.as_table }}
+    </table>
+    {% endfor %}
+    <a class="btn btn-default" href="{{ back_url }}" role="button">{% trans 'Back' %}</a>
+    <button class="btn btn-success" type="submit">{% trans 'Next step' %}</button>
+  </form>
+{% endblock content %}

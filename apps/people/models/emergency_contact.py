@@ -16,7 +16,7 @@ class EmergencyContact(models.Model):
     relation = models.CharField(max_length=100, verbose_name=_('Relation to contact'),
                                 help_text=_('For example: parent, partner, friend, etc.'))
     phone_number = models.CharField(max_length=100, verbose_name=_('Phone number of contact'))
-    remarks = models.TextField(verbose_name=_('Remarks'))
+    remarks = models.TextField(verbose_name=_('Remarks'), blank=True)
 
     def __str__(self):
         return gettext('Emergency contact of user %(user)s') % {'user': self.user}

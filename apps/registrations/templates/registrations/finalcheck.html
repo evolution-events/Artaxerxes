@@ -64,7 +64,7 @@
     </tr>
   </table>
   {% endif %}
-  <a href="{% url 'registrations:personaldetailform' registration.id %}" class="btn btn-sm btn-info" role="button">{% trans 'Modify information' %}</a>
+  <a href="{{ modify_url }}" class="btn btn-sm btn-info" role="button">{% trans 'Modify information' %}</a>
 
   {% if event.registration_is_open %}
   <h2>{% trans 'Finalize registration' %}</h2>

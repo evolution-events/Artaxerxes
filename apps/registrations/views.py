@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.forms import ValidationError
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.views.generic import DetailView, View
 
@@ -74,6 +75,7 @@ def registration_step_personal_details(request, registrationid=None):
         'ud_form': ud_form,
         'registration': registration,
         'event': event,
+        'cancel_url': reverse('events:eventlist'),
     })
 
 
@@ -106,6 +108,7 @@ def registration_step_medical_details(request, registrationid=None):
         'md_form': md_form,
         'registration': registration,
         'event': event,
+        'back_url': reverse('registrations:personaldetailform', args=(registration.id,)),
     })
 
 
@@ -146,6 +149,7 @@ def registration_step_options(request, registrationid=None):
         'opt_form': opt_form,
         'registration': registration,
         'event': event,
+        'back_url': reverse('registrations:medicaldetailform', args=(registration.id,)),
     })
 
 
@@ -184,4 +188,5 @@ def registration_step_final_check(request, registrationid=None):
         'pdetails': personal_details,
         'mdetails': medical_details,
         'fc_form': fc_form,
+        'modify_url': reverse('registrations:personaldetailform', args=(registration.id,)),
     })

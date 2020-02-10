@@ -14,7 +14,7 @@
     {{ ud_form.as_table }}
     {{ pd_form.as_table }}
     </table>
-    <a class="btn btn-default" href="{% url 'events:eventlist' %}" role="button">{% trans 'Cancel' %}</a>
+    <a class="btn btn-default" href="{{ cancel_url }}" role="button">{% trans 'Cancel' %}</a>
     <button class="btn btn-success" type="submit">{% trans 'Next step' %}</button>
   </form>
 {% endblock content %}

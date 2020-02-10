@@ -3,10 +3,20 @@ from django.db.models import Q
 from django.utils.translation import gettext as _
 
 from apps.core.templatetags.coretags import moneyformat
-from apps.people.models import Address, MedicalDetails
+from apps.people.models import Address, ArtaUser, MedicalDetails
 from apps.registrations.models import RegistrationField, RegistrationFieldValue
 
 # from apps.events.models import EventOptions
+
+
+class UserDetailsForm(forms.ModelForm):
+    # Override the required attribute for these fields
+    first_name = ArtaUser._meta.get_field('first_name').formfield(required=True)
+    last_name = ArtaUser._meta.get_field('last_name').formfield(required=True)
+
+    class Meta:
+        model = ArtaUser
+        fields = ['first_name', 'last_name']
 
 
 class PersonalDetailForm(forms.ModelForm):

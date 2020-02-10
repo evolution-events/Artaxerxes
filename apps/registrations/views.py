@@ -11,7 +11,7 @@ from django.views.generic import DetailView, View
 from apps.events.models import Event
 from apps.people.models import Address, MedicalDetails
 
-from .forms import FinalCheckForm, MedicalDetailForm, PersonalDetailForm, RegistrationOptionsForm
+from .forms import FinalCheckForm, MedicalDetailForm, PersonalDetailForm, RegistrationOptionsForm, UserDetailsForm
 from .models import Registration
 from .services import RegistrationStatusService
 
@@ -48,15 +48,18 @@ def registration_step_personal_details(request, registrationid=None):
     if hasattr(request.user, 'address'):
         address = request.user.address
     if request.method == 'POST':
-        pd_form = PersonalDetailForm(request.POST, instance=address)
-        if pd_form.is_valid():
+        ud_form = UserDetailsForm(request.POST, instance=request.user, prefix="ud")
+        pd_form = PersonalDetailForm(request.POST, instance=address, prefix="pd")
+        if pd_form.is_valid() and ud_form.is_valid():
             with reversion.create_revision():
+                user = ud_form.save()
                 address = pd_form.save(commit=False)  # We can't save yet because user needs to be set
-                address.user = request.user
+                address.user = user
                 address.save()
                 reversion.set_user(request.user)
+                fields = pd_form.changed_data + ud_form.changed_data
                 reversion.set_comment(_("Personal info updated via frontend. The following "
-                                      "fields changed: %(fields)s" % {'fields': ", ".join(pd_form.changed_data)}))
+                                      "fields changed: %(fields)s" % {'fields': ", ".join(fields)}))
 
             # TODO: send verification e-mail for e-address after figuring out what to use
             # Make registration and set status to PREPARATION_IN_PROGRESS
@@ -64,9 +67,11 @@ def registration_step_personal_details(request, registrationid=None):
         else:
             messages.error(request, _('Please correct the error below.'), extra_tags='bg-danger')
     else:
-        pd_form = PersonalDetailForm(instance=address)
+        ud_form = UserDetailsForm(instance=request.user, prefix="ud")
+        pd_form = PersonalDetailForm(instance=address, prefix="pd")
     return render(request, 'registrations/editpersonaldetails.html', {
         'pd_form': pd_form,
+        'ud_form': ud_form,
         'registration': registration,
         'event': event,
     })

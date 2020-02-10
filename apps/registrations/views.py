@@ -47,9 +47,10 @@ def registration_step_personal_details(request, registrationid=None):
     address = None
     if hasattr(request.user, 'address'):
         address = request.user.address
+    data = request.POST or None
+    ud_form = UserDetailsForm(data=data, instance=request.user, prefix="ud")
+    pd_form = PersonalDetailForm(data=data, instance=address, prefix="pd")
     if request.method == 'POST':
-        ud_form = UserDetailsForm(request.POST, instance=request.user, prefix="ud")
-        pd_form = PersonalDetailForm(request.POST, instance=address, prefix="pd")
         if pd_form.is_valid() and ud_form.is_valid():
             with reversion.create_revision():
                 user = ud_form.save()
@@ -66,9 +67,6 @@ def registration_step_personal_details(request, registrationid=None):
             return redirect('registrations:medicaldetailform', registrationid=registration.id)
         else:
             messages.error(request, _('Please correct the error below.'), extra_tags='bg-danger')
-    else:
-        ud_form = UserDetailsForm(instance=request.user, prefix="ud")
-        pd_form = PersonalDetailForm(instance=address, prefix="pd")
     # TODO: *if* there are other active registrations, this page should probably indicate that these will also be
     # updated when this data is changed.
     return render(request, 'registrations/editpersonaldetails.html', {
@@ -89,8 +87,9 @@ def registration_step_medical_details(request, registrationid=None):
     registration = get_object_or_404(Registration, pk=registrationid)
     # Get a copy of the event annotated for this user
     event = Event.objects.for_user(request.user).get(pk=registration.event.pk)
+    data = request.POST or None
+    md_form = MedicalDetailForm(data=data, instance=mdetails)
     if request.method == 'POST':
-        md_form = MedicalDetailForm(request.POST, instance=mdetails)
         if md_form.is_valid():
             with reversion.create_revision():
                 details = md_form.save(commit=False)
@@ -103,8 +102,6 @@ def registration_step_medical_details(request, registrationid=None):
             return redirect('registrations:optionsform', registrationid=registration.id)
         else:
             messages.error(request, _('Please correct the error below.'), extra_tags='bg-danger')
-    else:
-        md_form = MedicalDetailForm(instance=mdetails)
     return render(request, 'registrations/editmedicaldetails.html', {
         'md_form': md_form,
         'registration': registration,
@@ -123,10 +120,11 @@ def registration_step_options(request, registrationid=None):
     if not event.registration_fields.all():
         return redirect('registrations:finalcheckform', registrationid=registration.id)
 
+    data = request.POST or None
+    opt_form = RegistrationOptionsForm(registration.event, request.user, registration=registration, data=data)
+
     # TODO: Check registration status?
     if request.method == 'POST':
-        opt_form = RegistrationOptionsForm(registration.event, request.user, registration=registration,
-                                           data=request.POST)
         if opt_form.is_valid():
             with reversion.create_revision():
                 opt_form.save(registration)
@@ -144,8 +142,6 @@ def registration_step_options(request, registrationid=None):
             return redirect('registrations:finalcheckform', registrationid=registration.id)
         else:
             messages.error(request, _('Please correct the error below.'), extra_tags='bg-danger')
-    else:
-        opt_form = RegistrationOptionsForm(registration.event, request.user, registration=registration)
     return render(request, 'registrations/editoptions.html', {
         'opt_form': opt_form,
         'registration': registration,
@@ -165,8 +161,9 @@ def registration_step_final_check(request, registrationid=None):
     medical_details = MedicalDetails.objects.filter(user=request.user).first()  # Returns None if nothing was found
     # TODO: Check registration status?
 
+    data = request.POST or None
+    fc_form = FinalCheckForm(data=data)
     if request.method == 'POST':
-        fc_form = FinalCheckForm(request.POST)
         if fc_form.is_valid():
             try:
                 RegistrationStatusService.finalize_registration(registration)
@@ -180,8 +177,6 @@ def registration_step_final_check(request, registrationid=None):
             return redirect('events:eventlist')
         else:
             messages.error(request, _('Please correct the error below.'), extra_tags='bg-danger')
-    else:
-        fc_form = FinalCheckForm()
     return render(request, 'registrations/finalcheck.html', {
         'user': request.user,
         'registration': registration,

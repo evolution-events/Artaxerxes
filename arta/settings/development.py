@@ -59,7 +59,7 @@ STATICFILES_DIRS += (
 # chance to create it.
 os.makedirs(AIRPLANE_CACHE, exist_ok=True)
 
-# To use airplane, run with BUILD_CACHE to download files on every request (only when DEBUG=true), then change to
-# USE_CACHE when offline to use cached versions.
-# AIRPLANE_MODE = airplane.BUILD_CACHE
-# AIRPLANE_MODE = airplane.USE_CACHE
+# When DEBUG=True, this causes airplane to automatically cache selected external dependencies and then serve them from
+# cache subsequently. There is no cache clear, so if an external resource changes without changing the URL, it should
+# be manually removed from the cache (but that should not normally happen).
+AIRPLANE_MODE = airplane.AUTO_CACHE

@@ -15,7 +15,7 @@ from apps.people.models import Address, MedicalDetails
 from .forms import (EmergencyContactFormSet, FinalCheckForm, MedicalDetailForm, PersonalDetailForm,
                     RegistrationOptionsForm, UserDetailsForm)
 from .models import Registration
-from .services import RegistrationStatusService
+from .services import RegistrationNotifyService, RegistrationStatusService
 
 
 class RegistrationStartView(LoginRequiredMixin, View):
@@ -207,6 +207,8 @@ def registration_step_final_check(request, registrationid=None):
                 # TODO: Redirect elsewhere? Or Maybe remove this except clause when status is checked above?
                 return redirect('registrations:finalcheckform', registration.pk)
 
+            # Confirm registration by e-mail
+            RegistrationNotifyService.send_confirmation_email(registration)
             return redirect('registrations:registrationconfirmation', registration.pk)
         else:
             messages.error(request, _('Please correct the error below.'), extra_tags='bg-danger')

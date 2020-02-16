@@ -1,7 +1,12 @@
+import re
+
+from django.conf import settings
+from django.core.mail import EmailMessage
 from django.db import transaction
 from django.db.models import Q
 from django.db.models.functions import Now
 from django.forms import ValidationError
+from django.template.loader import render_to_string
 from django.utils.translation import gettext as _
 
 from apps.events.models import Event
@@ -51,3 +56,26 @@ class RegistrationStatusService:
 
             registration.registered_at = Now()
             registration.save()
+
+
+class RegistrationNotifyService:
+    @staticmethod
+    def send_confirmation_email(registration):
+        context = {
+            'user': registration.user,
+            'registration': registration,
+        }
+        body = render_to_string('registrations/email/registration_confirmation.txt', context)
+        subject = render_to_string('registrations/email/registration_confirmation_subject.txt', context).strip()
+        # Remove all empty lines, except for the ones that contain just a . (then just remove the .). This allows
+        # removing the empty lines produced by template tags that got removed, while keeping the empty lines that were
+        # explicitly added in the template.
+        body = re.sub("^\n+", "", body)
+        body = re.sub("\n\n+", "\n", body)
+        body = re.sub("\n\\.\n", "\n\n", body)
+
+        email = EmailMessage(
+            body=body, subject=subject, to=[registration.user.email],
+            bcc=settings.BCC_EMAIL_TO,
+        )
+        email.send()

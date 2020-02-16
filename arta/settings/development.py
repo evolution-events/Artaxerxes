@@ -19,6 +19,7 @@ LOGOUT_REDIRECT_URL = 'account_login'
 
 # ##### EMAIL CONFIGURATION ###############################
 DEFAULT_FROM_EMAIL = "artaxerxes-test@evolution-events.nl"
+BCC_EMAIL_TO = []
 
 # ##### DATABASE CONFIGURATION ############################
 DATABASES = {

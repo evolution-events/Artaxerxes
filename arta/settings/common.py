@@ -81,6 +81,12 @@ MONETARY_CURRENCY = '€'
 MONETARY_DECIMAL_PLACES = 2
 MONETARY_MAX_DIGITS = 12
 
+# Allow entry of local numbers as well
+PHONENUMBER_DEFAULT_REGION = "NL"
+# Display numbers with explicit country code, but also include spaces (unlike the default E164 format, which has
+# country code and no spaces).
+PHONENUMBER_DEFAULT_FORMAT = "INTERNATIONAL"
+
 # ##### APPLICATION CONFIGURATION #########################
 
 # these are the apps
@@ -102,6 +108,7 @@ DEFAULT_APPS = [
     'apps.events.apps.EventsConfig',
     'apps.registrations.apps.RegistrationsConfig',
     'apps.core.apps.CoreConfig',
+    'phonenumber_field',
 ]
 
 # Middlewares

@@ -14,6 +14,17 @@ tests = ["coverage", "hypothesis", "pympler", "pytest (>=4.3.0)", "six", "zope.i
 
 [[package]]
 category = "main"
+description = "Internationalization utilities"
+name = "babel"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+version = "2.8.0"
+
+[package.dependencies]
+pytz = ">=2015.7"
+
+[[package]]
+category = "main"
 description = "Python package for providing Mozilla's CA Bundle."
 name = "certifi"
 optional = false
@@ -108,6 +119,22 @@ version = "1.0.2"
 
 [package.dependencies]
 django = ">=1.8"
+
+[[package]]
+category = "main"
+description = "An international phone number field for django models."
+name = "django-phonenumber-field"
+optional = false
+python-versions = ">=3.5"
+version = "4.0.0"
+
+[package.dependencies]
+Django = ">=1.11.3"
+babel = "*"
+
+[package.extras]
+phonenumbers = ["phonenumbers (>=7.0.2)"]
+phonenumberslite = ["phonenumberslite (>=7.0.2)"]
 
 [[package]]
 category = "main"
@@ -393,6 +420,14 @@ typing = ">=3.5.2"
 dev = ["pylint (>=1.5.6)"]
 
 [[package]]
+category = "main"
+description = "Python version of Google's common library for parsing, formatting, storing and validating international phone numbers."
+name = "phonenumbers"
+optional = false
+python-versions = "*"
+version = "8.11.4"
+
+[[package]]
 category = "dev"
 description = "Python style guide checker"
 name = "pycodestyle"
@@ -589,13 +624,17 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["pathlib2", "contextlib2", "unittest2"]
 
 [metadata]
-content-hash = "a0c80a58d379e64bde569de961f6e2e36edc769dae8c8f7a279b92ebeb39a2bd"
+content-hash = "b95b362950a5fedcfc010b45240c597f9f3d714c361b991f63b0213de77125b2"
 python-versions = "^3.5"
 
 [metadata.files]
 attrs = [
     {file = "attrs-19.3.0-py2.py3-none-any.whl", hash = "sha256:08a96c641c3a74e44eb59afb61a24f2cb9f4d7188748e76ba4bb5edfa3cb7d1c"},
     {file = "attrs-19.3.0.tar.gz", hash = "sha256:f7b7ce16570fe9965acd6d30101a28f62fb4a7f9e926b3bbc9b61f8b04247e72"},
+]
+babel = [
+    {file = "Babel-2.8.0-py2.py3-none-any.whl", hash = "sha256:d670ea0b10f8b723672d3a6abeb87b565b244da220d76b4dba1b66269ec152d4"},
+    {file = "Babel-2.8.0.tar.gz", hash = "sha256:1aac2ae2d0d8ea368fa90906567f5c08463d98ade155c0c4bfedd6a0f7160e38"},
 ]
 certifi = [
     {file = "certifi-2019.9.11-py2.py3-none-any.whl", hash = "sha256:fd7c7c74727ddcf00e9acd26bba8da604ffec95bf1c2144e67aff7a8b50e6cef"},
@@ -661,6 +700,10 @@ django-debug-toolbar = [
 django-konst = [
     {file = "django-konst-1.0.2.tar.gz", hash = "sha256:b7d4cc09a91b06378233fa89dc2cec45738a68e6edc45693dae14bd7237c908f"},
     {file = "django_konst-1.0.2-py3-none-any.whl", hash = "sha256:7e6406b1032121de97157c6d2264826c53c3cf8a8219e4e36907697f44876f30"},
+]
+django-phonenumber-field = [
+    {file = "django-phonenumber-field-4.0.0.tar.gz", hash = "sha256:d4580cc3352f4433962825f9927e6669852c1b40ec484fcb5a74064dabc1201a"},
+    {file = "django_phonenumber_field-4.0.0-py3-none-any.whl", hash = "sha256:2ca3bb0ada0ebc164bd903a981a34f1202a4294006e520b0da961bd7ce9f20a4"},
 ]
 django-reversion = [
     {file = "django-reversion-3.0.4.tar.gz", hash = "sha256:ed46722389fb2441860d471c7538967dee545bcee891d3d907b04f4baa98f5fa"},
@@ -762,6 +805,10 @@ oauthlib = [
 ]
 pathmatch = [
     {file = "pathmatch-0.2.1.zip", hash = "sha256:b35db907d0532c66132e5bc8aaa20dbfae916441987c8f0abd53ac538376d9a7"},
+]
+phonenumbers = [
+    {file = "phonenumbers-8.11.4-py2.py3-none-any.whl", hash = "sha256:9ca4332425ae4f4d1e7925bbf98ef9446755b59a903ae6a63cf4fb19adcd168b"},
+    {file = "phonenumbers-8.11.4.tar.gz", hash = "sha256:685e81ac131fea8dbd71b7769d2ac480c9fe9d5a45838e8546f5de9910670e8e"},
 ]
 pycodestyle = [
     {file = "pycodestyle-2.4.0-py2.py3-none-any.whl", hash = "sha256:cbc619d09254895b0d12c2c691e237b2e91e9b2ecf5e84c26b35400f93dcfb83"},

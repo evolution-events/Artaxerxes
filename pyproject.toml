@@ -11,6 +11,8 @@ django-reversion = "*"
 django-allauth = "*"
 django-konst = "*"
 django-airplane = "^0.3.1"
+django-phonenumber-field = "^4.0.0"
+phonenumbers = "^8.11.4"
 
 [tool.poetry.dev-dependencies]
 flake8 = "*"

@@ -11,4 +11,5 @@ urlpatterns = [
     path('ec/<int:registrationid>/', views.registration_step_emergency_contacts, name="emergencycontactsform"),
     path('op/<int:registrationid>/', views.registration_step_options, name="optionsform"),
     path('fc/<int:registrationid>/', views.registration_step_final_check, name="finalcheckform"),
+    path('rc/<int:pk>/', views.RegistrationConfirmationView.as_view(), name="registrationconfirmation"),
 ]

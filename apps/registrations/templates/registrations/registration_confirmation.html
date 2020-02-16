@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load coretags %}
+
+{% block pagetitle %}
+  {% if registration.status.REGISTERED %}
+    {% blocktrans with event=registration.event %}
+    Completed registration for {{event}}
+    {% endblocktrans %}
+  {% else %}
+    {% blocktrans with event=registration.event %}
+    Completed waitinglist registration for {{event}}
+    {% endblocktrans %}
+  {% endif %}
+{% endblock pagetitle%}
+
+{% block content %}
+  {% if registration.status.REGISTERED %}
+    <p>
+    {% blocktrans with event=registration.event %}
+    Your registration for {{event}} was completed. Your spot is secured for
+    you, provided that you pay in time (see the event website for the
+    payment policy).
+    {% endblocktrans %}
+    </p>
+  {% else %}
+    <p>
+    {% blocktrans with event=registration.event %}
+    Your registration for {{event}} was completed. However, your
+    registration was put on the waitinglist because the event (or one of the
+    options you selected) is full.
+    {% endblocktrans %}
+    </p>
+    <p>
+    {% blocktrans %}
+    Note that admissions from the waiting list are ordered by registration
+    date, but will only consider registrations that have been paid for. In
+    other words, make sure to pay for your registration as soon as possible,
+    otherwise it will not be considered if a spot frees up. If you
+    cancel your waitinglist registration, or no spot frees up before the
+    event, you will of course get a full refund.
+    {% endblocktrans %}
+    </p>
+  {% endif %}
+
+  {% if registration.options.all %}
+    <h2>{% trans "Selected options" %}</h2>
+    <table class="table">
+      {% for value in registration.options.all %}
+      <tr><td>{{ value.field.title }}</td><td>{{ value.display_value }}</td></tr>
+      {% endfor %}
+    </table>
+  {% endif %}
+{% endblock %}

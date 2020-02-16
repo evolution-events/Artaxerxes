@@ -207,8 +207,7 @@ def registration_step_final_check(request, registrationid=None):
                 # TODO: Redirect elsewhere? Or Maybe remove this except clause when status is checked above?
                 return redirect('registrations:finalcheckform', registration.pk)
 
-            # TODO: Show result
-            return redirect('events:eventlist')
+            return redirect('registrations:registrationconfirmation', registration.pk)
         else:
             messages.error(request, _('Please correct the error below.'), extra_tags='bg-danger')
     return render(request, 'registrations/finalcheck.html', {
@@ -221,3 +220,19 @@ def registration_step_final_check(request, registrationid=None):
         'fc_form': fc_form,
         'modify_url': reverse('registrations:personaldetailform', args=(registration.id,)),
     })
+
+
+class RegistrationConfirmationView(LoginRequiredMixin, DetailView):
+    """ View confirmation after registration. """
+
+    context_object_name = 'registration'
+    template_name = 'registrations/registration_confirmation.html'
+
+    def get_queryset(self):
+        return Registration.objects.filter(user=self.request.user)
+
+    def get(self, *args, **kwargs):
+        obj = self.get_object()
+        if not obj.status.ACTIVE:
+            return redirect('core:main_index_view')
+        return super().get(*args, **kwargs)

@@ -12,10 +12,10 @@ class Address(models.Model):
 
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     phone_number = PhoneNumberField(verbose_name=_('Phone number'))
-    address = models.CharField(max_length=100, verbose_name=_('Address'))
-    postalcode = models.CharField(max_length=10, verbose_name=_('Postal code'))
-    city = models.CharField(max_length=100, verbose_name=_('City of residence'))
-    country = models.CharField(max_length=100, verbose_name=_('Country'))
+    address = models.CharField(max_length=100, verbose_name=_('Address'), blank=True)
+    postalcode = models.CharField(max_length=10, verbose_name=_('Postal code'), blank=True)
+    city = models.CharField(max_length=100, verbose_name=_('City of residence'), blank=True)
+    country = models.CharField(max_length=100, verbose_name=_('Country'), blank=True)
 
     def __str__(self):
         return gettext('Address of user %(user)s') % {'user': self.user}

@@ -1,0 +1,37 @@
+{% load i18n %}
+{% load coretags %}
+Dear {{user.get_full_name}},
+.
+{% if registration.status.REGISTERED %}
+{% blocktrans with event=registration.event %}
+Your registration for {{event}} was completed. Your spot is secured for
+you, provided that you pay in time (see the event website for the
+payment policy).
+{% endblocktrans %}
+{% else %}
+{% blocktrans with event=registration.event %}
+Your registration for {{event}} was completed. However, your
+registration was put on the waitinglist because the event (or one of the
+options you selected) is full.
+{% endblocktrans %}
+.
+{% blocktrans %}
+Note that admissions from the waiting list are ordered by registration
+date, but will only consider registrations that have been paid for. In
+other words, make sure to pay for your registration as soon as possible,
+otherwise it will not be considered if a spot frees up. If you
+cancel your waitinglist registration, or no spot frees up before the
+event, you will of course get a full refund.
+{% endblocktrans %}
+{% endif %}
+.
+{% if registration.options.all %}
+{% trans "Selected options" %}
+{% for value in registration.options.all %}
+  {{ value.field.title }}: {{ value.display_value }}
+{% endfor %}
+{% endif %}
+.
+Greetings,
+.
+Evolution Events

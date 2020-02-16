@@ -3,6 +3,7 @@ from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext
 from django.utils.translation import ugettext_lazy as _
+from phonenumber_field.modelfields import PhoneNumberField
 
 
 @reversion.register()
@@ -16,8 +17,7 @@ class EmergencyContact(models.Model):
     contact_name = models.CharField(max_length=100, verbose_name=_('Name of contact'))
     relation = models.CharField(max_length=100, verbose_name=_('Relation to contact'),
                                 help_text=_('For example: parent, partner, friend, etc.'))
-    phone_number = models.CharField(max_length=100, verbose_name=_('Phone number of contact'),
-                                    help_text=_('This should include a country code, e.g. +316987654321'))
+    phone_number = PhoneNumberField(verbose_name=_('Phone number of contact'))
     remarks = models.CharField(max_length=200, verbose_name=_('Remarks'), blank=True)
 
     def __str__(self):

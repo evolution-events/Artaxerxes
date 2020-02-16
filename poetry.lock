@@ -77,10 +77,10 @@ description = "Django app that caches CDN files for use when coding offline"
 name = "django-airplane"
 optional = false
 python-versions = "*"
-version = "0.3.1"
+version = "1.0.0"
 
 [package.dependencies]
-Django = ">=1.11"
+Django = ">=2.2.10"
 requests = ">=2.13"
 
 [[package]]
@@ -624,7 +624,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["pathlib2", "contextlib2", "unittest2"]
 
 [metadata]
-content-hash = "b95b362950a5fedcfc010b45240c597f9f3d714c361b991f63b0213de77125b2"
+content-hash = "42dfb9fc00f831535d207e799b0af1830f2f646224f81eee6df3b307a7659ea0"
 python-versions = "^3.5"
 
 [metadata.files]
@@ -687,8 +687,8 @@ django = [
     {file = "Django-2.2.10.tar.gz", hash = "sha256:1226168be1b1c7efd0e66ee79b0e0b58b2caa7ed87717909cd8a57bb13a7079a"},
 ]
 django-airplane = [
-    {file = "django-airplane-0.3.1.tar.gz", hash = "sha256:95f6c4d35e7684fb459c102b5b6380b9b1bb5db802b6aca2834a36f6d079a9ea"},
-    {file = "django_airplane-0.3.1-py2.py3-none-any.whl", hash = "sha256:38da0476b283e7e5f00b100ea92bfc5f7ac71497fe091c7351aedb5f9ecc7788"},
+    {file = "django-airplane-1.0.0.tar.gz", hash = "sha256:0f5985be127039a9c68a8e2c1083e9d86d22e4e60a5049a9bfa46da0daa1e379"},
+    {file = "django_airplane-1.0.0-py2.py3-none-any.whl", hash = "sha256:3ea6595b5edcedd0a8b5cafc81585dae260fcc7fb14bff84744ea821392ad748"},
 ]
 django-allauth = [
     {file = "django-allauth-0.41.0.tar.gz", hash = "sha256:7ab91485b80d231da191d5c7999ba93170ef1bf14ab6487d886598a1ad03e1d8"},

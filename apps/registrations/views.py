@@ -193,7 +193,10 @@ def registration_step_final_check(request, registrationid=None):
     personal_details = Address.objects.filter(user=request.user).first()  # Returns None if nothing was found
     medical_details = MedicalDetails.objects.filter(user=request.user).first()  # Returns None if nothing was found
     emergency_contacts = request.user.emergency_contacts.all()
-    # TODO: Check registration status?
+    if registration.status.ACTIVE:
+        return redirect('registrations:registrationconfirmation', registration.pk)
+    elif not registration.status.PREPARATION_COMPLETE:
+        return redirect('registrations:personaldetailform', registration.pk)
 
     data = request.POST or None
     fc_form = FinalCheckForm(data=data)

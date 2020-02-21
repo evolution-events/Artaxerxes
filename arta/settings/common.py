@@ -59,7 +59,7 @@ PROJECT_TEMPLATES = [
 ]
 
 # ##### Internationalization ##############################
-LANGUAGE_CODE = 'nl'
+LANGUAGE_CODE = 'en'
 TIME_ZONE = 'Europe/Amsterdam'
 
 # Internationalization

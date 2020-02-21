@@ -17,9 +17,11 @@
   {% else %}
   <h2>Registration prepared</h2>
   {% trans 'You have succesfully prepared your registration. Once registration opens, you can come back here to confirm your registration.' %}
-  {% blocktrans with at=event.registration_opens_at %}
-  Registration opens at {{ at }}.
+  {% if event.registration_opens_at %}
+  {% blocktrans with on=event.registration_opens_at|date:"DATE_FORMAT" at=event.registration_opens_at|date:"TIME_FORMAT" %}
+  Registration will open on {{on}} at {{at}}.
   {% endblocktrans %}
+  {% endif %}
   {% endif %}
 
   {% if pdetails %}

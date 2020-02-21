@@ -81,6 +81,10 @@ MONETARY_CURRENCY = '€'
 MONETARY_DECIMAL_PLACES = 2
 MONETARY_MAX_DIGITS = 12
 
+FORMAT_MODULE_PATH = [
+    'arta.locales',
+]
+
 # Allow entry of local numbers as well
 PHONENUMBER_DEFAULT_REGION = "NL"
 # Display numbers with explicit country code, but also include spaces (unlike the default E164 format, which has

@@ -63,7 +63,7 @@ LANGUAGE_CODE = 'nl'
 TIME_ZONE = 'Europe/Amsterdam'
 
 # Internationalization
-USE_I18N = True
+USE_I18N = False
 
 # Localisation
 USE_L10N = True
@@ -143,9 +143,6 @@ TEMPLATES = [
         },
     },
 ]
-
-# Internationalization
-USE_I18N = False
 
 # #### USER CONFIGURATION #################################
 AUTH_USER_MODEL = 'people.ArtaUser'

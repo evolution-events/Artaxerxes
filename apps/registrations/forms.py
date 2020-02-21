@@ -85,7 +85,7 @@ EmergencyContactFormSet = forms.inlineformset_factory(
 
 
 class FinalCheckForm(forms.Form):
-    agree = forms.BooleanField(label=_('Agree to conditions'), required=True)
+    agree = forms.BooleanField(label=_('I have read the house rules and agree to the above conditions'), required=True)
 
     # TODO: is this an object, or freeform Form? Link to conditions should be provided. Here (helptext) or in template?
 

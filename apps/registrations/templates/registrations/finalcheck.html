@@ -18,8 +18,8 @@
   <h2>Registration prepared</h2>
   {% trans 'You have succesfully prepared your registration. Once registration opens, you can come back here to confirm your registration.' %}
   {% if event.registration_opens_at %}
-  {% blocktrans with on=event.registration_opens_at|date:"DATE_FORMAT" at=event.registration_opens_at|date:"TIME_FORMAT" %}
-  Registration will open on {{on}} at {{at}}.
+  {% blocktrans with on=event.registration_opens_at|date:"DATE_FORMAT" at=event.registration_opens_at|date:"TIME_FORMAT" tz=event.registration_opens_at|date:"O" %}
+  Registration will open on {{on}} at {{at}} (UTC{{tz}}).
   {% endblocktrans %}
   {% endif %}
   {% endif %}
@@ -86,18 +86,31 @@
     </tr>
   </table>
   {% endif %}
-  <a href="{{ modify_url }}" class="btn btn-sm btn-info" role="button">{% trans 'Modify information' %}</a>
 
+  <h2>{% trans 'Conditions' %}</h2>
+  {{ conditions }}
+
+  {% if not event.registration_is_open %}
+  <p>{% blocktrans %}
+  When you load (or refresh) this page after registration opens, you can finalize your registration here.
+  {% endblocktrans %}
+  {% if event.registration_opens_at %}
+  {% blocktrans with on=event.registration_opens_at|date:"DATE_FORMAT" at=event.registration_opens_at|date:"TIME_FORMAT" tz=event.registration_opens_at|date:"O" %}
+  Registration will open on {{on}} at {{at}} (UTC{{tz}}).
+  {% endblocktrans %}
+  {% endif %}
+  </p>
+
+  {% endif %}
   {% if event.registration_is_open %}
-  <h2>{% trans 'Finalize registration' %}</h2>
-  <p> TODO: hier de voorwaarden of een link naar de voorwaarden (huisregels?) </p>
-  <p> TODO: ook iets over voorwaarden als de inschrijvingen nog niet open zijn zodat mensen ze alvast kunnen lezen?</p>
   <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     <table class="table">
     {{ fc_form.as_table }}
     </table>
-    {% trans 'By clicking register below, you register for this event and enter into an obligation. On cancellation, costs may still be due (as specified in the house rules).'%}
+  {% endif %}
+    <a href="{{ modify_url }}" class="btn btn-info" role="button">{% trans 'Modify information' %}</a>
+  {% if event.registration_is_open %}
     <button class="btn btn-success" type="submit">{% trans 'Register' %}</button>
   </form>
   {% endif %}

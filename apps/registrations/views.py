@@ -7,6 +7,7 @@ from django.forms import ValidationError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext as _
+from django.utils.safestring import mark_safe
 from django.views.generic import DetailView, View
 
 from apps.events.models import Event
@@ -182,6 +183,20 @@ def registration_step_options(request, registrationid=None):
     })
 
 
+# TODO: Where should this live? Template snippet? Database? How about translations?
+conditions = mark_safe("""
+<ul>
+    <li>All participants must abide to our <a
+    href="https://www.evolution-events.nl/algemeen/?pg=huisregels#english">house rules</a>.</li>
+    <li>We will process the data you supply according to our
+    <a href="https://www.evolution-events.nl/algemeen/?pg=privacy">privacy policy</a>.</li>
+    <li>Registration for this event creates an obligation to pay the registration fee. On cancellation, costs may still
+    be due (as specified in our <a href="https://www.evolution-events.nl/algemeen/?pg=huisregels#english">house
+    rules</a>).</li>
+</ul>
+""")
+
+
 @login_required
 def registration_step_final_check(request, registrationid=None):
     """ Step in registration process where user checks all information and agrees to conditions """
@@ -224,6 +239,7 @@ def registration_step_final_check(request, registrationid=None):
         'emergency_contacts': emergency_contacts,
         'fc_form': fc_form,
         'modify_url': reverse('registrations:personaldetailform', args=(registration.id,)),
+        'conditions': conditions,
     })
 
 

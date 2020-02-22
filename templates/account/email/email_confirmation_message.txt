@@ -1,9 +1,19 @@
-{% load account %}{% user_display user as user_display %}{% load i18n %}{% autoescape off %}{% blocktrans with site_name=current_site.name site_domain=current_site.domain %}Hello from {{ site_name }}!
+{% load account %}{% load i18n %}{% autoescape off %}
+{% blocktrans trimmed %}
+Welcome to Artaxerxes, the event registration system of Evolution Events.
 
-You're receiving this e-mail because user {{ user_display }} has given yours as an e-mail address to connect their account.
+You are receiving this e-mail because this e-mail address has been supplied to create an account
+on this registration system.
 
-To confirm this is correct, go to {{ activate_url }}
+To confirm this is correct, please go to {{ activate_url }}.
+
+If this is not correct you do not have to do anything.
+
+Welcome to the system, we hope to see you at one of our events.
+
+Best regards,
+
+Evolution Events
 {% endblocktrans %}
-{% blocktrans with site_name=current_site.name site_domain=current_site.domain %}Thank you from {{ site_name }}!
-{{ site_domain }}{% endblocktrans %}
+
 {% endautoescape %}

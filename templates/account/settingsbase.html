@@ -1,10 +1,13 @@
 {% extends "base.html" %}
-
 {% load i18n %}
 
+{# This template is used on the pages email.html, password_set.html, password_change.html, connections.html #}
+
+{% block pagetitle %}{% trans "Account settings" %}{% endblock %}
+
 {% block precontent %}
+
 <div class="account-settings-menu">
-  <h2>{% trans 'Account settings' %}</h2>
   <ul>
     <li><a href="{% url 'account_email' %}">{% trans "E-mail addresses" %}</a></li>
     <li><a href="{% url 'account_change_password' %}">{% trans "Password" %}</a></li>

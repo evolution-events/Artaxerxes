@@ -6,8 +6,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.forms import ValidationError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from django.utils.translation import gettext as _
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext as _
 from django.views.generic import DetailView, View
 
 from apps.events.models import Event

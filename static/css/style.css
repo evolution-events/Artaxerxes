@@ -34,6 +34,10 @@ a:hover, a.visited:hover {
     color:var(--link-hover-color);
 }
 
+ul.messages li.succes {
+    background-color:var(--green);
+}
+
 /*** Forms **********************************************/
 .helptext {
     font-style: italic;

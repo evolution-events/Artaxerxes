@@ -2,10 +2,9 @@
 
 {% load i18n %}
 
-{% block pagetitle %}{% trans "Account settings" %}{% endblock %}
 
 {% block content %}
-    <h2>{% trans "E-mail Addresses" %}</h2>
+    <h1>{% trans "E-mail Addresses" %}</h1>
 {% if user.emailaddress_set.all %}
 <p>{% trans 'The following e-mail addresses are associated with your account:' %}</p>
 
@@ -45,7 +44,7 @@
 {% endif %}
 
 
-    <h2>{% trans "Add E-mail Address" %}</h2>
+    <h2 class="mt-5">{% trans "Add E-mail Address" %}</h2>
     <p>
       {% blocktrans trimmed %}
       Your primary e-mail address will be used to contact you about events. Your secondary

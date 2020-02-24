@@ -152,8 +152,6 @@ TEMPLATES = [
 AUTH_USER_MODEL = 'people.ArtaUser'
 
 AUTHENTICATION_BACKENDS = (
-    # Normal password authentication. TODO: Needed?
-    'django.contrib.auth.backends.ModelBackend',
     # Allauth for login by e-mail or using external parties
     'allauth.account.auth_backends.AuthenticationBackend',
 )

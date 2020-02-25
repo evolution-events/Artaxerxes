@@ -30,5 +30,11 @@ class ConsentLog(models.Model):
         max_length=255,
     )
 
+    def save(self, *args, **kwargs):
+        if self.id is None:
+            super(ConsentLog, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        return
+
     # TODO: __str__?
-    # TODO: Enforce read-only at model level (e.g. only allow creating new instances, not saving existing ones)?

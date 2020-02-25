@@ -2,14 +2,12 @@
 {% load i18n %}
 {% load coretags %}
 
-{% block pagetitle %}{% trans 'Final check' %}{% endblock pagetitle%}
+{% block pagetitle %}{% trans 'Final check' %} - {{ event.display_name }}{% endblock pagetitle%}
 
 {% block content %}
   {% if message %}
     <p class="notification">{{ message }}</p>
   {% endif %}
-
-  <h1>{{ event.display_name }}</h1>
 
   {% if event.registration_is_open %}
   <h2>Ready to complete registration</h2>

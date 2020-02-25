@@ -17,9 +17,9 @@
 {% block content %}
   {% if registration.status.REGISTERED %}
     <p>
-    {% blocktrans with event=registration.event %}
+    {% blocktrans with event=registration.event eventurl=registration.event.display_url|urlize %}
     Your registration for {{event}} was completed. Your spot is secured for
-    you, provided that you pay in time (see the event website for the
+    you, provided that you pay in time (see the event website {{eventurl}} for the
     payment policy).
     {% endblocktrans %}
     </p>

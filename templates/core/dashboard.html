@@ -16,17 +16,25 @@
   </p>
 
 <h2>{% trans "Registration open" %}</h2>
-<ul class="event-list">
-{% for e in events.future %}
-  {% include 'events/snippets/open_event.html' with e=e %}
-{% endfor %}
-</ul>
+{% if not events.future %}
+  <p>{% trans "No open registrations" %}</p>
+{% else %}
+  <ul class="event-list">
+  {% for e in events.future %}
+    {% include 'events/snippets/open_event.html' with e=e %}
+  {% endfor %}
+  </ul>
+{% endif %}
 
 <h2>{% trans "Already registered" %}</h2>
-<ul class="event-list">
-{% for e in events.active %}
-  {% include 'events/snippets/registered_event.html' with e=e %}
-{% endfor %}
-</ul>
+{% if not events.active %}
+  <p>{% trans "No active registrations for coming events" %}</p>
+{% else %}
+  <ul class="event-list">
+  {% for e in events.active %}
+    {% include 'events/snippets/registered_event.html' with e=e %}
+  {% endfor %}
+  </ul>
+{% endif %}
 
 {% endblock content%}

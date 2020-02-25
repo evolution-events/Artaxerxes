@@ -7,17 +7,25 @@
 {% block content %}
 
 <h2>{% trans "Future" %}</h2>
-<ul class="event-list">
-{% for e in events.active %}
-  {% include 'events/snippets/registered_event.html' with e=e %}
-{% endfor %}
-</ul>
+{% if not events.active %}
+  <p>{% trans "No active registrations for coming events" %}</p>
+{% else %}
+  <ul class="event-list">
+  {% for e in events.active %}
+    {% include 'events/snippets/registered_event.html' with e=e %}
+  {% endfor %}
+  </ul>
+{% endif %}
 
 <h2>{% trans "Past" %}</h2>
-<ul class="event-list">
-{% for e in events.history %}
-  {% include 'events/snippets/registered_event.html' with e=e %}
-{% endfor %}
-</ul>
+{% if not events.history %}
+  <p>{% trans "No registrations in the past" %}</p>
+{% else %}
+  <ul class="event-list">
+  {% for e in events.history %}
+    {% include 'events/snippets/registered_event.html' with e=e %}
+  {% endfor %}
+  </ul>
+{% endif %}
 
 {% endblock content%}

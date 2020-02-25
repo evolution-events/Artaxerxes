@@ -21,7 +21,7 @@ class MedicalDetails(models.Model):
         verbose_name=_('Take into account for event'),
         help_text=_("Please specify any medical or psychological conditions that we should take into account while "
                     "preparing for the event. For example if you are allergic to smoke machines, can not handle "
-                    "flashes of light, are claustrophobic etc."),
+                    "flashes of light, are claustrophobic etc. Leave blank when there is nothing to mention."),
         blank=True,
         null=True,
     )

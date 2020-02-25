@@ -32,6 +32,6 @@ class RegistrationsDashboardView(LoginRequiredMixin, View):
 
 
 @login_required
-def organisation_info_view(request):
-    """ Show some information about the organisation. """
-    return render(request, 'core/organisation_info.html')
+def practical_info_view(request):
+    """ Show some information about the organisation, payments and policies. """
+    return render(request, 'core/practical_info.html')

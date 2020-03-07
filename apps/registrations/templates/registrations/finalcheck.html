@@ -23,7 +23,7 @@
   {% endif %}
 
   {% if pdetails %}
-  <h2>{% trans 'Personal details' %}</h2>
+  <h3>{% trans 'Personal details' %}</h3>
   <table class="table">
       <tr><td>{% trans 'Fistname' %}</td><td>{{user.first_name}}</td></tr>
       <tr><td>{% trans 'Lastname' %}</td><td>{{user.last_name}}</td></tr>
@@ -36,7 +36,7 @@
   {% endif %}
 
   {% if mdetails %}
-  <h2>{% trans 'Medical details' %}</h2>
+  <h3>{% trans 'Medical details' %}</h3>
   <table class="table">
     <tr><td>{% trans 'Food allergies' %}</td><td>{{mdetails.food_allergies}}</td></tr>
     <tr><td>{% trans 'Take into account' %}</td><td>{{mdetails.event_risks}}</td></tr>
@@ -44,7 +44,7 @@
   {% endif %}
 
   {% if emergency_contacts %}
-  <h2>{% trans 'Emergency contacts' %}</h2>
+  <h3>{% trans 'Emergency contacts' %}</h3>
   <table class="table">
     <tr>
         <th>Name</th>
@@ -64,7 +64,7 @@
   {% endif %}
 
   {% if registration and registration.options.all %}
-  <h2>{% trans 'Event options' %}</h2>
+  <h3>{% trans 'Event options' %}</h3>
   <table class="table registration-options">
     {% for value in registration.options.all %}
     <tr>

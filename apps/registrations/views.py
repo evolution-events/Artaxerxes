@@ -231,6 +231,8 @@ def registration_step_final_check(request, registrationid=None):
             return redirect('registrations:registrationconfirmation', registration.pk)
         else:
             messages.error(request, _('Please correct the error below.'), extra_tags='bg-danger')
+    options = registration.options.all()
+    any_is_full = event.full or any(value.option.full for value in options)
     return render(request, 'registrations/finalcheck.html', {
         'user': request.user,
         'registration': registration,
@@ -238,6 +240,8 @@ def registration_step_final_check(request, registrationid=None):
         'pdetails': personal_details,
         'mdetails': medical_details,
         'emergency_contacts': emergency_contacts,
+        'any_is_full': any_is_full,
+        'options': options,
         'fc_form': fc_form,
         'modify_url': reverse('registrations:optionsform', args=(registration.id,)),
         'conditions': conditions,

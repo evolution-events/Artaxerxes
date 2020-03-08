@@ -64,10 +64,10 @@
   </table>
   {% endif %}
 
-  {% if registration and registration.options.all %}
+  {% if registration and options %}
   <h3>{% trans 'Event options' %}</h3>
   <table class="table registration-options">
-    {% for value in registration.options.all %}
+    {% for value in options %}
     <tr>
       <td>{{ value.field.title }}</td>
       <td>
@@ -89,6 +89,16 @@
       <td class="price">{{ registration.price | moneyformat }}</td>
     </tr>
   </table>
+  {% endif %}
+
+  {% if any_is_full %}
+  <p><b>
+  {% blocktrans %}
+    Note that the event, or some of the options you selected, are
+    full. You can still register for the waiting list and participate
+    if space becomes available.
+  {% endblocktrans %}
+  </b><p>
   {% endif %}
 
   <h2>{% trans 'Conditions' %}</h2>
@@ -115,7 +125,13 @@
   {% endif %}
     <a href="{{ modify_url }}" class="btn btn-info" role="button">{% trans 'Modify information' %}</a>
   {% if event.registration_is_open %}
-    <button class="btn btn-success" type="submit">{% trans 'Register' %}</button>
+    <button class="btn btn-success" type="submit">
+    {% if any_is_full %}
+      {% trans 'Register on waiting list' %}
+    {% else %}
+      {% trans 'Register' %}
+    {% endif %}
+    </button>
   </form>
   {% endif %}
 {% endblock content %}

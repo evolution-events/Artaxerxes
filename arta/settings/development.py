@@ -33,7 +33,6 @@ DATABASES = {
 
 INSTALLED_APPS = DEFAULT_APPS + [
     'debug_toolbar',
-    'airplane',
 ]
 
 FIXTURE_DIRS = [

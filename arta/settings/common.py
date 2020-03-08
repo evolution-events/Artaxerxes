@@ -133,6 +133,7 @@ DEFAULT_APPS = [
     'apps.registrations.apps.RegistrationsConfig',
     'apps.core.apps.CoreConfig',
     'phonenumber_field',
+    'airplane',
 ]
 
 # Middlewares

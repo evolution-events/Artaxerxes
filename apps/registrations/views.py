@@ -27,7 +27,7 @@ class RegistrationStartView(LoginRequiredMixin, View):
             event=event, user=request.user, defaults={'status': Registration.statuses.PREPARATION_IN_PROGRESS},
         )
         if registration.status.PREPARATION_IN_PROGRESS:
-            return redirect('registrations:personaldetailform', registrationid=registration.id)
+            return redirect('registrations:optionsform', registrationid=registration.id)
         else:
             return redirect('registrations:finalcheckform', registrationid=registration.id)
 
@@ -38,6 +38,41 @@ class RegistrationDetailView(DetailView):
     context_object_name = 'registration'
     model = Registration
     template_name = 'registrations/registration_detail.html'
+
+
+@login_required
+def registration_step_options(request, registrationid=None):
+    """ Step in registration process where user chooses options """
+
+    registration = get_object_or_404(Registration, pk=registrationid)
+    # Get a copy of the event annotated for this user
+    event = Event.objects.for_user(request.user).get(pk=registration.event.pk)
+
+    if not event.registration_fields.all():
+        return redirect('registrations:personaldetailform', registrationid=registration.id)
+
+    data = request.POST or None
+    opt_form = RegistrationOptionsForm(registration.event, request.user, registration=registration, data=data)
+
+    # TODO: Check registration status?
+    if request.method == 'POST':
+        if opt_form.is_valid():
+            with reversion.create_revision():
+                opt_form.save(registration)
+                reversion.set_user(request.user)
+                reversion.set_comment(_("Options updated via frontend. The following "
+                                      "fields changed: %(fields)s" % {'fields': ", ".join(opt_form.changed_data)}))
+
+            return redirect('registrations:personaldetailform', registrationid=registration.id)
+        else:
+            messages.error(request, _('Please correct the error below.'), extra_tags='bg-danger')
+    return render(request, 'registrations/editoptions.html', {
+        'opt_form': opt_form,
+        'registration': registration,
+        'event': event,
+        'cancel_url': reverse('events:eventlist'),
+
+    })
 
 
 @login_required
@@ -131,40 +166,6 @@ def registration_step_emergency_contacts(request, registrationid=None):
                 reversion.set_user(request.user)
                 reversion.set_comment(_("Emergency contacts updated via frontend."))
 
-            return redirect('registrations:optionsform', registrationid=registration.id)
-        else:
-            messages.error(request, _('Please correct the error below.'), extra_tags='bg-danger')
-    return render(request, 'registrations/editemergencycontacts.html', {
-        'ec_formset': ec_formset,
-        'registration': registration,
-        'event': event,
-        'back_url': reverse('registrations:medicaldetailform', args=(registration.id,)),
-    })
-
-
-@login_required
-def registration_step_options(request, registrationid=None):
-    """ Step in registration process where user chooses options """
-
-    registration = get_object_or_404(Registration, pk=registrationid)
-    # Get a copy of the event annotated for this user
-    event = Event.objects.for_user(request.user).get(pk=registration.event.pk)
-
-    if not event.registration_fields.all():
-        return redirect('registrations:finalcheckform', registrationid=registration.id)
-
-    data = request.POST or None
-    opt_form = RegistrationOptionsForm(registration.event, request.user, registration=registration, data=data)
-
-    # TODO: Check registration status?
-    if request.method == 'POST':
-        if opt_form.is_valid():
-            with reversion.create_revision():
-                opt_form.save(registration)
-                reversion.set_user(request.user)
-                reversion.set_comment(_("Options updated via frontend. The following "
-                                      "fields changed: %(fields)s" % {'fields': ", ".join(opt_form.changed_data)}))
-
             if registration.status.PREPARATION_IN_PROGRESS:
                 with reversion.create_revision():
                     registration.status = Registration.statuses.PREPARATION_COMPLETE
@@ -175,11 +176,11 @@ def registration_step_options(request, registrationid=None):
             return redirect('registrations:finalcheckform', registrationid=registration.id)
         else:
             messages.error(request, _('Please correct the error below.'), extra_tags='bg-danger')
-    return render(request, 'registrations/editoptions.html', {
-        'opt_form': opt_form,
+    return render(request, 'registrations/editemergencycontacts.html', {
+        'ec_formset': ec_formset,
         'registration': registration,
         'event': event,
-        'back_url': reverse('registrations:emergencycontactsform', args=(registration.id,)),
+        'back_url': reverse('registrations:medicaldetailform', args=(registration.id,)),
     })
 
 
@@ -211,7 +212,7 @@ def registration_step_final_check(request, registrationid=None):
     if registration.status.ACTIVE:
         return redirect('registrations:registrationconfirmation', registration.pk)
     elif not registration.status.PREPARATION_COMPLETE:
-        return redirect('registrations:personaldetailform', registration.pk)
+        return redirect('registrations:optionsform', registration.pk)
 
     data = request.POST or None
     fc_form = FinalCheckForm(data=data)
@@ -238,7 +239,7 @@ def registration_step_final_check(request, registrationid=None):
         'mdetails': medical_details,
         'emergency_contacts': emergency_contacts,
         'fc_form': fc_form,
-        'modify_url': reverse('registrations:personaldetailform', args=(registration.id,)),
+        'modify_url': reverse('registrations:optionsform', args=(registration.id,)),
         'conditions': conditions,
     })
 

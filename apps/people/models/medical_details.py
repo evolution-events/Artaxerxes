@@ -12,7 +12,8 @@ class MedicalDetails(models.Model):
     food_allergies = models.TextField(
         verbose_name=_('Food allergies'),
         help_text=_("Please specify any allergies that our kitchen staff should take into account. Please also "
-                    "mention the severity. Leave blank when you have no allergies."),
+                    "mention the severity. Do not use this field for food you dislike, only enter things "
+                    "that can cause real problems. Leave blank when you have no allergies. "),
         blank=True,
         null=True,
     )

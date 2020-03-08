@@ -37,11 +37,12 @@ class RegistrationFactory(factory.django.DjangoModelFactory):
 
     @factory.post_generation
     def options(obj, create, options, **kwargs):
-        # Cannot add options when only building, since we will not have an id yet
-        assert(not options or create)
 
-        for option in options:
-            RegistrationFieldValueFactory.create(registration=obj, field=option.field, option=option)
+        if options:
+            # Cannot add options when only building, since we will not have an id yet
+            assert(create)
+            for option in options:
+                RegistrationFieldValueFactory.create(registration=obj, field=option.field, option=option)
 
 
 class RegistrationFieldFactory(factory.django.DjangoModelFactory):

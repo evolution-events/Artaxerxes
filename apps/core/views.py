@@ -11,11 +11,11 @@ from apps.events.models import Event
 
 class RegistrationsDashboardView(LoginRequiredMixin, View):
     def get(self, request):
-        events = Event.objects.for_user(request.user, with_registration_status=True).filter(is_visible=True)
+        events = Event.objects.for_user(request.user, with_registration=True).filter(is_visible=True)
 
         def group(e):
             if e.start_date > date.today():
-                if e.registration_status and e.registration_status.ACTIVE:
+                if e.registration.status and e.registration.status.ACTIVE:
                     return 'active'
                 else:
                     return 'future'

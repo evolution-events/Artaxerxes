@@ -12,7 +12,7 @@
       {# TODO: betaalstatus weergeven in kleur en tekst #}
       <div class="event-top-right registration-info registration-state-payed">
         {% trans "Registration number" %}: TODO<br/>
-        {% trans "Status" %}: {{ e.registration_status.label }}<br/>
+        {% trans "Status" %}: {{ e.registration.status.label }}<br/>
       </div>
       <div class="event-bottom-right mt-auto">
         <a class="details-link collapsed" data-toggle="collapse" data-target="#collapse-event-{{e.id}}" href="#">{% trans "Details" %}</a>

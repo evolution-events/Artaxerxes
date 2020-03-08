@@ -1,8 +1,9 @@
 import reversion
 from django.conf import settings
 from django.db import models
-from django.db.models import Count, Max, Q
+from django.db.models import Count, Q
 from django.db.models.functions import Now
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
 from apps.core.utils import QExpr
@@ -15,7 +16,7 @@ class EventManager(models.Manager):
     def get_by_natural_key(self, name):
         return self.get(name=name)
 
-    def for_user(self, user, with_registration_status=False):
+    def for_user(self, user, with_registration=False):
         """
         Returns events annotated with properties applicable for the given user.
 
@@ -46,15 +47,19 @@ class EventManager(models.Manager):
                 & Q(start_date__gt=Now()),
             ),
         )
-        if with_registration_status:
-            # This looks for all non-cancelled registrations related to this event and user. Due to a constraint, this
-            # should be either one or none, never multiple. This uses the Max function to get at the status of that one
-            # registration, but e.g. Sum would also have worked. When no registrations are present, this returns None
-            # (since MAX(NULL) is still NULL).
-            qs = qs.annotate(registration_status=Max(
-                'registration__status',
-                filter=Q(registration__user=user) & ~Q(registration__status=Registration.statuses.CANCELLED),
-            ))
+        if with_registration:
+            # This looks for all related registrations, and picks the non-cancelled one (should be at most one), or if
+            # there is not, the most recent cancelled one.
+            qs = qs.annotate(
+                registration_id=models.Subquery(
+                    Registration.objects.filter(
+                        event=models.OuterRef('pk'),
+                        user=user,
+                    ).annotate(
+                        is_cancelled=Q(status=Registration.statuses.CANCELLED),
+                    ).order_by('is_cancelled', '-created_at')[:1].values('pk'),
+                ),
+            )
         return qs
 
     def with_used_slots(self):
@@ -115,6 +120,16 @@ class Event(models.Model):
     user = models.ManyToManyField(settings.AUTH_USER_MODEL, through=Registration)
 
     objects = EventManager()
+
+    @cached_property
+    def registration(self):
+        # The registration_id should be set by an annotation in the manager above
+        # TODO: It would be better if the registration instance was annotated directly (and would also support
+        # select_related or prefetch_related), but it seems Django does not
+        # currently support this currently. See https://code.djangoproject.com/ticket/27414#comment:3
+        if self.registration_id is None:
+            return None
+        return Registration.objects.get(pk=self.registration_id)
 
     def display_name(self):
         if not self.title:

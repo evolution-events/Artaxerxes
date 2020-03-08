@@ -10,16 +10,16 @@ from .models import Event
 @login_required
 def event_list_view(request):
     """ List of all events that people can register or have registered for. """
-    events = Event.objects.for_user(request.user, with_registration_status=True).filter(is_visible=True)
+    events = Event.objects.for_user(request.user, with_registration=True).filter(is_visible=True)
 
     def group(e):
         if e.start_date > date.today():
-            if e.registration_status and e.registration_status.ACTIVE:
+            if e.registration and e.registration.status.ACTIVE:
                 return 'active'
             else:
                 return 'future'
         else:
-            if e.registration_status and e.registration_status.REGISTERED:
+            if e.registration and e.registration.status.REGISTERED:
                 return 'history'
             else:
                 return None

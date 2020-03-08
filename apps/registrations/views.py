@@ -70,8 +70,7 @@ def registration_step_options(request, registrationid=None):
         'opt_form': opt_form,
         'registration': registration,
         'event': event,
-        'cancel_url': reverse('events:eventlist'),
-
+        'cancel_url': reverse('core:main_index_view'),
     })
 
 
@@ -112,7 +111,7 @@ def registration_step_personal_details(request, registrationid=None):
         'ud_form': ud_form,
         'registration': registration,
         'event': event,
-        'cancel_url': reverse('events:eventlist'),
+        'back_url': reverse('registrations:optionsform', args=(registration.id,)),
     })
 
 

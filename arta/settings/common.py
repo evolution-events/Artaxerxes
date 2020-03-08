@@ -114,7 +114,7 @@ PHONENUMBER_DEFAULT_FORMAT = "INTERNATIONAL"
 # ##### APPLICATION CONFIGURATION #########################
 
 # these are the apps
-DEFAULT_APPS = [
+INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

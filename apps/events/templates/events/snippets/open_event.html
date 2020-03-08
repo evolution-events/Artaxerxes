@@ -3,9 +3,9 @@
 {# This snippet draws 1 event that is open for registration (so with (prepare to) register link) #}
 
 <li>
-<div class="future-event non-registered-event event-block">
+<div class="future-event non-registered-event event-block" id="event-block-{{e.id}}">
   <div class="event-summary row justify-content-between">
-    <div class="col-9">
+    <div class="col-9 d-flex align-items-start flex-column">
       {% include 'events/snippets/event_summary.html' with e=e %}
     </div>
     <div class="col-3 d-flex align-items-end flex-column">
@@ -32,12 +32,9 @@
           <a class="toregistration" href="{% url 'registrations:register' eventid=e.id %}" role="button">{% trans 'Register' %}</a><br/>
         {% endif %}
       </div>
-      <div class="event-bottom-right mt-auto">
-        <a class="details-link collapsed" data-toggle="collapse" data-target="#collapse-event-{{e.id}}" href="#">{% trans "Details" %}</a>
-      </div>
     </div>
   </div>
-  <div class="more-info collapse" id="collapse-event-{{e.id}}">
+  <div class="more-info collapse" id="collapse-event-{{e.id}}" data-parent="#event-block-{{e.id}}">
     {% include 'events/snippets/event_detail.html' with e=e %}
   </div>
 </div>

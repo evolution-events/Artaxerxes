@@ -81,6 +81,16 @@ input[name="consent_announcements"] + br {
     min-height:10em;
 }
 
+.event-block .event-bottom-left {
+    width:30%;
+    padding:1em;
+    text-align:center;
+    border-right:2px solid var(--dark-gray);
+    border-radius:0em 2em 0em 0;
+    border-top:2px solid var(--dark-gray);
+    margin:0.5em 0 -1em -2em; /*  Negate padding of event-block so we get to the edge*/
+}
+
 .event-block .event-top-right,
 .event-block .event-bottom-right {
     width:100%;

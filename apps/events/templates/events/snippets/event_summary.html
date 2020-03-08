@@ -13,3 +13,7 @@
 {% if e.display_url %}
   <a class="towebsite" href="{{ e.display_url }}">{% trans "To event website" %}</a>
 {% endif %}
+
+<div class="event-bottom-left mt-auto">
+  <a class="details-link collapsed" data-toggle="collapse" data-target="#collapse-event-{{e.id}}" href="#">{% trans "Event details" %}</a>
+</div>

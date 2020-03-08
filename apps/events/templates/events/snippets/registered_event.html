@@ -4,9 +4,9 @@
 {# This snippet draws 1 event that user is registered for with status of registration (waitinglist/registered) #}
 
 <li>
-<div class="future-event registered-event event-block">
+<div class="future-event registered-event event-block" id="event-block-{{e.id}}">
   <div class="event-summary row justify-content-between">
-    <div class="col-9">
+    <div class="col-9 d-flex align-items-start flex-column">
       {% include 'events/snippets/event_summary.html' with e=e %}
     </div>
     <div class="col-3 d-flex align-items-end flex-column">
@@ -17,11 +17,11 @@
         {% trans "Price" %}: {{ e.registration.price | moneyformat }}<br/>
       </div>
       <div class="event-bottom-right mt-auto">
-        <a class="details-link collapsed" data-toggle="collapse" data-target="#collapse-event-{{e.id}}" href="#">{% trans "Details" %}</a>
+        <a class="details-link collapsed" data-toggle="collapse" data-target="#collapse-event-registration-{{e.id}}" href="#">{% trans "Registration details" %}</a>
       </div>
     </div>
   </div>
-  <div class="more-info more-info-collapsed collapse" id="collapse-event-{{e.id}}">
+  <div class="more-info more-info-collapsed collapse" id="collapse-event-{{e.id}}"  data-parent="#event-block-{{e.id}}">
     {% include 'events/snippets/event_detail.html' with e=e %}
 
     <h3>{% trans "Cancel?" %}</h3>
@@ -32,6 +32,43 @@
       due, depending on the time left till the event.
       {% endblocktrans %}
     </p>
+
+  </div>
+  <div class="more-info more-info-collapsed collapse" id="collapse-event-registration-{{e.id}}" data-parent="#event-block-{{e.id}}">
+
+    <h3>{% trans 'Date of registration' %}</h3>
+    <p>
+      {% blocktrans with regdate=e.registration.registered_at|date:"D d M Y" regnr=e.registration.pk %}
+      Registered on {{regdate}} with registration number {{regnr}}.
+      {% endblocktrans %}
+    </p>
+
+    <h3>{% trans 'Status of registration' %}</h3>
+    <p>{{ e.registration.status.label }}</p>
+
+    <h3>{% trans 'Options chosen for registration' %}</h3>
+    <table class="table registration-options">
+      {% for value in e.registration.options.all %}
+      <tr>
+        <td>{{ value.field.title }}</td>
+        <td>{{ value.display_value }}</td>
+        {% if value.price is not None %}
+        <td class="price">{{ value.price | moneyformat }}</td>
+        {% else %}
+        <td class="noprice"></td>
+        {% endif %}
+      </tr>
+      {% endfor %}
+      <tr class="total-price">
+        <td></td>
+        <td class="label">{% trans 'Total price' %}</td>
+        <td class="price">{{ e.registration.price | moneyformat }}</td>
+      </tr>
+    </table>
+    <h3>{% trans 'Total price of registration' %}</h3>
+    <p>{{ e.registration.price | moneyformat }}</p>
+
+    {# TODO betaalstatus nadat we het bijhouden daar van hebben geimplementeerd #}
 
   </div>
 </div>

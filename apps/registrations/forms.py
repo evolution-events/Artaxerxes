@@ -38,7 +38,7 @@ class UserDetailsForm(forms.ModelForm):
 class PersonalDetailForm(forms.ModelForm):
     class Meta:
         model = Address
-        fields = ['address', 'postalcode', 'city', 'country']
+        fields = ['phone_number', 'address', 'postalcode', 'city', 'country']
 
 
 class MedicalDetailForm(forms.ModelForm):

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block pagetitle %}{% trans 'About this system' %}{% endblock pagetitle%}
+
+{% block content %}
+<h2>{% trans 'What is it?' %}</h2>
+<p>
+  {% blocktrans trimmed %}
+  This is the registration system for events by Evolution Events. After signing in you will find
+  an overview of our events that you can register for, if there are any in the future. By registering
+  for an event you reserve a spot at the event and agree to follow our rules concerning payment,
+  cancelling and participation. More information about this can be found at the 'practical information' page
+  (after signing in).
+  {% endblocktrans %}
+</p>
+
+<h2>{% trans '(Pre)register?' %}</h2>
+<p>
+  {% blocktrans trimmed %}
+  Both at the event website and in this system a date and time will be shown when registration for the
+  event will open. If you want to be really quick at registering you can <em>prepare your registration</em>.
+  This means that you can fill in all necessary information and make the choices for the event (like type
+  of registration, additional options) before registration is actually opened. Then when the registration
+  does open, all you have to do is agree to the conditions (which you can read beforehand) and press 'register'.
+  {% endblocktrans %}
+</p>
+<p>
+  {% blocktrans trimmed %}
+  If registration is already opened you can no longer <em>prepare</em> your registration but you will be
+  able to register in one go, entering the same information that would be required on preparation. Until
+  registration time closes (which might be right up to the event itself) you will be able to register, even
+  if the event is already full. If the event is full when you register you will be put on the waiting list
+  for the event. When a particpant cancels and you are the next in line on the waiting list we will contact
+  you to check if you still want to participate. Specific rules about the waiting list and the order in
+  which waiting list registrations are processed can be read in our house rules or, if it differs, at
+  the event specific website.
+  {% endblocktrans %}
+</p>
+{% endblock content %}

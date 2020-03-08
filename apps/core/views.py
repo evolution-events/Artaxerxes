@@ -35,3 +35,9 @@ class RegistrationsDashboardView(LoginRequiredMixin, View):
 def practical_info_view(request):
     """ Show some information about the organisation, payments and policies. """
     return render(request, 'core/practical_info.html')
+
+
+# No need to log in to see this page
+class AboutArtaView(View):
+    def get(self, request):
+        return render(request, 'core/how_does_it_work.html')

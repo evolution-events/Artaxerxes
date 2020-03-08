@@ -15,7 +15,7 @@ class RegistrationsDashboardView(LoginRequiredMixin, View):
 
         def group(e):
             if e.start_date > date.today():
-                if e.registration.status and e.registration.status.ACTIVE:
+                if e.registration and e.registration.status.ACTIVE:
                     return 'active'
                 else:
                     return 'future'

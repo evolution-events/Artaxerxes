@@ -55,6 +55,10 @@ class Registration(models.Model):
     # Put this outside of the meta class, so we can access the statuses constants
     # https://stackoverflow.com/a/8366758/740048
     Meta.constraints = [
+        # TODO: UniqueConstraint with condition unsupported on MySQL, but CheckConstraint cannot contain subqueries
+        # (or, it seems any reference to other rows either). The only alternative that could work seems to be a trigger
+        # that checks the condition. Sqlite does check this, though, so the check is active in development
+        # https://mysqlserverteam.com/new-and-old-ways-to-emulate-check-constraints-domain/
         models.UniqueConstraint(fields=['event', 'user'], condition=~Q(status=statuses.CANCELLED),
                                 name='one_registration_per_user_per_event'),
         models.CheckConstraint(check=~Q(status__in=statuses.ACTIVE) | Q(registered_at__isnull=False),

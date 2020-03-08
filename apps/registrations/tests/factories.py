@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 
 import factory
 
+from apps.events.tests.factories import EventFactory
 from apps.people.tests.factories import ArtaUserFactory
 
 from ..models import Registration, RegistrationField, RegistrationFieldOption, RegistrationFieldValue
@@ -11,8 +12,11 @@ class RegistrationFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Registration
 
-    # Autocreate a user for this registration if none was passed
+    # Autocreate a user or event for this registration if none was passed
     user = factory.SubFactory(ArtaUserFactory)
+    event = factory.SubFactory(EventFactory)
+
+    status = Registration.statuses.PREPARATION_IN_PROGRESS
 
     class Params:
         # These are just to more concisely define status and include registration time when needed.

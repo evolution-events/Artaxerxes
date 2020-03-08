@@ -27,7 +27,7 @@ class UserDetailsForm(forms.ModelForm):
     email = forms.CharField(
         disabled=True,
         widget=SpanWidget,
-        help_text=_('You can change your e-mailaddress in your account settings'),
+        help_text=_('You can change your e-mail address in your account settings'),
     )
 
     class Meta:

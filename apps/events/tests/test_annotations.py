@@ -1,10 +1,14 @@
 from django.test import TestCase
 
+from apps.people.tests.factories import ArtaUserFactory
+from apps.registrations.models import Registration
+from apps.registrations.tests.factories import RegistrationFactory
+
 from ..models import Event
 from .factories import EventFactory
 
 
-class TestAnnotations(TestCase):
+class TestOpenedAnnotations(TestCase):
     @classmethod
     def setUpTestData(cls):
         # Open is not scheduled yet, event is hidden while being prepared
@@ -87,3 +91,42 @@ class TestAnnotations(TestCase):
         ))
 
         self.assertEqual(registration_and_preregistration, set())
+
+
+class TestRegistrationAnnotation(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.event = EventFactory()
+        cls.user = ArtaUserFactory()
+
+    def test_single_registration(self):
+        """ A single registration should always be returned, regardless of its status. """
+        reg = RegistrationFactory(event=self.event, user=self.user, registered=True)
+
+        for status in Registration.statuses.constants:
+            reg.status = status
+            reg.save()
+
+            e = Event.objects.for_user(self.user, with_registration=True).get()
+            self.assertEqual(e.registration, reg)
+
+    def test_two_registrations(self):
+        """ With two registrations, the non-cancelled one should always be returned. """
+        RegistrationFactory(event=self.event, user=self.user, cancelled=True)
+        reg = RegistrationFactory(event=self.event, user=self.user, registered=True)
+
+        for status in Registration.statuses.constants:
+            if status != Registration.statuses.CANCELLED:
+                reg.status = status
+                reg.save()
+
+                e = Event.objects.for_user(self.user, with_registration=True).get()
+                self.assertEqual(e.registration, reg)
+
+    def test_two_cancelled_registrations(self):
+        """ With two cancelled registrations, the later one should be returned. """
+        RegistrationFactory(event=self.event, user=self.user, cancelled=True)
+        reg = RegistrationFactory(event=self.event, user=self.user, cancelled=True)
+
+        e = Event.objects.for_user(self.user, with_registration=True).get()
+        self.assertEqual(e.registration, reg)

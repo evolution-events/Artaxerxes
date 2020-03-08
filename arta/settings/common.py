@@ -3,8 +3,7 @@ import sys
 from os.path import abspath, basename, dirname, join, normpath
 
 from django.core import serializers
-from django.db.backends.mysql.base import CursorWrapper
-from django.db.backends.mysql.features import DatabaseFeatures
+from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import ugettext_lazy as _
 
 # Import local_settings, if they exist
@@ -27,17 +26,24 @@ def _sort_dependencies(app_list):
     return ret
 
 
-# This backports (the essential parts of) commit 1fc2c70f76 (Fixed #30593 -- Added support for check constraints on
-# MariaDB 10.2+). This allows using CheckConstraints on sufficiently new Mariadb versions. Without this, the check
-# constraints were actually already used, but the db check would show a warning that they woudl not be, and a violation
-# would throw an OperationalError instead of an IntegrityError.
-DatabaseFeatures.supports_column_check_constraints = property(
-    lambda self: self.connection.mysql_is_mariadb and self.connection.mysql_version >= (10, 2, 1),
-)
-DatabaseFeatures.supports_table_check_constraints = property(
-    lambda self: self.connection.mysql_is_mariadb and self.connection.mysql_version >= (10, 2, 1),
-)
-CursorWrapper.codes_for_integrityerror += (4025,)
+try:
+    # This backports (the essential parts of) commit 1fc2c70f76 (Fixed #30593 -- Added support for check constraints on
+    # MariaDB 10.2+). This allows using CheckConstraints on sufficiently new Mariadb versions. Without this, the check
+    # constraints were actually already used, but the db check would show a warning that they woudl not be, and a
+    # violation would throw an OperationalError instead of an IntegrityError.
+    from django.db.backends.mysql.base import CursorWrapper
+    from django.db.backends.mysql.features import DatabaseFeatures
+    DatabaseFeatures.supports_column_check_constraints = property(
+        lambda self: self.connection.mysql_is_mariadb and self.connection.mysql_version >= (10, 2, 1),
+    )
+    DatabaseFeatures.supports_table_check_constraints = property(
+        lambda self: self.connection.mysql_is_mariadb and self.connection.mysql_version >= (10, 2, 1),
+    )
+    CursorWrapper.codes_for_integrityerror += (4025,)
+except ImproperlyConfigured:
+    # If mysqlclient is not installed, importing the mysql backend raises an ImportError, but then this workaround will
+    # not be relevant anyway, so just ignore it.
+    pass
 
 serializers.sort_dependencies = _sort_dependencies
 

@@ -70,7 +70,12 @@
     {% for value in registration.options.all %}
     <tr>
       <td>{{ value.field.title }}</td>
-      <td>{{ value.display_value }}</td>
+      <td>
+        {{ value.display_value }}
+        {% if value.option.full %}
+        {% trans ' (FULL)' %}
+        {% endif %}
+      </td>
       {% if value.price is not None %}
       <td class="price">{{ value.price | moneyformat }}</td>
       {% else %}

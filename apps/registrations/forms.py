@@ -95,10 +95,13 @@ class RegistrationOptionField(forms.ModelChoiceField):
 
     def label_from_instance(self, obj):
         label = obj.title
+        extras = []
         if obj.price is not None:
-            label += " ({})".format(moneyformat(obj.price))
+            extras.append(moneyformat(obj.price))
         if obj.full:
-            label += " FULL"
+            extras.append(_("FULL"))
+        if extras:
+            label = "{} ({})".format(label, ", ".join(extras))
         return label
 
 

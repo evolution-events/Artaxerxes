@@ -11,7 +11,7 @@
     <div class="col-3 d-flex align-items-end flex-column">
       {# TODO: betaalstatus weergeven in kleur en tekst #}
       <div class="event-top-right registration-info registration-state-payed">
-        {% trans "Registration number" %}: TODO<br/>
+        {% trans "Registration number" %}: {{e.registration.pk }}<br/>
         {% trans "Status" %}: {{ e.registration.status.label }}<br/>
       </div>
       <div class="event-bottom-right mt-auto">

@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load coretags %}
 
 {# This snippet draws 1 event that user is registered for with status of registration (waitinglist/registered) #}
 
@@ -13,6 +14,7 @@
       <div class="event-top-right registration-info registration-state-payed">
         {% trans "Registration number" %}: {{e.registration.pk }}<br/>
         {% trans "Status" %}: {{ e.registration.status.label }}<br/>
+        {% trans "Price" %}: {{ e.registration.price | moneyformat }}<br/>
       </div>
       <div class="event-bottom-right mt-auto">
         <a class="details-link collapsed" data-toggle="collapse" data-target="#collapse-event-{{e.id}}" href="#">{% trans "Details" %}</a>

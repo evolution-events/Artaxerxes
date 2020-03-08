@@ -129,7 +129,7 @@ class Event(models.Model):
         # currently support this currently. See https://code.djangoproject.com/ticket/27414#comment:3
         if self.registration_id is None:
             return None
-        return Registration.objects.get(pk=self.registration_id)
+        return Registration.objects.with_price().get(pk=self.registration_id)
 
     def display_name(self):
         if not self.title:

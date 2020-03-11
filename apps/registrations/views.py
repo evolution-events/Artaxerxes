@@ -31,15 +31,6 @@ class RegistrationStartView(LoginRequiredMixin, View):
         else:
             return redirect('registrations:finalcheckform', registrationid=registration.id)
 
-
-class RegistrationDetailView(DetailView):
-    """ View a single Registration. """
-
-    context_object_name = 'registration'
-    model = Registration
-    template_name = 'registrations/registration_detail.html'
-
-
 @login_required
 def registration_step_options(request, registrationid=None):
     """ Step in registration process where user chooses options """

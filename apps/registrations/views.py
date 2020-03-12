@@ -214,7 +214,7 @@ def registration_step_final_check(request, registrationid=None):
     qs = Registration.objects.with_price()
     registration = get_object_or_404(qs, pk=registrationid)
     # Get a copy of the event annotated for this user
-    event = Event.objects.for_user(request.user).get(pk=registration.event.pk)
+    event = Event.objects.for_user(request.user).get(pk=registration.event_id)
     personal_details = Address.objects.filter(user=request.user).first()  # Returns None if nothing was found
     medical_details = MedicalDetails.objects.filter(user=request.user).first()  # Returns None if nothing was found
     emergency_contacts = request.user.emergency_contacts.all()
@@ -240,7 +240,7 @@ def registration_step_final_check(request, registrationid=None):
             return redirect('registrations:registrationconfirmation', registration.pk)
         else:
             messages.error(request, _('Please correct the error below.'), extra_tags='bg-danger')
-    options = registration.options.all()
+    options = registration.options.all().select_related('option', 'field')
     any_is_full = event.full or any(value.option.full for value in options)
     return render(request, 'registrations/finalcheck.html', {
         'user': request.user,

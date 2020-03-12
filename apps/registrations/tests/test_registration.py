@@ -1,10 +1,11 @@
 from django.conf import settings
 from django.core import mail
 from django.db.utils import IntegrityError
-from django.test import Client, TestCase, skipUnlessDBFeature
+from django.test import TestCase, skipUnlessDBFeature
 from django.urls import reverse
 
 from apps.events.tests.factories import EventFactory
+from apps.people.tests.factories import ArtaUserFactory
 
 from ..models import Registration
 from ..services import RegistrationStatusService
@@ -70,16 +71,19 @@ class TestRegistrationForm(TestCase):
         cls.option_nl = RegistrationFieldOptionFactory(field=origin, title="NL", slots=2)
         cls.option_intl = RegistrationFieldOptionFactory(field=origin, title="INTL", slots=2)
 
+    def setUp(self):
+        self.user = ArtaUserFactory()
+        self.client.force_login(self.user)
+
     def test_registration_sends_email(self):
         """ Register until the option slots are taken and the next registration ends up on the waiting list. """
         e = self.event
 
-        reg = RegistrationFactory(event=e, preparation_complete=True, options=[self.option_m, self.option_nl])
-        client = Client()
-        client.force_login(reg.user)
+        reg = RegistrationFactory(event=e, user=self.user, preparation_complete=True,
+                                  options=[self.option_m, self.option_nl])
         check_url = reverse('registrations:finalcheckform', args=(reg.pk,))
         confirm_url = reverse('registrations:registrationconfirmation', args=(reg.pk,))
-        response = client.post(check_url, {'agree': 1})
+        response = self.client.post(check_url, {'agree': 1})
         self.assertRedirects(response, confirm_url)
 
         reg.refresh_from_db()
@@ -99,12 +103,11 @@ class TestRegistrationForm(TestCase):
             RegistrationFactory(event=e, registered=True, options=[self.option_m, self.option_nl])
 
         # Then register on the waiting list
-        reg = RegistrationFactory(event=e, preparation_complete=True, options=[self.option_m, self.option_nl])
-        client = Client()
-        client.force_login(reg.user)
+        reg = RegistrationFactory(event=e, user=self.user, preparation_complete=True,
+                                  options=[self.option_m, self.option_nl])
         check_url = reverse('registrations:finalcheckform', args=(reg.pk,))
         confirm_url = reverse('registrations:registrationconfirmation', args=(reg.pk,))
-        response = client.post(check_url, {'agree': 1})
+        response = self.client.post(check_url, {'agree': 1})
         self.assertRedirects(response, confirm_url)
 
         reg.refresh_from_db()

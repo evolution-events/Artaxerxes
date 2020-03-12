@@ -7,8 +7,8 @@ from django.utils.translation import ugettext_lazy as _
 
 
 class ArtaUserManager(BaseUserManager):
-    # Dummy user manager, in case we need more methods later
-    pass
+    def get_by_natural_key(self, email):
+        return self.get(email=email)
 
 
 # For reference to this model, see
@@ -58,3 +58,6 @@ class ArtaUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.get_full_name()
+
+    def natural_key(self):
+        return (self.email,)

@@ -7,9 +7,20 @@ from konst import Constant, ConstantGroup, Constants
 from konst.models.fields import ConstantChoiceField
 
 from apps.core.fields import MonetaryField
+from apps.core.utils import QExpr
 
 
 class Manager(models.Manager):
+    def get_queryset(self):
+        """
+        Returns a queryset, annotaded with:
+
+         - is_current, indicating that this is the current (i.e. non-cancelled) registration for this user and event.
+        """
+        return super().get_queryset().annotate(
+            is_current=QExpr(~Q(status=Registration.statuses.CANCELLED)),
+        )
+
     def with_price(self):
         return self.get_queryset().annotate(
             price=ExpressionWrapper(
@@ -33,6 +44,7 @@ class Registration(models.Model):
         Constant(WAITINGLIST=3, label=_('Waiting list')),
         Constant(CANCELLED=4, label=_('Cancelled')),
         ConstantGroup("ACTIVE", ("REGISTERED", "WAITINGLIST")),
+        ConstantGroup("CURRENT", ("PREPARATION_IN_PROGRESS", "PREPARATION_COMPLETE", "REGISTERED", "WAITINGLIST")),
     )
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=False, on_delete=models.CASCADE)
@@ -59,8 +71,8 @@ class Registration(models.Model):
         # (or, it seems any reference to other rows either). The only alternative that could work seems to be a trigger
         # that checks the condition. Sqlite does check this, though, so the check is active in development
         # https://mysqlserverteam.com/new-and-old-ways-to-emulate-check-constraints-domain/
-        models.UniqueConstraint(fields=['event', 'user'], condition=~Q(status=statuses.CANCELLED),
-                                name='one_registration_per_user_per_event'),
+        models.UniqueConstraint(fields=['event', 'user'], condition=Q(status__in=statuses.CURRENT),
+                                name='one_current_registration_per_user_per_event'),
         models.CheckConstraint(check=~Q(status__in=statuses.ACTIVE) | Q(registered_at__isnull=False),
                                name='active_registration_has_timestamp'),
     ]

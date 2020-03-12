@@ -51,16 +51,14 @@ class EventManager(models.Manager):
             ),
         )
         if with_registration:
-            # This looks for all related registrations, and picks the non-cancelled one (should be at most one), or if
-            # there is not, the most recent cancelled one.
+            # This looks for all related registrations, and picks the current one (should be at most one), or if there
+            # is not, the most recent cancelled one.
             qs = qs.annotate(
                 registration_id=models.Subquery(
                     Registration.objects.filter(
                         event=models.OuterRef('pk'),
                         user=user,
-                    ).annotate(
-                        is_cancelled=Q(status=Registration.statuses.CANCELLED),
-                    ).order_by('is_cancelled', '-created_at')[:1].values('pk'),
+                    ).order_by('-is_current', '-created_at')[:1].values('pk'),
                 ),
             )
         return qs

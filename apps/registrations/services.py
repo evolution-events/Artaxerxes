@@ -33,8 +33,6 @@ class RegistrationStatusService:
             event = Event.objects.with_used_slots().select_for_update().get(pk=registration.event.pk)
             # This selects all options that are associated with the current registration and that have non-null slots.
             # annotated with the number of slots used.
-            # TODO: This produces a fairly complex query, which should be checked for performance
-            # (it must be fast, since this is the critical section for registrations)
             options_with_slots = RegistrationFieldOption.objects.with_used_slots().filter(
                 Q(registrationfieldvalue__registration=registration) & ~Q(slots=None),
             )

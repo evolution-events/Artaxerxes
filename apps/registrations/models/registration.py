@@ -77,6 +77,12 @@ class Registration(models.Model):
         verbose_name = _('registration')
         verbose_name_plural = _('registrations')
 
+        indexes = [
+            # Index to speed up current_for lookups
+            models.Index(fields=['user', 'event', 'status', 'created_at'],
+                         name='idx_user_event_status_created'),
+        ]
+
     # Put this outside of the meta class, so we can access the statuses constants
     # https://stackoverflow.com/a/8366758/740048
     Meta.constraints = [

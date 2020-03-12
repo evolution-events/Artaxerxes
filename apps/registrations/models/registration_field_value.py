@@ -36,3 +36,10 @@ class RegistrationFieldValue(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['registration', 'field'], name='one_value_per_field_per_registration'),
         ]
+        indexes = [
+            # Index to speed up lookups from option through here to registration (e.g. get all registrations that use a
+            # given option) and vice versa (e.g. get all options used by a registration), which can now be done using
+            # just these indices.
+            models.Index(fields=['option', 'registration'], name='idx_option_registration'),
+            models.Index(fields=['registration', 'option'], name='idx_registration_option'),
+        ]

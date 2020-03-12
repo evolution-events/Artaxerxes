@@ -161,3 +161,8 @@ class Event(models.Model):
     class Meta:
         verbose_name = _('event')
         verbose_name_plural = _('events')
+
+        indexes = [
+            # Index to speed up listing of all public, future events
+            models.Index(fields=['public', 'start_date'], name='idx_public_start_date'),
+        ]

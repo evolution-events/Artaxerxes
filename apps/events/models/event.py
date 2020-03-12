@@ -1,7 +1,7 @@
 import reversion
 from django.conf import settings
 from django.db import models
-from django.db.models import Count, Q
+from django.db.models import Count, F, Q
 from django.db.models.functions import Now
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
@@ -35,7 +35,7 @@ class EventManager(models.Manager):
         # Split into multiple annotates to allow using annotations in subsequent annotations (the order of these can
         # not be guaranteed in the kwargs across systems)
         qs = self.get_queryset().annotate(
-            is_visible=QExpr(public=True),
+            is_visible=F('public'),
         ).annotate(
             registration_is_open=QExpr(
                 Q(is_visible=True)

@@ -14,6 +14,12 @@
     date_joined: "2018-05-21 10:49:37+00:00"
     groups: [['EE Bestuur']]
     user_permissions: []
+- model: account.emailaddress
+  fields:
+    user: [brenda@evolution-events.nl]
+    email: brenda@evolution-events.nl
+    verified: True
+    primary: True
 - model: people.artauser
   fields:
     password: pbkdf2_sha256$100000$1RJ5vdU7eHkz$XoBjFR2t4Vrhc0XksGcZOFTbkz8YoLDQz3IONtaQtwo=
@@ -27,6 +33,12 @@
     date_joined: "2018-05-21 12:12:46+00:00"
     groups: [['EE Bestuur']]
     user_permissions: []
+- model: account.emailaddress
+  fields:
+    user: [cora@evolution-events.nl]
+    email: cora@evolution-events.nl
+    verified: True
+    primary: True
 - model: people.artauser
   fields:
     password: pbkdf2_sha256$100000$xsqFoTM4fiXW$tqTgOoED73/DamIKurIEcmO4BWNgtX1QzTPw/fRJ2pc=
@@ -40,6 +52,12 @@
     date_joined: "2018-05-21 12:39:54+00:00"
     groups: [['EE Bestuur']]
     user_permissions: []
+- model: account.emailaddress
+  fields:
+    user: [janwillem@evolution-events.nl]
+    email: janwillem@evolution-events.nl
+    verified: True
+    primary: True
 - model: people.artauser
   fields:
     password: pbkdf2_sha256$100000$mIywSDE1QZX6$cjg6eeAvlk9EtN7IRe/VQYGmgyAa9XvWzPeBg8YBPrg=
@@ -53,6 +71,12 @@
     date_joined: "2018-05-21 12:42:21+00:00"
     groups: [['EE Bestuur']]
     user_permissions: []
+- model: account.emailaddress
+  fields:
+    user: [karijn@evolution-events.nl]
+    email: karijn@evolution-events.nl
+    verified: True
+    primary: True
 - model: people.artauser
   fields:
     password: pbkdf2_sha256$100000$JST6AfJWnpu1$ynP/tMYRbmqMEGQAOw7HCLq9trks5QtR8cwbitVpPPo=
@@ -66,6 +90,12 @@
     date_joined: "2018-05-21 12:43:04+00:00"
     groups: [['EE Bestuur']]
     user_permissions: []
+- model: account.emailaddress
+  fields:
+    user: [matthijs@evolution-events.nl]
+    email: matthijs@evolution-events.nl
+    verified: True
+    primary: True
 - model: people.artauser
   fields:
     password: pbkdf2_sha256$100000$QBZJto8WEGXz$eD2qpLUrDZmQNpm0q3DB+dXOLMA+nBXmCWBoGokaURk=
@@ -79,6 +109,12 @@
     date_joined: "2018-05-21 12:43:59+00:00"
     groups: [['EE Bestuur']]
     user_permissions: []
+- model: account.emailaddress
+  fields:
+    user: [rene@evolution-events.nl]
+    email: rene@evolution-events.nl
+    verified: True
+    primary: True
 - model: people.artauser
   fields:
     password: pbkdf2_sha256$100000$5KsqalhKma5G$pYbhqk23MS+eB8GZWcFQD38tmIjowazeYoX5bZauqPU=
@@ -92,6 +128,12 @@
     date_joined: "2018-05-21 12:45:08+00:00"
     groups: [['EE Bestuur']]
     user_permissions: []
+- model: account.emailaddress
+  fields:
+    user: [sander@evolution-events.nl]
+    email: sander@evolution-events.nl
+    verified: True
+    primary: True
 - model: events.event
   fields:
     series: [Xenophobia]

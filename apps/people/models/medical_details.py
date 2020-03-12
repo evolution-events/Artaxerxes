@@ -4,7 +4,6 @@ from django.utils.translation import gettext
 from django.utils.translation import ugettext_lazy as _
 
 
-# TODO: dit afmaken nadat we een knoop hebben doorgehakt over wat we precies willen vragen en opslaan. zie ook issue 42
 class MedicalDetails(models.Model):
     """ Medical information linked to a single ArtaUser """
 

@@ -53,14 +53,12 @@ class EventManager(models.Manager):
         if with_registration:
             # This looks for all related registrations, and picks the current one (should be at most one), or if there
             # is not, the most recent cancelled one.
-            qs = qs.annotate(
-                registration_id=models.Subquery(
-                    Registration.objects.filter(
-                        event=models.OuterRef('pk'),
-                        user=user,
-                    ).order_by('-is_current', '-created_at')[:1].values('pk'),
-                ),
-            )
+            qs = qs.annotate(registration_id=models.Subquery(
+                Registration.objects.current_for(
+                    event=models.OuterRef('pk'),
+                    user=user,
+                ).values('pk'),
+            ))
         return qs
 
     def with_used_slots(self):

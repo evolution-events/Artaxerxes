@@ -28,6 +28,19 @@ class Manager(models.Manager):
                 output_field=MonetaryField()),
         )
 
+    def current_for(self, event, user):
+        """
+        Returns the current registration for the given event and user.
+
+        This returns a queryset that contains at most 1 result, not a model instance or none, call .first() on it if
+        you need that (not done here since that forces evaluation of the queryset).
+        """
+        return (
+            self.get_queryset()
+            .filter(event=event, user=user)
+            .order_by('-is_current', '-created_at')
+        )[:1]
+
 
 @reversion.register(follow=('options',))
 class Registration(models.Model):

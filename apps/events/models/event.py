@@ -24,8 +24,11 @@ class EventManager(models.Manager):
          - preregistration_is_open: True when the user can prepare a registration (becomes False again when
            registration_is_open becomes True).
          - registration_is_open: True when the user can finalize a registration.
-         - registration_status: The status of the registration for the user for this event, or None when no
-           registration is present. Cancelled registrations are ignored by this status.
+
+         When with_registration is given, also:
+         - registration: The current registration for the user for this event, or None when no
+           registration is current. Current is the one non-cancelled registration, or most recent cancelled
+           registration.
         """
         # This does not use the user yet, but this makes it easier to change that later
         # This essentially duplicates the similarly-named methods on the model below.

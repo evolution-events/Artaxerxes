@@ -20,7 +20,7 @@
         {# Show preregistration button if it is open #}
         {% if e.preregistration_is_open %}
           <a href="{% url 'registrations:register' eventid=e.id %}" role="button">
-          {% if e.registration_status.PREPARATION_COMPLETE %}
+          {% if e.registration and e.registration.status.PREPARATION_COMPLETE %}
             {% trans 'View prepared registration' %}
           {% else %}
             {% trans 'Prepare registration' %}

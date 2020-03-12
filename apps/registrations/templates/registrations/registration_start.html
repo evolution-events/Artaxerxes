@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block pagetitle %}
+  {% if event.registration_is_open %}
+  {% blocktrans %}Starting registration for {{event}}{% endblocktrans %}
+  {% else %}
+  {% blocktrans %}Preparing a registration for {{event}}{% endblocktrans %}
+  {% endif %}
+{% endblock pagetitle%}
+
+{% block content %}
+  {% if message %}
+    <p class="notification">{{ message }}</p>
+  {% endif %}
+  {% if not event.registration_is_open %}
+  <p>{% blocktrans %}
+	Registration for {{event}} is not yet open. However, you can already
+	prepare a registration, so that once registration opens, you can complete
+  your registration in just a few clicks.
+  {% endblocktrans %}</p>
+	{% endif %}
+  <p>{% blocktrans %}
+	In the following few steps, you will be asked for registration options,
+  personal details, etc. Whenever you complete a step, your data is
+  saved and you can stop and come back later to continue.
+  {% endblocktrans %}</p>
+  <p>{% blocktrans %}
+  Starting this procedure is without obligation. Only in the last step
+  you will finalize your registration and actually be registered for the
+  event.
+  {% endblocktrans %}</p>
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {% if not event.registration_is_open %}
+    <button class="btn btn-success" type="submit">{% trans 'Start registration' %}</button>
+    {% else %}
+    <button class="btn btn-success" type="submit">{% trans 'Prepare registration' %}</button>
+    {% endif %}
+  </form>
+{% endblock content %}

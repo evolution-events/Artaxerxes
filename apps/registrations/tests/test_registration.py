@@ -119,6 +119,49 @@ class TestRegistrationForm(TestCase):
         self.assertIn('waiting', mail.outbox[0].subject.lower())
         self.assertEqual(len(mail.outbox), 1)
 
+    def test_registration_start(self):
+        e = self.event
+        start_url = reverse('registrations:register', args=(e.pk,))
+        with self.assertTemplateUsed('registrations/registration_start.html'):
+            self.client.get(start_url)
+
+        # Send a post request to start registration procedure, this should created a new Registration and redirect to
+        # the next step.
+        response = self.client.post(start_url)
+        self.assertEqual(Registration.objects.all().count(), 1)
+        reg = Registration.objects.get(user=self.user, event=e)
+        first_step_url = reverse('registrations:optionsform', args=(reg.pk,))
+        self.assertRedirects(response, first_step_url)
+        self.assertEqual(reg.status, Registration.statuses.PREPARATION_IN_PROGRESS)
+
+        # Posting again should just redirect to the first step, and *not* create another Registration.
+        response = self.client.post(start_url)
+        self.assertRedirects(response, first_step_url)
+        self.assertEqual(Registration.objects.all().count(), 1)
+        self.assertEqual(reg.status, Registration.statuses.PREPARATION_IN_PROGRESS)
+
+        # Getting should do the same
+        response = self.client.get(start_url)
+        self.assertRedirects(response, first_step_url)
+        self.assertEqual(Registration.objects.all().count(), 1)
+        self.assertEqual(reg.status, Registration.statuses.PREPARATION_IN_PROGRESS)
+
+        # One preparation is complete, getting it should redirect to finalcheck
+        reg.status = Registration.statuses.PREPARATION_COMPLETE
+        reg.save()
+        final_check_url = reverse('registrations:finalcheckform', args=(reg.pk,))
+        response = self.client.get(start_url)
+        self.assertRedirects(response, final_check_url)
+        self.assertEqual(Registration.objects.all().count(), 1)
+        self.assertEqual(reg.status, Registration.statuses.PREPARATION_COMPLETE)
+
+        # And posting again should still redirect to the first step, without creating a new Registration or modifying
+        # the status.
+        response = self.client.post(start_url)
+        self.assertRedirects(response, first_step_url)
+        self.assertEqual(Registration.objects.all().count(), 1)
+        self.assertEqual(reg.status, Registration.statuses.PREPARATION_COMPLETE)
+
 
 class TestConstraints(TestCase):
     @classmethod

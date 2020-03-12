@@ -9,6 +9,7 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from django.views.generic import DetailView, View
+from django.views.generic.base import TemplateResponseMixin
 
 from apps.events.models import Event
 from apps.people.models import Address, MedicalDetails
@@ -19,17 +20,35 @@ from .models import Registration
 from .services import RegistrationNotifyService, RegistrationStatusService
 
 
-class RegistrationStartView(LoginRequiredMixin, View):
-    # TODO: This should be a POST request
+class RegistrationStartView(LoginRequiredMixin, TemplateResponseMixin, View):
+    template_name = 'registrations/registration_start.html'
+
     def get(self, request, eventid):
-        event = get_object_or_404(Event, pk=eventid)
-        registration, created = Registration.objects.get_or_create(
-            event=event, user=request.user, defaults={'status': Registration.statuses.PREPARATION_IN_PROGRESS},
+        event = get_object_or_404(Event.objects.for_user(request.user), pk=eventid)
+        try:
+            registration = Registration.objects.get(
+                event=event,
+                user=request.user,
+                is_current=True,
+            )
+            if registration.status.PREPARATION_IN_PROGRESS:
+                return redirect('registrations:optionsform', registrationid=registration.id)
+            else:
+                return redirect('registrations:finalcheckform', registrationid=registration.id)
+        except Registration.DoesNotExist:
+            return self.render_to_response({
+                'event': event,
+            })
+
+    def post(self, request, eventid):
+        event = get_object_or_404(Event.objects.for_user(request.user), pk=eventid)
+        registration, created = Registration.objects.filter(is_current=True).get_or_create(
+            event=event,
+            user=request.user,
+            defaults={'status': Registration.statuses.PREPARATION_IN_PROGRESS},
         )
-        if registration.status.PREPARATION_IN_PROGRESS:
-            return redirect('registrations:optionsform', registrationid=registration.id)
-        else:
-            return redirect('registrations:finalcheckform', registrationid=registration.id)
+        return redirect('registrations:optionsform', registrationid=registration.id)
+
 
 @login_required
 def registration_step_options(request, registrationid=None):

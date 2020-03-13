@@ -182,6 +182,13 @@ ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
+# Reduce the max email address length. According to RFCs, addresses up
+# to 254 characters (or bytes, a bit unclear) are valid, but such long
+# addresses are not actually used in practice. Since e-mailaddress is
+# used as a database unique index, it could help performance to limit it
+# a bit (also, the default runs into maximum key size limits on older
+# versions of Mysql/Mariadb).
+ACCOUNT_EMAIL_MAX_LENGTH = 64
 # Automatically login people after email-confirmation after signup.
 # For security, this only works in the same browse session as the initial signup.
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True

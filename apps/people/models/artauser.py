@@ -1,4 +1,5 @@
 import reversion
+from django.conf import settings
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
@@ -17,7 +18,7 @@ class ArtaUserManager(BaseUserManager):
 class ArtaUser(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(_('first name'), max_length=30, blank=True)
     last_name = models.CharField(_('last name'), max_length=150, blank=True)
-    email = models.EmailField(_('email address'), unique=True)
+    email = models.EmailField(_('email address'), max_length=settings.ACCOUNT_EMAIL_MAX_LENGTH, unique=True)
 
     is_staff = models.BooleanField(
         _('staff status'),

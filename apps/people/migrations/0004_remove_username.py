@@ -26,6 +26,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='artauser',
             name='email',
-            field=models.EmailField(max_length=254, unique=True, verbose_name='email address'),
+            field=models.EmailField(max_length=64, unique=True, verbose_name='email address'),
         ),
     ]

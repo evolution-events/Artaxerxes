@@ -194,6 +194,10 @@ ACCOUNT_EMAIL_MAX_LENGTH = 64
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
 ACCOUNT_SIGNUP_FORM_CLASS = 'apps.core.forms.SignupFormBase'
 
+LOGIN_URL = 'account_login'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = 'account_login'
+
 # ##### SECURITY CONFIGURATION ############################
 
 # We store the secret key here

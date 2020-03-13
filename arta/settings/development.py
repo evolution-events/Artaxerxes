@@ -12,11 +12,6 @@ DEBUG = True
 # allow all hosts during development
 ALLOWED_HOSTS = ['*']
 
-# adjust the minimal login
-LOGIN_URL = 'account_login'
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = 'account_login'
-
 # ##### EMAIL CONFIGURATION ###############################
 DEFAULT_FROM_EMAIL = "artaxerxes-test@evolution-events.nl"
 BCC_EMAIL_TO = []

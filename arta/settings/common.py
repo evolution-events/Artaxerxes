@@ -213,6 +213,7 @@ MANAGERS = ADMINS
 # ##### EMAIL CONFIGURATION ################################
 DEFAULT_EMAIL_FROM = 'inschrijvingen@evolution-events.nl'
 BCC_EMAIL_TO = ['inschrijvingen@evolution-events.nl']
+SERVER_EMAIL = 'inschrijvingen@evolution-events.nl'
 
 # ##### DJANGO RUNNING CONFIGURATION ######################
 

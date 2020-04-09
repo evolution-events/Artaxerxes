@@ -54,6 +54,10 @@ class RegistrationStartView(LoginRequiredMixin, TemplateResponseMixin, View):
 class RegistrationStepMixin(LoginRequiredMixin, SingleObjectMixin):
     model = Registration
 
+    def get_queryset(self):
+        # Only allow editing your own registrations
+        return super().get_queryset().filter(user=self.request.user)
+
     def get_success_url(self):
         # success_view is supplied by the subclass
         return reverse(self.success_view, args=(self.registration.id,))

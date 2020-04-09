@@ -64,6 +64,14 @@ class TestRegistration(TestCase):
 
 
 class TestRegistrationForm(TestCase):
+    registration_steps = (
+        'registrations:optionsform',
+        'registrations:personaldetailform',
+        'registrations:medicaldetailform',
+        'registrations:emergencycontactsform',
+        'registrations:finalcheckform',
+    )
+
     @classmethod
     def setUpTestData(cls):
         cls.event = EventFactory(registration_opens_in_days=-1, public=True)
@@ -165,6 +173,30 @@ class TestRegistrationForm(TestCase):
         self.assertRedirects(response, first_step_url)
         self.assertEqual(Registration.objects.all().count(), 1)
         self.assertEqual(reg.status, Registration.statuses.PREPARATION_COMPLETE)
+
+    @parameterized.expand(registration_steps)
+    def test_others_registration(self, viewname):
+        """ Check that all registration steps fail with someone else's registration. """
+        registration = RegistrationFactory(event=self.event)
+
+        url = reverse(viewname, args=(registration.pk,))
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
+
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 404)
+
+    @parameterized.expand(registration_steps)
+    def test_own_registration(self, viewname):
+        """ Check that all registration steps load with your own registration. """
+        registration = RegistrationFactory(event=self.event, user=self.user, preparation_complete=True)
+
+        url = reverse(viewname, args=(registration.pk,))
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        # Do not test POST, since that might not work reliably (e.g. the emergency contacts formset breaks for lack
+        # of a management form).
 
 
 # Parameterization produces TestMedicalConsentLog_0 and _1 class names

@@ -12,10 +12,7 @@ from apps.registrations.models import Registration
 from .series import Series
 
 
-class EventManager(models.Manager):
-    def get_by_natural_key(self, name):
-        return self.get(name=name)
-
+class EventQuerySet(models.QuerySet):
     def for_user(self, user, with_registration=False):
         """
         Returns events annotated with properties applicable for the given user.
@@ -34,7 +31,7 @@ class EventManager(models.Manager):
         # This essentially duplicates the similarly-named methods on the model below.
         # Split into multiple annotates to allow using annotations in subsequent annotations (the order of these can
         # not be guaranteed in the kwargs across systems)
-        qs = self.get_queryset().annotate(
+        qs = self.annotate(
             is_visible=F('public'),
         ).annotate(
             registration_is_open=QExpr(
@@ -62,12 +59,17 @@ class EventManager(models.Manager):
         return qs
 
     def with_used_slots(self):
-        return self.get_queryset().annotate(
+        return self.annotate(
             used_slots=Count(
                 'registration',
                 filter=Q(registration__status=Registration.statuses.REGISTERED),
             ),
         )
+
+
+class EventManager(models.Manager.from_queryset(EventQuerySet)):
+    def get_by_natural_key(self, name):
+        return self.get(name=name)
 
 
 @reversion.register(follow=('registration_fields',))

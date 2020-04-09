@@ -10,19 +10,9 @@ from apps.core.fields import MonetaryField
 from apps.core.utils import QExpr
 
 
-class Manager(models.Manager):
-    def get_queryset(self):
-        """
-        Returns a queryset, annotaded with:
-
-         - is_current, indicating that this is the current (i.e. non-cancelled) registration for this user and event.
-        """
-        return super().get_queryset().annotate(
-            is_current=QExpr(~Q(status=Registration.statuses.CANCELLED)),
-        )
-
+class RegistrationQuerySet(models.QuerySet):
     def with_price(self):
-        return self.get_queryset().annotate(
+        return self.annotate(
             price=ExpressionWrapper(
                 Sum('options__option__price'),
                 output_field=MonetaryField()),
@@ -36,10 +26,21 @@ class Manager(models.Manager):
         you need that (not done here since that forces evaluation of the queryset).
         """
         return (
-            self.get_queryset()
-            .filter(event=event, user=user)
+            self.filter(event=event, user=user)
             .order_by('-is_current', '-created_at')
         )[:1]
+
+
+class RegistrationManager(models.Manager.from_queryset(RegistrationQuerySet)):
+    def get_queryset(self):
+        """
+        Returns a querysets annotated with:
+
+         - is_current, indicating that this is the current (i.e. non-cancelled) registration for this user and event.
+        """
+        return super().get_queryset().annotate(
+            is_current=QExpr(~Q(status=Registration.statuses.CANCELLED)),
+        )
 
 
 @reversion.register(follow=('options',))
@@ -66,7 +67,7 @@ class Registration(models.Model):
     created_at = models.DateTimeField(verbose_name=_('Creation timestamp'), auto_now_add=True, null=False)
     registered_at = models.DateTimeField(verbose_name=_('Registration timestamp'), blank=True, null=True)
 
-    objects = Manager()
+    objects = RegistrationManager()
 
     def __str__(self):
         return _('%(user)s - %(event)s - %(status)s') % {

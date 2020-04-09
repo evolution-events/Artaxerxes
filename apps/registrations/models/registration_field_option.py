@@ -8,18 +8,20 @@ from apps.core.fields import MonetaryField
 from . import Registration, RegistrationField
 
 
-class RegistrationFieldOptionManager(models.Manager):
-    def get_by_natural_key(self, field, option):
-        field = RegistrationField.objects.get_by_natural_key(*field)
-        return self.get(field=field, title__iexact=option)
-
+class RegistrationFieldOptionQuerySet(models.QuerySet):
     def with_used_slots(self):
-        return self.get_queryset().annotate(
+        return self.annotate(
             used_slots=Count(
                 'registrationfieldvalue',
                 filter=Q(registrationfieldvalue__registration__status=Registration.statuses.REGISTERED),
             ),
         )
+
+
+class RegistrationFieldOptionManager(models.Manager.from_queryset(RegistrationFieldOptionQuerySet)):
+    def get_by_natural_key(self, field, option):
+        field = RegistrationField.objects.get_by_natural_key(*field)
+        return self.get(field=field, title__iexact=option)
 
 
 @reversion.register(follow=('field',))

@@ -206,7 +206,7 @@ class RegistrationOptionsForm(forms.Form):
         # Add an error for the given field, reusing the predefined error messages for that field.
         field = self.fields[field_name]
         msg = field.error_messages[code]
-        self.add_error(field_name, forms.ValidationError(msg, code=code, values=kwargs))
+        self.add_error(field_name, forms.ValidationError(msg, code=code, params=kwargs))
 
     def clean(self):
         # Most validation is implicit based on the generated form (e.g. based on required, choices, etc.)

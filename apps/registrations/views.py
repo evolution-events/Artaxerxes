@@ -32,9 +32,9 @@ class RegistrationStartView(LoginRequiredMixin, TemplateResponseMixin, View):
                 is_current=True,
             )
             if registration.status.PREPARATION_IN_PROGRESS:
-                return redirect('registrations:optionsform', registrationid=registration.id)
+                return redirect('registrations:optionsform', registration.id)
             else:
-                return redirect('registrations:finalcheckform', registrationid=registration.id)
+                return redirect('registrations:finalcheckform', registration.id)
         except Registration.DoesNotExist:
             return self.render_to_response({
                 'event': event,
@@ -47,7 +47,7 @@ class RegistrationStartView(LoginRequiredMixin, TemplateResponseMixin, View):
             user=request.user,
             defaults={'status': Registration.statuses.PREPARATION_IN_PROGRESS},
         )
-        return redirect('registrations:optionsform', registrationid=registration.id)
+        return redirect('registrations:optionsform', registration.id)
 
 
 @login_required

@@ -461,6 +461,14 @@ signedtoken = ["cryptography", "pyjwt (>=1.0.0)"]
 
 [[package]]
 category = "dev"
+description = "Parameterized testing with any Python test framework"
+name = "parameterized"
+optional = false
+python-versions = "*"
+version = "0.7.1"
+
+[[package]]
+category = "dev"
 description = "Path matching utilities"
 name = "pathmatch"
 optional = false
@@ -695,7 +703,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["pathlib2", "contextlib2", "unittest2"]
 
 [metadata]
-content-hash = "c209abb4b5995017b6aad1b175fdcb1fcc9f8c92a175775e72c31cde44398bca"
+content-hash = "8028c92cee500090ba914e117597cca3324400fc234b390f338012311ad78cb0"
 python-versions = "^3.5"
 
 [metadata.files]
@@ -910,6 +918,10 @@ mypy-extensions = [
 oauthlib = [
     {file = "oauthlib-3.1.0-py2.py3-none-any.whl", hash = "sha256:df884cd6cbe20e32633f1db1072e9356f53638e4361bef4e8b03c9127c9328ea"},
     {file = "oauthlib-3.1.0.tar.gz", hash = "sha256:bee41cc35fcca6e988463cacc3bcb8a96224f470ca547e697b604cc697b2f889"},
+]
+parameterized = [
+    {file = "parameterized-0.7.1-py2.py3-none-any.whl", hash = "sha256:ea0326ba5bbbe7c427329a27b75003410df07d1173ca254976f8f5a64922c322"},
+    {file = "parameterized-0.7.1.tar.gz", hash = "sha256:6a94dbea30c6abde99fd4c2f2042c1bf7f980e48908bf92ead62394f93cf57ed"},
 ]
 pathmatch = [
     {file = "pathmatch-0.2.1.zip", hash = "sha256:b35db907d0532c66132e5bc8aaa20dbfae916441987c8f0abd53ac538376d9a7"},

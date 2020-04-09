@@ -25,12 +25,12 @@
 
   <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
-    {{ ec_formset.non_form_errors }}
-    {{ ec_formset.management_form }}
-    {% for ec_form in ec_formset %}
+    {{ formset.non_form_errors }}
+    {{ formset.management_form }}
+    {% for form in formset %}
     <h3>{% blocktrans with num=forloop.counter %}Contact #{{num}}{% endblocktrans %}</h3>
     <table class="table table-borderless table-sm">
-    {{ ec_form.as_table }}
+    {{ form.as_table }}
     </table>
     {% endfor %}
     <a class="btn btn-default" href="{{ back_url }}" role="button">{% trans 'Back' %}</a>

@@ -36,10 +36,27 @@ class UserDetailsForm(forms.ModelForm):
         fields = ['first_name', 'last_name', 'email']
 
 
-class PersonalDetailForm(forms.ModelForm):
+class AddressDetailsForm(forms.ModelForm):
     class Meta:
         model = Address
         fields = ['phone_number', 'address', 'postalcode', 'city', 'country']
+
+
+class PersonalDetailForm:
+    """ Composite form. """
+
+    def __init__(self, user, address, **kwargs):
+        prefix = kwargs.pop('prefix') or ''
+        self.user_form = UserDetailsForm(instance=user, prefix=prefix + 'user', **kwargs)
+        self.address_form = AddressDetailsForm(instance=address, prefix=prefix + 'address', **kwargs)
+        self.forms = (self.user_form, self.address_form)
+
+    def save(self, **kwargs):
+        for form in self.forms:
+            form.save(**kwargs)
+
+    def is_valid(self):
+        return all(form.is_valid() for form in self.forms)
 
 
 class MedicalDetailForm(forms.ModelForm):

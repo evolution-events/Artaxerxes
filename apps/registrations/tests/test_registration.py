@@ -197,7 +197,7 @@ class TestMedicalConsentLog(TestCase):
         if success:
             self.assertRedirects(response, self.redirect_to)
         else:
-            self.assertFormError(response, 'md_form', self.consent_field, self.consent_error)
+            self.assertFormError(response, 'form', self.consent_field, self.consent_error)
 
         if should_exist:
             details = MedicalDetails.objects.get(user=self.user)

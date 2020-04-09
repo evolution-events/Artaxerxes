@@ -17,7 +17,7 @@
   <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     <table class="table">
-    {{ md_form.as_table }}
+    {{ form.as_table }}
     {# TODO: Improve layout of consent checkbox #}
     </table>
     <a class="btn btn-default" href="{{ back_url }}" role="button">{% trans 'Back' %}</a>

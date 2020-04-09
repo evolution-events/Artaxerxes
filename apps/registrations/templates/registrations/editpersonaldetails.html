@@ -11,8 +11,8 @@
   <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     <table class="table">
-    {{ ud_form.as_table }}
-    {{ pd_form.as_table }}
+    {{ form.user_form.as_table }}
+    {{ form.address_form.as_table }}
     </table>
     <a class="btn btn-default" href="{{ back_url }}" role="button">{% trans 'Back' %}</a>
     <button class="btn btn-success" type="submit">{% trans 'Next step' %}</button>

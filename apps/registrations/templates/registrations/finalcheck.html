@@ -120,7 +120,7 @@
   <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     <table class="table">
-    {{ fc_form.as_table }}
+    {{ form.as_table }}
     </table>
   {% endif %}
     <a href="{{ modify_url }}" class="btn btn-info" role="button">{% trans 'Modify information' %}</a>

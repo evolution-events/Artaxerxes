@@ -37,4 +37,13 @@ class ConsentLog(models.Model):
     def delete(self, *args, **kwargs):
         return
 
-    # TODO: __str__?
+    def __str__(self):
+        res = "{} {} consent for {}{} at {}".format(
+            self.user,
+            "provided" if self.action.CONSENTED else "withdrawn",
+            self.consent_name,
+            (" for {}".format(self.registration.event)) if self.registration else "",
+            self.timestamp,
+        )
+
+        return res

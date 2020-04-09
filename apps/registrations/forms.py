@@ -4,6 +4,7 @@ from django.forms.formsets import DELETION_FIELD_NAME
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
+from apps.core.models import ConsentLog
 from apps.core.templatetags.coretags import moneyformat
 from apps.people.models import Address, ArtaUser, EmergencyContact, MedicalDetails
 from apps.registrations.models import RegistrationField, RegistrationFieldValue
@@ -42,6 +43,62 @@ class PersonalDetailForm(forms.ModelForm):
 
 
 class MedicalDetailForm(forms.ModelForm):
+    consent = forms.BooleanField(
+        label=_('I consent to the processing of the above information'),
+        help_text=_(
+            'This applies to any food allergies and medical information '
+            'that you have provided, to be processed for the purpose of '
+            'your safety when attending our events.'),
+        required=False,
+    )
+
+    def __init__(self, instance=None, *args, **kwargs):
+        # If a MedicalDetails instance already exists, consent must have been given already, so precheck the box
+        if instance and instance.pk is not None:
+            kwargs['initial'] = kwargs.get('initial', {})
+            kwargs['initial']['consent'] = True
+
+        super().__init__(instance=instance, *args, **kwargs)
+
+    # TODO: Only show consent checkbox when data is entered (using javascript), and show it as required then?
+    def clean(self):
+        # This checks only the model fields specified in meta
+        any_information = any(self.cleaned_data.get(name) for name in self._meta.fields)
+        if not any_information:
+            # If no information is supplied, ignore the consent checkbox
+            self.cleaned_data['consent'] = False
+        elif not self.cleaned_data.get('consent'):
+            self.add_error('consent', 'Consent required when any information is specified')
+
+        return self.cleaned_data
+
+    def save(self, registration, *args, **kwargs):
+        action = None
+
+        if self.cleaned_data['consent']:
+            if self.has_changed():
+                action = ConsentLog.actions.CONSENTED
+                obj = super().save()
+                user = obj.user
+        else:
+            if self.instance and self.instance.pk is not None:
+                action = ConsentLog.actions.WITHDRAWN
+                user = self.instance.user
+                self.instance.delete()
+
+        if action:
+            consent_description = "{} | {}".format(
+                self.fields['consent'].label,
+                self.fields['consent'].help_text,
+            )
+            ConsentLog.objects.create(
+                user=user,
+                registration=registration,
+                action=action,
+                consent_name='medical_data',
+                consent_description=consent_description,
+            )
+
     class Meta:
         model = MedicalDetails
         fields = ['food_allergies', 'event_risks']

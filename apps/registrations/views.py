@@ -144,7 +144,7 @@ def registration_step_medical_details(request, registrationid=None):
     if request.method == 'POST':
         if md_form.is_valid():
             with reversion.create_revision():
-                md_form.save()
+                md_form.save(registration=registration)
                 reversion.set_user(request.user)
                 reversion.set_comment(_("Medical info updated via frontend. The following "
                                       "fields changed: %(fields)s" % {'fields': ", ".join(md_form.changed_data)}))

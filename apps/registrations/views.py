@@ -132,6 +132,10 @@ def registration_step_medical_details(request, registrationid=None):
     mdetails = None
     if hasattr(request.user, 'medicaldetails'):
         mdetails = request.user.medicaldetails
+    else:
+        mdetails = MedicalDetails()
+        mdetails.user = request.user
+
     registration = get_object_or_404(Registration, pk=registrationid)
     # Get a copy of the event annotated for this user
     event = Event.objects.for_user(request.user).get(pk=registration.event.pk)
@@ -140,9 +144,7 @@ def registration_step_medical_details(request, registrationid=None):
     if request.method == 'POST':
         if md_form.is_valid():
             with reversion.create_revision():
-                details = md_form.save(commit=False)
-                details.user = request.user
-                details.save()
+                md_form.save()
                 reversion.set_user(request.user)
                 reversion.set_comment(_("Medical info updated via frontend. The following "
                                       "fields changed: %(fields)s" % {'fields': ", ".join(md_form.changed_data)}))

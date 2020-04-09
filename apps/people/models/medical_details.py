@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.db.models import Q
 from django.utils.translation import gettext
 from django.utils.translation import ugettext_lazy as _
 
@@ -14,7 +15,6 @@ class MedicalDetails(models.Model):
                     "mention the severity. Do not use this field for food you dislike, only enter things "
                     "that can cause real problems. Leave blank when you have no allergies. "),
         blank=True,
-        null=True,
     )
 
     event_risks = models.TextField(
@@ -23,7 +23,6 @@ class MedicalDetails(models.Model):
                     "preparing for the event. For example if you are allergic to smoke machines, can not handle "
                     "flashes of light, are claustrophobic etc. Leave blank when there is nothing to mention."),
         blank=True,
-        null=True,
     )
 
     def __str__(self):
@@ -32,3 +31,8 @@ class MedicalDetails(models.Model):
     class Meta:
         verbose_name = _('medical details')
         verbose_name_plural = _('medical details')
+
+        constraints = [
+            models.CheckConstraint(check=~Q(food_allergies='', event_risks=''),
+                                   name='medical_details_not_empty'),
+        ]

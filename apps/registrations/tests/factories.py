@@ -18,20 +18,17 @@ class RegistrationFactory(factory.django.DjangoModelFactory):
 
     status = Registration.statuses.PREPARATION_IN_PROGRESS
 
+    @factory.lazy_attribute
+    def registered_at(self):
+        if self.status.ACTIVE or self.status.CANCELLED:
+            return datetime.now(timezone.utc)
+        return None
+
     class Params:
-        # These are just to more concisely define status and include registration time when needed.
-        registered = factory.Trait(
-            status=Registration.statuses.REGISTERED,
-            registered_at=datetime.now(timezone.utc),
-        )
-        waiting_list = factory.Trait(
-            status=Registration.statuses.WAITINGLIST,
-            registered_at=datetime.now(timezone.utc),
-        )
-        cancelled = factory.Trait(
-            status=Registration.statuses.CANCELLED,
-            registered_at=datetime.now(timezone.utc),
-        )
+        # These are just to more concisely define status
+        registered = factory.Trait(status=Registration.statuses.REGISTERED)
+        waiting_list = factory.Trait(status=Registration.statuses.WAITINGLIST)
+        cancelled = factory.Trait(status=Registration.statuses.CANCELLED)
         preparation_in_progress = factory.Trait(status=Registration.statuses.PREPARATION_IN_PROGRESS)
         preparation_complete = factory.Trait(status=Registration.statuses.PREPARATION_COMPLETE)
 

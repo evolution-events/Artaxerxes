@@ -3,6 +3,7 @@ import reversion
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.forms import ValidationError
+from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.safestring import mark_safe
@@ -62,11 +63,17 @@ class RegistrationStepMixin(LoginRequiredMixin, SingleObjectMixin):
         # success_view is supplied by the subclass
         return reverse(self.success_view, args=(self.registration.id,))
 
-    def dispatch(self, *args, **kwargs):
-        # Called for both get and post, so set up the objects we always need
+    def setup(self, *args, **kwargs):
+        super().setup(*args, **kwargs)
+
         self.object = self.get_object()
         self.registration = self.object
         self.event = Event.objects.for_user(self.request.user).get(pk=self.registration.event.pk)
+
+    def dispatch(self, *args, **kwargs):
+        if not self.registration.status.PREPARATION_IN_PROGRESS and not self.registration.status.PREPARATION_COMPLETE:
+            # Let finalcheck sort out where to go
+            return redirect('registrations:finalcheckform', self.registration.id)
 
         return super().dispatch(*args, **kwargs)
 
@@ -103,11 +110,11 @@ class RegistrationOptionsStep(RegistrationStepMixin, FormView):
 
         return super().form_valid(form)
 
-    def get(self, *args, **kwargs):
+    def dispatch(self, *args, **kwargs):
         # No fields? Just skip this step
         if not self.event.registration_fields.all():
             return redirect(self.get_success_url())
-        return super().get(*args, **kwargs)
+        return super().dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
         kwargs.update({
@@ -269,13 +276,15 @@ class FinalCheck(RegistrationStepMixin, FormView):
 
         return super().form_valid(form)
 
-    def get(self, *args, **kwargs):
+    def dispatch(self, *args, **kwargs):
         if self.registration.status.ACTIVE:
             return redirect(self.get_success_url())
-        elif not self.registration.status.PREPARATION_COMPLETE:
+        elif self.registration.status.PREPARATION_IN_PROGRESS:
             return redirect(self.get_modify_url())
+        elif not self.registration.status.PREPARATION_COMPLETE:
+            raise Http404("Registration in invalid state")
 
-        return super().get(*args, **kwargs)
+        return super().dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
         personal_details = Address.objects.filter(user=self.request.user).first()

@@ -1,3 +1,5 @@
+import itertools
+
 from django.conf import settings
 from django.core import mail
 from django.db.utils import IntegrityError
@@ -197,6 +199,35 @@ class TestRegistrationForm(TestCase):
 
         # Do not test POST, since that might not work reliably (e.g. the emergency contacts formset breaks for lack
         # of a management form).
+
+    @parameterized.expand(registration_steps)
+    def test_canceled_registration(self, viewname):
+        """ Check that all registration steps reject a canceled registration """
+        registration = RegistrationFactory(event=self.event, user=self.user, cancelled=True)
+
+        url = reverse(viewname, args=(registration.pk,))
+        # Follow, since some views redirect to final which 404s
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 404)
+
+        response = self.client.post(url, follow=True)
+        self.assertEqual(response.status_code, 404)
+
+    @parameterized.expand(itertools.product(
+        registration_steps,
+        Registration.statuses.ACTIVE))
+    def test_active_registration(self, viewname, status):
+        """ Check that active registrations redirect to the registration completed page """
+        registration = RegistrationFactory(event=self.event, user=self.user, status=status)
+
+        url = reverse(viewname, args=(registration.pk,))
+        confirm_url = reverse('registrations:registrationconfirmation', args=(registration.pk,))
+        # Follow, since some views redirect to final which 404s
+        response = self.client.get(url, follow=True)
+        self.assertRedirects(response, confirm_url)
+
+        response = self.client.post(url, follow=True)
+        self.assertRedirects(response, confirm_url)
 
 
 # Parameterization produces TestMedicalConsentLog_0 and _1 class names

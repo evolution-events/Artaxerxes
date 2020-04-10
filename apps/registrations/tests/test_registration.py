@@ -1,14 +1,14 @@
 from django.conf import settings
 from django.core import mail
-from django.forms.models import model_to_dict
 from django.db.utils import IntegrityError
+from django.forms.models import model_to_dict
 from django.test import TestCase, skipUnlessDBFeature
 from django.urls import reverse
 from parameterized import parameterized, parameterized_class
 
 from apps.core.models import ConsentLog
 from apps.events.tests.factories import EventFactory
-from apps.people.models import ArtaUser, MedicalDetails
+from apps.people.models import MedicalDetails
 from apps.people.tests.factories import ArtaUserFactory, MedicalDetailsFactory
 
 from ..models import Registration

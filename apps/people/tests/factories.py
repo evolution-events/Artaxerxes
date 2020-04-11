@@ -1,6 +1,6 @@
 import factory
 
-from ..models import ArtaUser, MedicalDetails
+from ..models import ArtaUser, EmergencyContact, MedicalDetails
 
 
 class ArtaUserFactory(factory.django.DjangoModelFactory):
@@ -17,3 +17,10 @@ class MedicalDetailsFactory(factory.django.DjangoModelFactory):
     food_allergies = factory.Faker('sentence')
     event_risks = factory.Faker('text')
     user = factory.SubFactory(ArtaUserFactory)
+
+
+class EmergencyContactFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = EmergencyContact
+    contact_name = factory.Faker('name')
+    phone_number = factory.Faker('phone_number')

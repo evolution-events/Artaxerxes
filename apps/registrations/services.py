@@ -16,6 +16,22 @@ from .models import Registration, RegistrationFieldOption
 
 class RegistrationStatusService:
     @staticmethod
+    def preparation_completed(registration):
+        """
+        Marks a registration as PREPARATION_COMPLETE.
+
+        When status is already PREPARATION_COMPLETE, nothing happens. Otherwise, status must be
+        PREPARATION_IN_PROGRESS, otherwise a ValidationError is raised.
+        """
+        if registration.status.PREPARATION_COMPLETE:
+            return
+        if not registration.status.PREPARATION_IN_PROGRESS:
+            raise ValidationError(_("Registration no longer in progress"))
+
+        registration.status = Registration.statuses.PREPARATION_COMPLETE
+        registration.save()
+
+    @staticmethod
     def finalize_registration(registration):
         """
         Finalizes a registration by setting its status to REGISTERED and doing additional needed bookkeeping.

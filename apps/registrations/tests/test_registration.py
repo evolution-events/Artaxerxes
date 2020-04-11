@@ -22,24 +22,36 @@ class TestRegistration(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.event = EventFactory(registration_opens_in_days=-1, public=True)
-        gender = RegistrationFieldFactory(event=cls.event, name="gender")
-        cls.option_m = RegistrationFieldOptionFactory(field=gender, title="M", slots=2)
-        cls.option_f = RegistrationFieldOptionFactory(field=gender, title="F", slots=2)
 
-        origin = RegistrationFieldFactory(event=cls.event, name="origin")
-        cls.option_nl = RegistrationFieldOptionFactory(field=origin, title="NL", slots=2)
-        cls.option_intl = RegistrationFieldOptionFactory(field=origin, title="INTL", slots=2)
+        cls.type = RegistrationFieldFactory(event=cls.event, name="type")
+        cls.player = RegistrationFieldOptionFactory(field=cls.type, title="Player")
+        cls.crew = RegistrationFieldOptionFactory(field=cls.type, title="Crew")
+
+        cls.gender = RegistrationFieldFactory(event=cls.event, name="gender", depends=cls.player)
+        cls.option_m = RegistrationFieldOptionFactory(field=cls.gender, title="M", slots=2)
+        cls.option_f = RegistrationFieldOptionFactory(field=cls.gender, title="F", slots=2)
+
+        cls.origin = RegistrationFieldFactory(event=cls.event, name="origin", depends=cls.player)
+        cls.option_nl = RegistrationFieldOptionFactory(field=cls.origin, title="NL", slots=2)
+        cls.option_intl = RegistrationFieldOptionFactory(field=cls.origin, title="INTL", slots=2)
+
 
     def test_register_until_option_full(self):
         """ Register until the option slots are taken and the next registration ends up on the waiting list. """
         e = self.event
 
         for _i in range(2):
-            reg = RegistrationFactory(event=e, preparation_complete=True, options=[self.option_m, self.option_nl])
+            reg = RegistrationFactory(
+                event=e, preparation_complete=True,
+                options=[self.player, self.option_m, self.option_nl],
+            )
             RegistrationStatusService.finalize_registration(reg)
             self.assertEqual(reg.status, Registration.statuses.REGISTERED)
 
-        reg = RegistrationFactory(event=e, preparation_complete=True, options=[self.option_m, self.option_nl])
+        reg = RegistrationFactory(
+            event=e, preparation_complete=True,
+            options=[self.player, self.option_m, self.option_nl],
+        )
         RegistrationStatusService.finalize_registration(reg)
         self.assertEqual(reg.status, Registration.statuses.WAITINGLIST)
 
@@ -51,7 +63,10 @@ class TestRegistration(TestCase):
         e.save()
 
         for _i in range(2):
-            reg = RegistrationFactory(event=e, preparation_complete=True, options=[self.option_m, self.option_nl])
+            reg = RegistrationFactory(
+                event=e, preparation_complete=True,
+                options=[self.player, self.option_m, self.option_nl],
+            )
             RegistrationStatusService.finalize_registration(reg)
             self.assertEqual(reg.status, Registration.statuses.REGISTERED)
 

@@ -8,7 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 class MedicalDetails(models.Model):
     """ Medical information linked to a single ArtaUser """
 
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='medical_details')
     food_allergies = models.TextField(
         verbose_name=_('Food allergies'),
         help_text=_("Please specify any allergies that our kitchen staff should take into account. Please also "

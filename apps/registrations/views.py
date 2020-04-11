@@ -170,8 +170,8 @@ class MedicalDetailsStep(RegistrationStepMixin, FormView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         try:
-            details = self.request.user.medicaldetails
-        except ArtaUser.medicaldetails.RelatedObjectDoesNotExist:
+            details = self.request.user.medical_details
+        except ArtaUser.medical_details.RelatedObjectDoesNotExist:
             details = MedicalDetails(user=self.request.user)
 
         kwargs.update({

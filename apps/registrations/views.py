@@ -88,7 +88,7 @@ class RegistrationStepMixin(LoginRequiredMixin, SingleObjectMixin):
 class RegistrationOptionsStep(RegistrationStepMixin, FormView):
     """ Step in registration process where user chooses options """
 
-    template_name = 'registrations/editoptions.html'
+    template_name = 'registrations/step_registration_options.html'
     success_view = 'registrations:step_personal_details'
     form_class = RegistrationOptionsForm
 
@@ -126,7 +126,7 @@ class RegistrationOptionsStep(RegistrationStepMixin, FormView):
 class PersonalDetailsStep(RegistrationStepMixin, FormView):
     """ Step in registration process where user fills in personal details """
 
-    template_name = 'registrations/editpersonaldetails.html'
+    template_name = 'registrations/step_personal_details.html'
     success_view = 'registrations:step_medical_details'
     form_class = PersonalDetailForm
 
@@ -163,7 +163,7 @@ class PersonalDetailsStep(RegistrationStepMixin, FormView):
 class MedicalDetailsStep(RegistrationStepMixin, FormView):
     """ Step in registration process where user fills in medical details """
 
-    template_name = 'registrations/editmedicaldetails.html'
+    template_name = 'registrations/step_medical_details.html'
     success_view = 'registrations:step_emergency_contacts'
     form_class = MedicalDetailForm
 
@@ -199,7 +199,7 @@ class MedicalDetailsStep(RegistrationStepMixin, FormView):
 class EmergencyContactsStep(RegistrationStepMixin, FormView):
     """ Step in registration process where user fills in emergency contacts """
 
-    template_name = 'registrations/editemergencycontacts.html'
+    template_name = 'registrations/step_emergency_contacts.html'
     success_view = 'registrations:step_final_check'
     form_class = EmergencyContactFormSet
 
@@ -242,7 +242,7 @@ class EmergencyContactsStep(RegistrationStepMixin, FormView):
 class FinalCheck(RegistrationStepMixin, FormView):
     """ Step in registration process where user checks all information and agrees to conditions """
 
-    template_name = 'registrations/finalcheck.html'
+    template_name = 'registrations/step_final_check.html'
     success_view = 'registrations:registration_confirmation'
     form_class = FinalCheckForm
 

@@ -10,8 +10,9 @@ from django.template.loader import render_to_string
 from django.utils.translation import gettext as _
 
 from apps.events.models import Event
+from apps.people.models import EmergencyContact
 
-from .models import Registration, RegistrationFieldOption
+from .models import Registration, RegistrationField, RegistrationFieldOption
 
 
 class RegistrationStatusService:
@@ -27,6 +28,35 @@ class RegistrationStatusService:
             return
         if not registration.status.PREPARATION_IN_PROGRESS:
             raise ValidationError(_("Registration no longer in progress"))
+
+        user = registration.user
+
+        if not hasattr(user, 'address'):
+            raise ValidationError(_("Address incomplete"))
+
+        if user.emergency_contacts.count() < EmergencyContact.MIN_PER_USER:
+            raise ValidationError(_("Not enough emergency contacts"))
+
+        if not user.first_name or not user.last_name:
+            raise ValidationError(_("Name (partially) empty"))
+
+        # Check that all fields have a value (taking dependencies into account)
+        # TODO: Should this code live somewhere else?
+        # TODO: How about fields where all options do not have their dependencies fulfilled? Should those be omitted?
+        selected_options = RegistrationFieldOption.objects.filter(
+            registrationfieldvalue__registration=registration,
+        )
+        all_fields = RegistrationField.objects.filter(
+            event=registration.event_id,
+        )
+        required_fields = all_fields.filter(
+            Q(depends=None) | Q(depends__in=selected_options),
+        )
+        missing_fields = required_fields.exclude(
+            registrationfieldvalue__registration=registration,
+        )
+        if missing_fields.exists():
+            raise ValidationError(_("Missing registration options"))
 
         registration.status = Registration.statuses.PREPARATION_COMPLETE
         registration.save()

@@ -2,6 +2,7 @@ import itertools
 
 from django.conf import settings
 from django.core import mail
+from django.core.exceptions import ValidationError
 from django.db.utils import IntegrityError
 from django.forms.models import model_to_dict
 from django.test import TestCase, skipUnlessDBFeature
@@ -11,7 +12,7 @@ from parameterized import parameterized, parameterized_class
 from apps.core.models import ConsentLog
 from apps.events.tests.factories import EventFactory
 from apps.people.models import Address, EmergencyContact, MedicalDetails
-from apps.people.tests.factories import ArtaUserFactory, MedicalDetailsFactory
+from apps.people.tests.factories import AddressFactory, ArtaUserFactory, EmergencyContactFactory, MedicalDetailsFactory
 
 from ..models import Registration, RegistrationFieldValue
 from ..services import RegistrationStatusService
@@ -35,6 +36,63 @@ class TestRegistration(TestCase):
         cls.option_nl = RegistrationFieldOptionFactory(field=cls.origin, title="NL", slots=2)
         cls.option_intl = RegistrationFieldOptionFactory(field=cls.origin, title="INTL", slots=2)
 
+    def incomplete_registration_helper(
+        self, empty_field=None, with_emergency_contact=True, with_address=True, options=True,
+        exception=ValidationError,
+    ):
+        if options is True:
+            options = [self.player, self.option_m, self.option_nl]
+        reg = RegistrationFactory(event=self.event, preparation_in_progress=True, options=options)
+
+        if with_emergency_contact:
+            EmergencyContactFactory(user=reg.user)
+        if with_address:
+            AddressFactory(user=reg.user)
+        # MedicalDetails is optional, so no need to create it
+
+        if empty_field:
+            setattr(reg.user, empty_field, '')
+            reg.user.save()
+
+        if exception:
+            with self.assertRaises(exception):
+                RegistrationStatusService.preparation_completed(reg)
+        else:
+            RegistrationStatusService.preparation_completed(reg)
+
+        reg.refresh_from_db()
+        if exception:
+            self.assertEqual(reg.status, Registration.statuses.PREPARATION_IN_PROGRESS)
+        else:
+            self.assertEqual(reg.status, Registration.statuses.PREPARATION_COMPLETE)
+
+    def test_missing_first_name(self):
+        """ Check that a missing first name prevents completing preparation """
+        self.incomplete_registration_helper(empty_field='first_name')
+
+    def test_missing_last_name(self):
+        """ Check that a missing last name prevents completing preparation """
+        self.incomplete_registration_helper(empty_field='first_name')
+
+    def test_missing_address(self):
+        """ Check that a missing address prevents completing preparation """
+        self.incomplete_registration_helper(with_address=False)
+
+    def test_missing_emergency_contacts(self):
+        """ Check that a missing emergency contacts prevent completing preparation """
+        self.incomplete_registration_helper(with_emergency_contact=False)
+
+    def test_missing_options(self):
+        """ Check that missing options prevent completing preparation """
+        self.incomplete_registration_helper(options=[])
+
+    def test_partial_options(self):
+        """ Check that incomplete options prevent completing preparation """
+        self.incomplete_registration_helper(options=[self.player])
+
+    def test_optional_options(self):
+        """ Check that a omitting an optional option does not prevent completing preparation """
+        self.incomplete_registration_helper(options=[self.crew], exception=None)
 
     def test_register_until_option_full(self):
         """ Register until the option slots are taken and the next registration ends up on the waiting list. """

@@ -10,10 +10,10 @@ from parameterized import parameterized, parameterized_class
 
 from apps.core.models import ConsentLog
 from apps.events.tests.factories import EventFactory
-from apps.people.models import MedicalDetails
+from apps.people.models import Address, EmergencyContact, MedicalDetails
 from apps.people.tests.factories import ArtaUserFactory, MedicalDetailsFactory
 
-from ..models import Registration
+from ..models import Registration, RegistrationFieldValue
 from ..services import RegistrationStatusService
 from .factories import RegistrationFactory, RegistrationFieldFactory, RegistrationFieldOptionFactory
 
@@ -77,17 +77,150 @@ class TestRegistrationForm(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.event = EventFactory(registration_opens_in_days=-1, public=True)
-        gender = RegistrationFieldFactory(event=cls.event, name="gender")
-        cls.option_m = RegistrationFieldOptionFactory(field=gender, title="M", slots=2)
-        cls.option_f = RegistrationFieldOptionFactory(field=gender, title="F", slots=2)
+        cls.gender = RegistrationFieldFactory(event=cls.event, name="gender")
+        cls.option_m = RegistrationFieldOptionFactory(field=cls.gender, title="M", slots=2)
+        cls.option_f = RegistrationFieldOptionFactory(field=cls.gender, title="F", slots=2)
 
-        origin = RegistrationFieldFactory(event=cls.event, name="origin")
-        cls.option_nl = RegistrationFieldOptionFactory(field=origin, title="NL", slots=2)
-        cls.option_intl = RegistrationFieldOptionFactory(field=origin, title="INTL", slots=2)
+        cls.origin = RegistrationFieldFactory(event=cls.event, name="origin")
+        cls.option_nl = RegistrationFieldOptionFactory(field=cls.origin, title="NL", slots=2)
+        cls.option_intl = RegistrationFieldOptionFactory(field=cls.origin, title="INTL", slots=2)
 
     def setUp(self):
         self.user = ArtaUserFactory()
         self.client.force_login(self.user)
+
+    def test_full_registration(self):
+        """ Run through an entire registration flow. """
+        e = self.event
+
+        # Start step, should create a registration
+        start_url = reverse('registrations:registration_start', args=(e.pk,))
+        with self.assertTemplateUsed('registrations/registration_start.html'):
+            self.client.get(start_url)
+
+        response = self.client.post(start_url)
+        reg = Registration.objects.get()
+        next_url = reverse('registrations:step_registration_options', args=(reg.pk,))
+        self.assertRedirects(response, next_url)
+
+        self.assertEqual(reg.status, Registration.statuses.PREPARATION_IN_PROGRESS)
+        self.assertEqual(reg.event, e)
+        self.assertEqual(reg.user, self.user)
+
+        # Options step, should create options
+        with self.assertTemplateUsed('registrations/step_registration_options.html'):
+            self.client.get(next_url)
+
+        data = {
+            self.gender.name: self.option_m.pk,
+            self.origin.name: self.option_nl.pk,
+        }
+        response = self.client.post(next_url, data)
+        next_url = reverse('registrations:step_personal_details', args=(reg.pk,))
+        self.assertRedirects(response, next_url)
+
+        reg = Registration.objects.get()
+        self.assertEqual(reg.status, Registration.statuses.PREPARATION_IN_PROGRESS)
+        gender, origin = RegistrationFieldValue.objects.all().order_by('field__name')
+        self.assertEqual(gender.registration, reg)
+        self.assertEqual(gender.field, self.gender)
+        self.assertEqual(gender.option, self.option_m)
+        self.assertEqual(origin.registration, reg)
+        self.assertEqual(origin.field, self.origin)
+        self.assertEqual(origin.option, self.option_nl)
+
+        # Personal details step, should create Address and update user detail
+        with self.assertTemplateUsed('registrations/step_personal_details.html'):
+            self.client.get(next_url)
+
+        data = {
+            'user-first_name': 'foo',
+            'user-last_name': 'bar',
+            'address-phone_number': '+31101234567',
+            'address-address': 'Some Street 123',
+            'address-postalcode': '1234',
+            'address-city': 'Town',
+            'address-country': 'Country',
+        }
+        response = self.client.post(next_url, data)
+        next_url = reverse('registrations:step_medical_details', args=(reg.pk,))
+        self.assertRedirects(response, next_url)
+
+        reg = Registration.objects.get()
+        self.assertEqual(reg.status, Registration.statuses.PREPARATION_IN_PROGRESS)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.first_name, data['user-first_name'])
+        self.assertEqual(self.user.last_name, data['user-last_name'])
+        addr = Address.objects.get()
+        self.assertEqual(addr.phone_number, data['address-phone_number'])
+        self.assertEqual(addr.address, data['address-address'])
+        self.assertEqual(addr.postalcode, data['address-postalcode'])
+        self.assertEqual(addr.city, data['address-city'])
+        self.assertEqual(addr.country, data['address-country'])
+
+        # Medical details step, should create MedicalDetails
+        with self.assertTemplateUsed('registrations/step_medical_details.html'):
+            self.client.get(next_url)
+
+        data = {
+            'food_allergies': 'foo',
+            'event_risks': 'bar',
+            'consent': True,
+        }
+        response = self.client.post(next_url, data)
+        next_url = reverse('registrations:step_emergency_contacts', args=(reg.pk,))
+        self.assertRedirects(response, next_url)
+
+        reg = Registration.objects.get()
+        self.assertEqual(reg.status, Registration.statuses.PREPARATION_IN_PROGRESS)
+        medical = MedicalDetails.objects.get()
+        self.assertEqual(medical.food_allergies, data['food_allergies'])
+        self.assertEqual(medical.event_risks, data['event_risks'])
+
+        # Emergency contacts step, should create EmergencyContacts and update status
+        with self.assertTemplateUsed('registrations/step_emergency_contacts.html'):
+            self.client.get(next_url)
+
+        data = {
+            'emergency_contacts-TOTAL_FORMS': 2,
+            'emergency_contacts-INITIAL_FORMS': 0,
+            'emergency_contacts-0-contact_name': 'First name',
+            'emergency_contacts-0-relation': 'First relation',
+            'emergency_contacts-0-phone_number': '+31101234567',
+            'emergency_contacts-0-remarks': 'First remarks',
+            'emergency_contacts-1-contact_name': 'Second name',
+            'emergency_contacts-1-relation': '',
+            'emergency_contacts-1-phone_number': '+31107654321',
+            'emergency_contacts-1-remarks': '',
+        }
+        response = self.client.post(next_url, data)
+        next_url = reverse('registrations:step_final_check', args=(reg.pk,))
+        self.assertRedirects(response, next_url)
+
+        reg = Registration.objects.get()
+        self.assertEqual(reg.status, Registration.statuses.PREPARATION_COMPLETE)
+        first, second = EmergencyContact.objects.all().order_by('id')
+        self.assertEqual(first.user, self.user)
+        self.assertEqual(first.contact_name, data['emergency_contacts-0-contact_name'])
+        self.assertEqual(first.relation, data['emergency_contacts-0-relation'])
+        self.assertEqual(first.phone_number, data['emergency_contacts-0-phone_number'])
+        self.assertEqual(first.remarks, data['emergency_contacts-0-remarks'])
+        self.assertEqual(second.user, self.user)
+        self.assertEqual(second.contact_name, data['emergency_contacts-1-contact_name'])
+        self.assertEqual(second.relation, data['emergency_contacts-1-relation'])
+        self.assertEqual(second.phone_number, data['emergency_contacts-1-phone_number'])
+        self.assertEqual(second.remarks, data['emergency_contacts-1-remarks'])
+
+        # Final check, should update status
+        with self.assertTemplateUsed('registrations/step_final_check.html'):
+            self.client.get(next_url)
+
+        response = self.client.post(next_url, {'agree': 1})
+        next_url = reverse('registrations:registration_confirmation', args=(reg.pk,))
+        self.assertRedirects(response, next_url)
+
+        reg = Registration.objects.get()
+        self.assertEqual(reg.status, Registration.statuses.REGISTERED)
 
     def test_registration_sends_email(self):
         """ Register until the option slots are taken and the next registration ends up on the waiting list. """

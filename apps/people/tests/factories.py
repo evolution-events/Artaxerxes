@@ -1,6 +1,6 @@
 import factory
 
-from ..models import ArtaUser, EmergencyContact, MedicalDetails
+from ..models import Address, ArtaUser, EmergencyContact, MedicalDetails
 
 
 class ArtaUserFactory(factory.django.DjangoModelFactory):
@@ -24,3 +24,22 @@ class EmergencyContactFactory(factory.django.DjangoModelFactory):
         model = EmergencyContact
     contact_name = factory.Faker('name')
     phone_number = factory.Faker('phone_number')
+
+
+class AddressFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Address
+
+    phone_number = factory.Faker('phone_number')
+    address = factory.Faker('address')
+    postalcode = factory.Faker('postalcode')
+    city = factory.Faker('city')
+    country = factory.Faker('country')
+
+    class Params:
+        minimal = factory.Trait(
+            address='',
+            postalcode='',
+            city='',
+            country='',
+        )

@@ -34,9 +34,9 @@ class RegistrationStartView(LoginRequiredMixin, TemplateResponseMixin, View):
                 is_current=True,
             )
             if registration.status.PREPARATION_IN_PROGRESS:
-                return redirect('registrations:optionsform', registration.id)
+                return redirect('registrations:step_registration_options', registration.id)
             else:
-                return redirect('registrations:finalcheckform', registration.id)
+                return redirect('registrations:step_final_check', registration.id)
         except Registration.DoesNotExist:
             return self.render_to_response({
                 'event': event,
@@ -49,7 +49,7 @@ class RegistrationStartView(LoginRequiredMixin, TemplateResponseMixin, View):
             user=request.user,
             defaults={'status': Registration.statuses.PREPARATION_IN_PROGRESS},
         )
-        return redirect('registrations:optionsform', registration.id)
+        return redirect('registrations:step_registration_options', registration.id)
 
 
 class RegistrationStepMixin(LoginRequiredMixin, SingleObjectMixin):
@@ -73,7 +73,7 @@ class RegistrationStepMixin(LoginRequiredMixin, SingleObjectMixin):
     def dispatch(self, *args, **kwargs):
         if not self.registration.status.PREPARATION_IN_PROGRESS and not self.registration.status.PREPARATION_COMPLETE:
             # Let finalcheck sort out where to go
-            return redirect('registrations:finalcheckform', self.registration.id)
+            return redirect('registrations:step_final_check', self.registration.id)
 
         return super().dispatch(*args, **kwargs)
 
@@ -89,7 +89,7 @@ class RegistrationOptionsStep(RegistrationStepMixin, FormView):
     """ Step in registration process where user chooses options """
 
     template_name = 'registrations/editoptions.html'
-    success_view = 'registrations:personaldetailform'
+    success_view = 'registrations:step_personal_details'
     form_class = RegistrationOptionsForm
 
     def get_form_kwargs(self):
@@ -127,7 +127,7 @@ class PersonalDetailsStep(RegistrationStepMixin, FormView):
     """ Step in registration process where user fills in personal details """
 
     template_name = 'registrations/editpersonaldetails.html'
-    success_view = 'registrations:medicaldetailform'
+    success_view = 'registrations:step_medical_details'
     form_class = PersonalDetailForm
 
     def get_form_kwargs(self):
@@ -155,7 +155,7 @@ class PersonalDetailsStep(RegistrationStepMixin, FormView):
 
     def get_context_data(self, **kwargs):
         kwargs.update({
-            'back_url': reverse('registrations:optionsform', args=(self.registration.pk,)),
+            'back_url': reverse('registrations:step_registration_options', args=(self.registration.pk,)),
         })
         return super().get_context_data(**kwargs)
 
@@ -164,7 +164,7 @@ class MedicalDetailsStep(RegistrationStepMixin, FormView):
     """ Step in registration process where user fills in medical details """
 
     template_name = 'registrations/editmedicaldetails.html'
-    success_view = 'registrations:emergencycontactsform'
+    success_view = 'registrations:step_emergency_contacts'
     form_class = MedicalDetailForm
 
     def get_form_kwargs(self):
@@ -191,7 +191,7 @@ class MedicalDetailsStep(RegistrationStepMixin, FormView):
 
     def get_context_data(self, **kwargs):
         kwargs.update({
-            'back_url': reverse('registrations:personaldetailform', args=(self.registration.pk,)),
+            'back_url': reverse('registrations:step_personal_details', args=(self.registration.pk,)),
         })
         return super().get_context_data(**kwargs)
 
@@ -200,7 +200,7 @@ class EmergencyContactsStep(RegistrationStepMixin, FormView):
     """ Step in registration process where user fills in emergency contacts """
 
     template_name = 'registrations/editemergencycontacts.html'
-    success_view = 'registrations:finalcheckform'
+    success_view = 'registrations:step_final_check'
     form_class = EmergencyContactFormSet
 
     def get_form_kwargs(self):
@@ -231,7 +231,7 @@ class EmergencyContactsStep(RegistrationStepMixin, FormView):
     def get_context_data(self, **kwargs):
         kwargs.update({
             # Broken?
-            'back_url': reverse('registrations:medicaldetailform', args=(self.registration.pk,)),
+            'back_url': reverse('registrations:step_medical_details', args=(self.registration.pk,)),
         })
         res = super().get_context_data(**kwargs)
         # FormView does not know we're using a formset, but it makes the template more readable like this
@@ -243,7 +243,7 @@ class FinalCheck(RegistrationStepMixin, FormView):
     """ Step in registration process where user checks all information and agrees to conditions """
 
     template_name = 'registrations/finalcheck.html'
-    success_view = 'registrations:registrationconfirmation'
+    success_view = 'registrations:registration_confirmation'
     form_class = FinalCheckForm
 
     # TODO: Where should this live? Template snippet? Database? How about translations?
@@ -263,7 +263,7 @@ class FinalCheck(RegistrationStepMixin, FormView):
         return super().get_queryset().with_price()
 
     def get_modify_url(self):
-        return reverse('registrations:optionsform', args=(self.registration.pk,))
+        return reverse('registrations:step_registration_options', args=(self.registration.pk,))
 
     def form_valid(self, form):
         try:

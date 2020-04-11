@@ -67,11 +67,11 @@ class TestRegistration(TestCase):
 
 class TestRegistrationForm(TestCase):
     registration_steps = (
-        'registrations:optionsform',
-        'registrations:personaldetailform',
-        'registrations:medicaldetailform',
-        'registrations:emergencycontactsform',
-        'registrations:finalcheckform',
+        'registrations:step_registration_options',
+        'registrations:step_personal_details',
+        'registrations:step_medical_details',
+        'registrations:step_emergency_contacts',
+        'registrations:step_final_check',
     )
 
     @classmethod
@@ -95,8 +95,8 @@ class TestRegistrationForm(TestCase):
 
         reg = RegistrationFactory(event=e, user=self.user, preparation_complete=True,
                                   options=[self.option_m, self.option_nl])
-        check_url = reverse('registrations:finalcheckform', args=(reg.pk,))
-        confirm_url = reverse('registrations:registrationconfirmation', args=(reg.pk,))
+        check_url = reverse('registrations:step_final_check', args=(reg.pk,))
+        confirm_url = reverse('registrations:registration_confirmation', args=(reg.pk,))
         response = self.client.post(check_url, {'agree': 1})
         self.assertRedirects(response, confirm_url)
 
@@ -119,8 +119,8 @@ class TestRegistrationForm(TestCase):
         # Then register on the waiting list
         reg = RegistrationFactory(event=e, user=self.user, preparation_complete=True,
                                   options=[self.option_m, self.option_nl])
-        check_url = reverse('registrations:finalcheckform', args=(reg.pk,))
-        confirm_url = reverse('registrations:registrationconfirmation', args=(reg.pk,))
+        check_url = reverse('registrations:step_final_check', args=(reg.pk,))
+        confirm_url = reverse('registrations:registration_confirmation', args=(reg.pk,))
         response = self.client.post(check_url, {'agree': 1})
         self.assertRedirects(response, confirm_url)
 
@@ -135,7 +135,7 @@ class TestRegistrationForm(TestCase):
 
     def test_registration_start(self):
         e = self.event
-        start_url = reverse('registrations:register', args=(e.pk,))
+        start_url = reverse('registrations:registration_start', args=(e.pk,))
         with self.assertTemplateUsed('registrations/registration_start.html'):
             self.client.get(start_url)
 
@@ -144,7 +144,7 @@ class TestRegistrationForm(TestCase):
         response = self.client.post(start_url)
         self.assertEqual(Registration.objects.all().count(), 1)
         reg = Registration.objects.get(user=self.user, event=e)
-        first_step_url = reverse('registrations:optionsform', args=(reg.pk,))
+        first_step_url = reverse('registrations:step_registration_options', args=(reg.pk,))
         self.assertRedirects(response, first_step_url)
         self.assertEqual(reg.status, Registration.statuses.PREPARATION_IN_PROGRESS)
 
@@ -163,7 +163,7 @@ class TestRegistrationForm(TestCase):
         # One preparation is complete, getting it should redirect to finalcheck
         reg.status = Registration.statuses.PREPARATION_COMPLETE
         reg.save()
-        final_check_url = reverse('registrations:finalcheckform', args=(reg.pk,))
+        final_check_url = reverse('registrations:step_final_check', args=(reg.pk,))
         response = self.client.get(start_url)
         self.assertRedirects(response, final_check_url)
         self.assertEqual(Registration.objects.all().count(), 1)
@@ -221,7 +221,7 @@ class TestRegistrationForm(TestCase):
         registration = RegistrationFactory(event=self.event, user=self.user, status=status)
 
         url = reverse(viewname, args=(registration.pk,))
-        confirm_url = reverse('registrations:registrationconfirmation', args=(registration.pk,))
+        confirm_url = reverse('registrations:registration_confirmation', args=(registration.pk,))
         # Follow, since some views redirect to final which 404s
         response = self.client.get(url, follow=True)
         self.assertRedirects(response, confirm_url)
@@ -247,8 +247,8 @@ class TestMedicalConsentLog(TestCase):
         cls.event = EventFactory(registration_opens_in_days=-1, public=True)
         cls.registration = RegistrationFactory(event=cls.event, user=cls.user)
 
-        cls.form_url = reverse('registrations:medicaldetailform', args=(cls.registration.pk,))
-        cls.redirect_to = reverse('registrations:emergencycontactsform', args=(cls.registration.pk,))
+        cls.form_url = reverse('registrations:step_medical_details', args=(cls.registration.pk,))
+        cls.redirect_to = reverse('registrations:step_emergency_contacts', args=(cls.registration.pk,))
 
         if cls.with_existing_details:
             cls.details = MedicalDetailsFactory(user=cls.user)

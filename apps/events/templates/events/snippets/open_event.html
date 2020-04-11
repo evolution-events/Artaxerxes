@@ -19,7 +19,7 @@
         {% endif %}
         {# Show preregistration button if it is open #}
         {% if e.preregistration_is_open %}
-          <a href="{% url 'registrations:register' eventid=e.id %}" role="button">
+          <a href="{% url 'registrations:registration_start' eventid=e.id %}" role="button">
           {% if e.registration and e.registration.status.PREPARATION_COMPLETE %}
             {% trans 'View prepared registration' %}
           {% else %}
@@ -29,7 +29,7 @@
         {% endif %}
         {# Show registration button if it is open #}
         {% if e.registration_is_open %}
-          <a class="toregistration" href="{% url 'registrations:register' eventid=e.id %}" role="button">{% trans 'Register' %}</a><br/>
+          <a class="toregistration" href="{% url 'registrations:registration_start' eventid=e.id %}" role="button">{% trans 'Register' %}</a><br/>
         {% endif %}
       </div>
     </div>

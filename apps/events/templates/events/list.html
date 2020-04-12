@@ -1,12 +1,18 @@
 {% extends "base.html" %}
 {% load i18n %}
 
-{% block pagetitle %}{% trans 'Overview of your registrations' %}{% endblock pagetitle%}
+{% block pagetitle %}{% trans 'Overview of your registered events' %}{% endblock pagetitle%}
 
 
 {% block content %}
 
-<h2>{% trans "Future" %}</h2>
+<p>
+{% blocktrans %}
+This page shows all events you have registered for in the past.
+{% endblocktrans %}
+</p>
+
+<h2>{% trans "Upcoming events" %}</h2>
 {% if not events.active %}
   <p>{% trans "No active registrations for coming events" %}</p>
 {% else %}
@@ -17,7 +23,7 @@
   </ul>
 {% endif %}
 
-<h2>{% trans "Past" %}</h2>
+<h2>{% trans "Past events" %}</h2>
 {% if not events.history %}
   <p>{% trans "No registrations in the past" %}</p>
 {% else %}

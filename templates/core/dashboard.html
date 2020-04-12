@@ -12,7 +12,10 @@
     {% trans "Here you'll find a quick overview of events in the future that you can register for or that you have already registered for." %}
   </p>
   <p>
-    {% trans "To see an overview of all your registrations, past and future, use the likewise named button in the menu." %}
+  {% url 'events:registered_events' as registered_events %}
+  {% blocktrans %}
+  To see an overview of all your registrations, see the <a href="{{registered_events}}">Registered events page</a>.
+  {% endblocktrans %}
   </p>
 
 <h2>{% trans "(Pre)Registration open" %}</h2>

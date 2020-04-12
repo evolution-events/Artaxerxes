@@ -28,4 +28,4 @@ def event_list_view(request):
     for e in events:
         grouped[group(e)].append(e)
 
-    return render(request, 'events/list.html', {'user': request.user, 'events': grouped})
+    return render(request, 'events/registered_events.html', {'user': request.user, 'events': grouped})

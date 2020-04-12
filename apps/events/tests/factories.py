@@ -19,6 +19,7 @@ class EventFactory(factory.django.DjangoModelFactory):
     description = "Description of event"
     start_date = factory.LazyAttribute(lambda obj: date.today() + timedelta(days=obj.start_days_from_now))
     end_date = factory.LazyAttribute(lambda obj: obj.start_date + timedelta(days=obj.duration_days))
+    url = "http://eventname.evolution-events.nl"
 
     @factory.lazy_attribute
     def registration_opens_at(obj):

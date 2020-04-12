@@ -4,9 +4,17 @@ from datetime import date
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
-from django.views.generic import View
+from django.views.generic import RedirectView, View
 
 from apps.events.models import Event
+
+
+class PrivacyPolicyView(RedirectView):
+    url = 'https://www.evolution-events.nl/algemeen/?pg=privacy#english'
+
+
+class HouseRulesView(RedirectView):
+    url = 'https://www.evolution-events.nl/algemeen/?pg=huisregels#english'
 
 
 class RegistrationsDashboardView(LoginRequiredMixin, View):

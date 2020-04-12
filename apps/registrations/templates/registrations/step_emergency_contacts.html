@@ -9,12 +9,13 @@
   {% endif %}
 
   <p>
+  {% url 'privacy_policy' as privacy_url %}
   {% blocktrans %}
   This information is shared between all your upcoming events. If you edit it here, the
   changes will also apply to your other current registrations for upcoming events. This
   info will be removed once you have no more upcoming events left. For more information
   about how we handle your medical data, please see our
-  <a href="https://www.evolution-events.nl/algemeen/?pg=privacy">privacy policy</a>.
+  <a href="{{ privacy_url }}">privacy policy</a>.
   {% endblocktrans %}
   <br/><br/>
   {% blocktrans %}

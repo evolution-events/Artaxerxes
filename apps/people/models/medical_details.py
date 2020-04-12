@@ -1,3 +1,4 @@
+import reversion
 from django.conf import settings
 from django.db import models
 from django.db.models import Q
@@ -5,6 +6,7 @@ from django.utils.translation import gettext
 from django.utils.translation import ugettext_lazy as _
 
 
+@reversion.register(fields=('user',))
 class MedicalDetails(models.Model):
     """ Medical information linked to a single ArtaUser """
 

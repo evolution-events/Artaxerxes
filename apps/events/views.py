@@ -14,12 +14,12 @@ def event_list_view(request):
 
     def group(e):
         if e.start_date > date.today():
-            if e.registration and e.registration.status.ACTIVE:
+            if e.registration and e.registration.status.FINALIZED:
                 return 'active'
             else:
                 return 'future'
         else:
-            if e.registration and e.registration.status.REGISTERED:
+            if e.registration and e.registration.status.FINALIZED:
                 return 'history'
             else:
                 return None

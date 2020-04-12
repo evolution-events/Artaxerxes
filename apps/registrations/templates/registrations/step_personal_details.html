@@ -8,6 +8,29 @@
     <p class="notification">{{ message }}</p>
   {% endif %}
 
+  <p>
+  {% url 'privacy_policy' as privacy_url %}
+  {% blocktrans %}
+  This information is used to identify and contact you. We require your
+  name, email address and a telephone number, your address data is
+  optional.
+  {% endblocktrans %}
+  </p>
+  <p>
+  {% blocktrans %}
+  This information is shared between all your upcoming events. If you
+  edit it here, the changes will also apply to your other current
+  registrations for upcoming events (if any). Your telephone number and
+  address will be automatically removed once you have no more upcoming
+  events left.
+  {% endblocktrans %}
+  </p>
+  <p>
+  {% blocktrans %}
+  See our <a href="{{ privacy_url }}">privacy policy</a> for details.
+  {% endblocktrans %}
+  </p>
+
   <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     <table class="table">

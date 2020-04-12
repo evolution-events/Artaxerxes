@@ -1,19 +1,34 @@
 {% extends "base.html" %}
 {% load i18n %}
 
-{% block pagetitle %}{% trans 'Edit medical details' %}{% endblock pagetitle%}
+{% block pagetitle %}{% trans 'Edit safety information' %}{% endblock pagetitle%}
 {% block content %}
-  {% url 'privacy_policy' as privacy_url %}
-  {% blocktrans %}
-  This information is shared between all your upcoming events. If you edit it here, the
-  changes will also apply to your other current registrations for upcoming events. This
-  info will be removed once you have no more upcoming events left. For more information
-  about how we handle your medical data, please see our
-  <a href="{{ privacy_url }}">privacy policy</a>.
-  {% endblocktrans %}
   {% if message %}
     <p class="notification">{{ message }}</p>
   {% endif %}
+
+  {% url 'privacy_policy' as privacy_url %}
+  <p>
+  {% blocktrans %}
+  Please specify any (medical) details that are important for your
+  safety during the event. This information will be visible to all
+  organizers, your food allergies will also be shared with the kitchen
+  staff.
+  {% endblocktrans %}
+  </p>
+  <p>
+  {% blocktrans %}
+  This information is shared between all your upcoming events. If you
+  edit it here, the changes will also apply to your other current
+  registrations for upcoming events (if any). All info will be
+  automatically removed once you have no more upcoming events left.
+  {% endblocktrans %}
+  </p>
+  <p>
+  {% blocktrans %}
+  See our <a href="{{ privacy_url }}">privacy policy</a> for details.
+  {% endblocktrans %}
+  </p>
 
   <form method="post" enctype="multipart/form-data">
     {% csrf_token %}

@@ -10,16 +10,20 @@
   {% endif %}
 
   {% if event.registration_is_open %}
-  <h2>Ready to complete registration</h2>
-  {% trans 'Please doublecheck below information and finalize your registration.' %}
+    <h2>Ready to complete registration</h2>
+    {% trans 'Please doublecheck below information and finalize your registration.' %}
   {% else %}
-  <h2>Registration prepared</h2>
-  {% trans 'You have succesfully prepared your registration. Once registration opens, you can come back here to confirm your registration.' %}
-  {% if event.registration_opens_at %}
-  {% blocktrans with on=event.registration_opens_at|date:"DATE_FORMAT" at=event.registration_opens_at|date:"TIME_FORMAT" tz=event.registration_opens_at|date:"O" %}
-  Registration will open on {{on}} at {{at}} (UTC{{tz}}).
-  {% endblocktrans %}
-  {% endif %}
+    <h2>Registration prepared</h2>
+    <p>
+      {% trans 'You have succesfully prepared your registration. Once registration opens, you can come back here to confirm your registration.' %}
+    </p>
+    {% if event.registration_opens_at %}
+    <p>
+      {% blocktrans with on=event.registration_opens_at|date:"DATE_FORMAT" at=event.registration_opens_at|date:"TIME_FORMAT" tz=event.registration_opens_at|date:"O" %}
+      Registration will open on {{on}} at {{at}} (UTC{{tz}}).
+      {% endblocktrans %}
+    </p>
+    {% endif %}
   {% endif %}
 
   {% if pdetails %}
@@ -85,7 +89,7 @@
     {% endfor %}
     <tr class="total-price">
       <td></td>
-      <td class="label">{% trans 'Total price' %}</td>
+      <td class="label">{% trans 'Total registration fee' %}</td>
       <td class="price">{{ registration.price | moneyformat }}</td>
     </tr>
   </table>
@@ -111,14 +115,16 @@
 
   {% if not event.registration_is_open %}
   <p>{% blocktrans %}
-  When you load (or refresh) this page after registration opens, you can finalize your registration here.
+  When you load (or refresh) this page after registration has opened, you can finalize your registration here.
   {% endblocktrans %}
+  </p>
   {% if event.registration_opens_at %}
+  <p>
   {% blocktrans with on=event.registration_opens_at|date:"DATE_FORMAT" at=event.registration_opens_at|date:"TIME_FORMAT" tz=event.registration_opens_at|date:"O" %}
   Registration will open on {{on}} at {{at}} (UTC{{tz}}).
   {% endblocktrans %}
-  {% endif %}
   </p>
+  {% endif %}
 
   {% endif %}
   {% if event.registration_is_open %}

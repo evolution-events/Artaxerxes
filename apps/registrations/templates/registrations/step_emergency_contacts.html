@@ -8,19 +8,27 @@
     <p class="notification">{{ message }}</p>
   {% endif %}
 
-  <p>
   {% url 'privacy_policy' as privacy_url %}
+  <p>
   {% blocktrans %}
-  This information is shared between all your upcoming events. If you edit it here, the
-  changes will also apply to your other current registrations for upcoming events. This
-  info will be removed once you have no more upcoming events left. For more information
-  about how we handle your medical data, please see our
-  <a href="{{ privacy_url }}">privacy policy</a>.
+  When something happens to you at one of our events and you are
+  (temporarily) not capable of doing so yourself, we will contact
+  someone on your behalf to let them know what has happened. One contact
+  is required, if you specify additional ones we will always contact all
+  of them.
   {% endblocktrans %}
-  <br/><br/>
+  </p>
+  <p>
   {% blocktrans %}
-  Please specify at least one emergency contact, whom we can contact
-  in case something would happen to you.
+  These contacts are shared between all your upcoming events. If you
+  edit them here, the changes will also apply to your other current
+  registrations for upcoming events (if any). All contacts will be
+  automatically removed once you have no more upcoming events left.
+  {% endblocktrans %}
+  </p>
+  <p>
+  {% blocktrans %}
+  See our <a href="{{ privacy_url }}">privacy policy</a> for details.
   {% endblocktrans %}
   </p>
 

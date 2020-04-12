@@ -8,6 +8,22 @@
     <p class="notification">{{ message }}</p>
   {% endif %}
 
+  <p>
+  {% blocktrans %}
+  Here you can select some options specific to this event. The options
+  you select might influence the price of your registration, as
+  indicated below. Some options might be subject to limited
+  availability, indicated below only for completely full options.
+  {% endblocktrans %}
+  </p>
+  <p>
+  {% blocktrans %}
+  You can changes some of these options after finalizing your
+  registration, subject to availability and any conditions specified on
+  the event website. To do so, contact the organization by email.
+  {% endblocktrans %}
+  </p>
+
   <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     <table class="table">

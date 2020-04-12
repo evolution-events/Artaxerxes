@@ -81,8 +81,8 @@ class TestRegisteredEventsView(TestCase):
     def test_no_registrations(self):
         """ Check events without registrations do not show up. """
         response = self.get()
-        self.assertEqual(response.context['events']['active'], [])
-        self.assertEqual(response.context['events']['history'], [])
+        self.assertCountEqual(response.context['events']['future'], [])
+        self.assertCountEqual(response.context['events']['past'], [])
 
     @parameterized.expand((s,) for s in Registration.statuses.constants)
     def test_other_users_registrations(self, status):
@@ -96,8 +96,8 @@ class TestRegisteredEventsView(TestCase):
         ])
 
         response = self.get()
-        self.assertEqual(response.context['events']['active'], [])
-        self.assertEqual(response.context['events']['history'], [])
+        self.assertCountEqual(response.context['events']['future'], [])
+        self.assertCountEqual(response.context['events']['past'], [])
 
     @parameterized.expand((s,) for s in Registration.statuses.FINALIZED)
     def test_finalized_registrations(self, status):
@@ -114,8 +114,8 @@ class TestRegisteredEventsView(TestCase):
         ])
 
         response = self.get()
-        self.assertRegistrationsMatch(response.context['events']['active'], future)
-        self.assertRegistrationsMatch(response.context['events']['history'], past)
+        self.assertRegistrationsMatch(response.context['events']['future'], future)
+        self.assertRegistrationsMatch(response.context['events']['past'], past)
 
     @parameterized.expand((s,) for s in Registration.statuses.FINALIZED)
     def test_finalized_replaces_cancelled(self, status):
@@ -134,8 +134,8 @@ class TestRegisteredEventsView(TestCase):
         ])
 
         response = self.get()
-        self.assertRegistrationsMatch(response.context['events']['active'], future)
-        self.assertRegistrationsMatch(response.context['events']['history'], past)
+        self.assertRegistrationsMatch(response.context['events']['future'], future)
+        self.assertRegistrationsMatch(response.context['events']['past'], past)
 
     @parameterized.expand((s,) for s in Registration.statuses.DRAFT)
     def test_draft_does_not_replace_cancelled(self, status):
@@ -155,8 +155,8 @@ class TestRegisteredEventsView(TestCase):
         ])
 
         response = self.get()
-        self.assertRegistrationsMatch(response.context['events']['active'], future)
-        self.assertRegistrationsMatch(response.context['events']['history'], past)
+        self.assertRegistrationsMatch(response.context['events']['future'], future)
+        self.assertRegistrationsMatch(response.context['events']['past'], past)
 
     @parameterized.expand((s,) for s in Registration.statuses.DRAFT)
     def test_draft_registrations(self, status):
@@ -169,5 +169,5 @@ class TestRegisteredEventsView(TestCase):
         ])
 
         response = self.get()
-        self.assertEqual(response.context['events']['active'], [])
-        self.assertEqual(response.context['events']['history'], [])
+        self.assertCountEqual(response.context['events']['future'], [])
+        self.assertCountEqual(response.context['events']['past'], [])

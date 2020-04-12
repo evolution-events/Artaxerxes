@@ -1,8 +1,9 @@
-import collections
 from datetime import date
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
+
+from apps.registrations.models import Registration
 
 from .models import Event
 
@@ -10,22 +11,18 @@ from .models import Event
 @login_required
 def event_list_view(request):
     """ List of all events that people can register or have registered for. """
-    events = Event.objects.for_user(request.user, with_registration=True).filter(is_visible=True)
 
-    def group(e):
+    registered_events = (
+        Event.objects
+        .for_user(request.user, with_registration=True)
+        .filter(registration_status__in=Registration.statuses.FINALIZED)
+    )
+
+    events = {'future': [], 'past': []}
+    for e in registered_events:
         if e.start_date > date.today():
-            if e.registration and e.registration.status.FINALIZED:
-                return 'active'
-            else:
-                return 'future'
+            events['future'].append(e)
         else:
-            if e.registration and e.registration.status.FINALIZED:
-                return 'history'
-            else:
-                return None
+            events['past'].append(e)
 
-    grouped = collections.defaultdict(list)
-    for e in events:
-        grouped[group(e)].append(e)
-
-    return render(request, 'events/registered_events.html', {'user': request.user, 'events': grouped})
+    return render(request, 'events/registered_events.html', {'user': request.user, 'events': events})

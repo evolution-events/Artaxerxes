@@ -53,4 +53,4 @@ def practical_info_view(request):
 # No need to log in to see this page
 class AboutArtaView(View):
     def get(self, request):
-        return render(request, 'core/how_does_it_work.html')
+        return render(request, 'core/about_this_system.html')

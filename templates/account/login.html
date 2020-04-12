@@ -4,47 +4,48 @@
 {% load account socialaccount %}
 
 {% block pagetitle %}{% trans 'Signing in' %}{% endblock pagetitle %}
-{% block head_title %}{% trans "Sign In" %}{% endblock %}
 
 {% block content %}
-<h2>{% trans "Sign in before registering for an event" %}</h2>
+<h2>{% trans "Before registering for an event" %}</h2>
 <p>
-  {% trans "To register for our events, you must first sign in. This way, we can conveniently administer registrations, and you do not have to fill in your personal details for every registration." %}
+  {% trans "To register for our events, you must first sign in. This way, we can conveniently administer registrations, and you do not have to fill in your personal details for every registration." %}<br/>
+  {% blocktrans %}Please read the <a href="{{ core:about_this_system }}">'about this system'</a> page for more info.{% endblocktrans %}
 </p>
 <p>
-  {% trans "Questions? Problems?" %}
-</p>
-<p>
+  {% trans "Questions? Problems?" %}<br/>
   {% trans "Contact us at" %} <a href="mailto:inschrijvingen@evolution-events.nl">inschrijvingen@evolution-events.nl<a/>.
 </p>
 
-<h1>{% trans "Sign In" %}</h1>
+<h2>{% trans "Sign In" %}</h2>
+<p>
+  {% trans "Attention: you can not sign in with the credentials from the old (before 2020, linked to our forums) system, you'll have to create a new account here before being able to sign in." %}
+</p>
 
 {% get_providers as socialaccount_providers %}
 
 {% if socialaccount_providers %}
-<p>{% blocktrans with site.name as site_name %}Please sign in with one
-of your existing third party accounts. Or, <a href="{{ signup_url }}">create</a>
- a {{ site_name }} account and sign in below:{% endblocktrans %}</p>
+  <p>{% blocktrans with site.name as site_name %}Please sign in with one
+  of your existing third party accounts. Or, <a href="{{ signup_url }}">create</a>
+   a {{ site_name }} account and sign in below:{% endblocktrans %}</p>
 
-<div class="socialaccount_ballot">
+  <div class="socialaccount_ballot">
 
-  <ul class="socialaccount_providers">
-    {% include "socialaccount/snippets/provider_list.html" with process="login" %}
-  </ul>
+    <ul class="socialaccount_providers">
+      {% include "socialaccount/snippets/provider_list.html" with process="login" %}
+    </ul>
 
-  <div class="login-or">{% trans 'or' %}</div>
+    <div class="login-or">{% trans 'or' %}</div>
 
-</div>
+  </div>
 
-{% include "socialaccount/snippets/login_extra.html" %}
+  {% include "socialaccount/snippets/login_extra.html" %}
 
 {% else %}
-<p>{% blocktrans %}If you have not created an account yet, then please
-<a href="{{ signup_url }}">create one</a> first.{% endblocktrans %}</p>
-<p>
-  {% trans "Forgot your password? " %}<a class="button secondaryAction" href="{% url 'account_reset_password' %}">{% trans "Request a reset." %}</a>
-</p>
+  <p>{% blocktrans %}If you have not created an account yet, then please
+  <a href="{{ signup_url }}">create one</a> first.{% endblocktrans %}</p>
+  <p>
+    {% trans "Forgot your password? " %}<a class="button secondaryAction" href="{% url 'account_reset_password' %}">{% trans "Request a reset." %}</a>
+  </p>
 {% endif %}
 
 <form class="login" method="POST" action="{% url 'account_login' %}">

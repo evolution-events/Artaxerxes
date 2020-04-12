@@ -123,7 +123,7 @@ class TestRegisteredEventsView(TestCase):
     def test_finalized_replaces_cancelled(self, status):
         """ Check that finalized registrations replace earlier cancelled registrations. """
         earlier = datetime.now(timezone.utc) - timedelta(seconds=1)
-        self.makeRegistrationsForEvents(status=Registration.statuses.CANCELLED, registered_at=earlier, titles=[
+        self.makeRegistrationsForEvents(status=Registration.statuses.CANCELLED, created_at=earlier, titles=[
             'future_public_open_now',
             'past_public_open_now',
         ])

@@ -128,7 +128,7 @@ class TestRegistrationAnnotation(TestCase):
     def test_two_cancelled_registrations(self):
         """ With two cancelled registrations, the later one should be returned. """
         earlier = datetime.now(timezone.utc) - timedelta(seconds=1)
-        RegistrationFactory(event=self.event, user=self.user, cancelled=True, registered_at=earlier)
+        RegistrationFactory(event=self.event, user=self.user, cancelled=True, created_at=earlier)
         reg = RegistrationFactory(event=self.event, user=self.user, cancelled=True)
 
         e = Event.objects.for_user(self.user, with_registration=True).get()

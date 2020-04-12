@@ -4,7 +4,7 @@
 
 
 {% block content %}
-    <h1>{% trans "E-mail Addresses" %}</h1>
+    <h1>{% trans "E-mail addresses" %}</h1>
 {% if user.emailaddress_set.all %}
 <p>{% trans 'The following e-mail addresses are associated with your account:' %}</p>
 
@@ -30,8 +30,8 @@
   {% endfor %}
 
 <div class="buttonHolder">
-      <button class="secondaryAction" type="submit" name="action_primary" >{% trans 'Make Primary' %}</button>
-      <button class="secondaryAction" type="submit" name="action_send" >{% trans 'Re-send Verification' %}</button>
+      <button class="secondaryAction" type="submit" name="action_primary" >{% trans 'Make primary' %}</button>
+      <button class="secondaryAction" type="submit" name="action_send" >{% trans 'Re-send verification' %}</button>
       <button class="primaryAction" type="submit" name="action_remove" >{% trans 'Remove' %}</button>
 </div>
 
@@ -39,22 +39,24 @@
 </form>
 
 {% else %}
-<p><strong>{% trans 'Warning:'%}</strong> {% trans "You currently do not have any e-mail address set up. You should really add an e-mail address so you can receive notifications, reset your password, etc." %}</p>
+<p><strong>{% trans 'Warning:'%}</strong> {% trans "You currently do not have any email address set up. You should really add an e-mail address so you can receive notifications, reset your password, etc." %}</p>
 
 {% endif %}
 
 
-    <h2 class="mt-5">{% trans "Add E-mail Address" %}</h2>
+    <h2 class="mt-5">{% trans "Add e-mail address" %}</h2>
     <p>
       {% blocktrans trimmed %}
       Your primary e-mail address will be used to contact you about events. Your secondary
-      e-mail addresses can be used for password recovery and signing in.
+      e-mail addresses can be used for password recovery and signing in. If you add the e-mail address you
+      have used in the old registration system (if you had an account there) we could use that in the
+      future to transfer some history.
       {% endblocktrans %}
     </p>
     <form method="post" action="{% url 'account_email' %}" class="add_email">
         {% csrf_token %}
         {{ form.as_p }}
-        <button name="action_add" type="submit">{% trans "Add E-mail" %}</button>
+        <button name="action_add" type="submit">{% trans "Add e-mail" %}</button>
     </form>
 
 {% endblock %}

@@ -18,7 +18,8 @@ class EmergencyContact(models.Model):
     relation = models.CharField(max_length=100, verbose_name=_('Relation to contact'), blank=True,
                                 help_text=_('Optional. For example: parent, partner, friend, etc.'))
     phone_number = PhoneNumberField(verbose_name=_('Phone number of contact'))
-    remarks = models.CharField(max_length=200, verbose_name=_('Remarks'), blank=True)
+    remarks = models.CharField(max_length=200, verbose_name=_('Remarks'), blank=True,
+                               help_text=_('Optional. For example: Only call if #1 cannot be reached'))
 
     def __str__(self):
         return gettext('Emergency contact of user %(user)s') % {'user': self.user}

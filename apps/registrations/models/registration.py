@@ -58,6 +58,8 @@ class Registration(models.Model):
         Constant(WAITINGLIST=3, label=_('Waiting list')),
         Constant(CANCELLED=4, label=_('Cancelled')),
         ConstantGroup("ACTIVE", ("REGISTERED", "WAITINGLIST")),
+        ConstantGroup("DRAFT", ("PREPARATION_IN_PROGRESS", "PREPARATION_COMPLETE")),
+        ConstantGroup("FINALIZED", ("REGISTERED", "WAITINGLIST", "CANCELLED")),
         ConstantGroup("CURRENT", ("PREPARATION_IN_PROGRESS", "PREPARATION_COMPLETE", "REGISTERED", "WAITINGLIST")),
     )
 

@@ -39,6 +39,7 @@
   {% endblocktrans %}
 </p>
 <p>
+  {% url 'core:house_rules' as house_rules %}
   {% blocktrans trimmed %}
   If registration is already opened you can no longer <em>prepare</em> your registration but you will be
   able to register in one go, entering the same information that would be required on preparation. Until
@@ -46,8 +47,16 @@
   if the event is already full. If the event is full when you register you will be put on the waiting list
   for the event. When a particpant cancels and you are the next in line on the waiting list we will contact
   you to check if you still want to participate. Specific rules about the waiting list and the order in
-  which waiting list registrations are processed can be read in our house rules or, if it differs, at
+  which waiting list registrations are processed can be read in our <a href="{{ house_rules }}">house rules</a> or, if it differs, at
   the event specific website.
+  {% endblocktrans %}
+</p>
+
+<h2>{% trans 'Your data and privacy' %}</h2>
+<p>
+  {% url 'core:privacy_policy' as privacy_url %}
+  {% blocktrans trimmed %}
+  Please read all about how we handle your data and privacy in our <a href="{{ privacy_url }}">privacy policy</a>.
   {% endblocktrans %}
 </p>
 {% endblock content %}

@@ -6,7 +6,7 @@ from django.utils.translation import gettext
 from django.utils.translation import ugettext_lazy as _
 
 
-@reversion.register(fields=('user',))
+@reversion.register(fields=('user',), follow=('user',))
 class MedicalDetails(models.Model):
     """ Medical information linked to a single ArtaUser """
 

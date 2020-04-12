@@ -14,7 +14,7 @@ class ArtaUserManager(BaseUserManager):
 
 # For reference to this model, see
 # https://docs.djangoproject.com/en/2.1/topics/auth/customizing/#referencing-the-user-model
-@reversion.register()
+@reversion.register(follow=('address', 'emergency_contacts', 'medical_details'))
 class ArtaUser(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(_('first name'), max_length=30, blank=True)
     last_name = models.CharField(_('last name'), max_length=150, blank=True)

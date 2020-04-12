@@ -6,7 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 from phonenumber_field.modelfields import PhoneNumberField
 
 
-@reversion.register(fields=('user',))
+@reversion.register(fields=('user',), follow=('user',))
 class Address(models.Model):
     """Address information linked to a single ArtaUser."""
 

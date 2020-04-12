@@ -6,7 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 from phonenumber_field.modelfields import PhoneNumberField
 
 
-@reversion.register(fields=('user',))
+@reversion.register(fields=('user',), follow=('user',))
 class EmergencyContact(models.Model):
     """Contact information a person to be notified in an emergency involving the associated user."""
 

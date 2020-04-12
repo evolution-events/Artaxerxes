@@ -102,7 +102,15 @@
   {% endif %}
 
   <h2>{% trans 'Conditions' %}</h2>
-  {{ conditions }}
+  <ul>
+      <li>All participants must abide to our <a
+      href="https://www.evolution-events.nl/algemeen/?pg=huisregels#english">house rules</a>.</li>
+      <li>We will process the data you supply according to our
+      <a href="https://www.evolution-events.nl/algemeen/?pg=privacy">privacy policy</a>.</li>
+      <li>Registration for this event creates an obligation to pay the registration fee. On cancellation, costs may
+      still be due (as specified in our
+      <a href="https://www.evolution-events.nl/algemeen/?pg=huisregels#english">house rules</a>).</li>
+  </ul>
 
   {% if not event.registration_is_open %}
   <p>{% blocktrans %}

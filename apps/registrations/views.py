@@ -6,7 +6,6 @@ from django.forms import ValidationError
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
-from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from django.views.generic import DetailView, View
 from django.views.generic.base import TemplateResponseMixin
@@ -246,19 +245,6 @@ class FinalCheck(RegistrationStepMixin, FormView):
     success_view = 'registrations:registration_confirmation'
     form_class = FinalCheckForm
 
-    # TODO: Where should this live? Template snippet? Database? How about translations?
-    conditions = mark_safe("""
-    <ul>
-        <li>All participants must abide to our <a
-        href="https://www.evolution-events.nl/algemeen/?pg=huisregels#english">house rules</a>.</li>
-        <li>We will process the data you supply according to our
-        <a href="https://www.evolution-events.nl/algemeen/?pg=privacy">privacy policy</a>.</li>
-        <li>Registration for this event creates an obligation to pay the registration fee. On cancellation, costs may
-        still be due (as specified in our
-        <a href="https://www.evolution-events.nl/algemeen/?pg=huisregels#english">house rules</a>).</li>
-    </ul>
-    """)
-
     def get_queryset(self):
         return super().get_queryset().with_price()
 
@@ -306,7 +292,6 @@ class FinalCheck(RegistrationStepMixin, FormView):
             'any_is_full': any_is_full,
             'options': options,
             'modify_url': self.get_modify_url(),
-            'conditions': self.conditions,
         })
         return super().get_context_data(**kwargs)
 

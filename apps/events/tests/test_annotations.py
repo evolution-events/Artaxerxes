@@ -12,35 +12,35 @@ class TestOpenedAnnotations(TestCase):
     @classmethod
     def setUpTestData(cls):
         # Open is not scheduled yet, event is hidden while being prepared
-        EventFactory(title='future_hidden_closed', start_days_from_now=7, public=False)
+        EventFactory(title='future_hidden_closed', starts_in_days=7, public=False)
         # This is a corner case: Open but hidden
-        EventFactory(title='future_hidden_open_now', start_days_from_now=7, public=False,
+        EventFactory(title='future_hidden_open_now', starts_in_days=7, public=False,
                      registration_opens_in_days=-1)
         # This is a realistic case: open is already scheduled, but event is still hidden while being prepared
-        EventFactory(title='future_hidden_opens_soon', start_days_from_now=7, public=False,
+        EventFactory(title='future_hidden_opens_soon', starts_in_days=7, public=False,
                      registration_opens_in_days=1)
 
         # Public, but no open date yet
-        EventFactory(title='future_public_closed', start_days_from_now=7, public=True)
+        EventFactory(title='future_public_closed', starts_in_days=7, public=True)
         # Public, open date scheduled
-        EventFactory(title='future_public_opens_soon', start_days_from_now=7, public=True,
+        EventFactory(title='future_public_opens_soon', starts_in_days=7, public=True,
                      registration_opens_in_days=1)
         # Public, open date reached
-        EventFactory(title='future_public_open_now', start_days_from_now=7, public=True,
+        EventFactory(title='future_public_open_now', starts_in_days=7, public=True,
                      registration_opens_in_days=-1)
 
         # These are corner cases, past events should usually not be hidden, and have an opens at in the past
-        EventFactory(title='past_hidden_closed', start_days_from_now=-7, public=False)
-        EventFactory(title='past_hidden_opens_soon', start_days_from_now=-7, public=False,
+        EventFactory(title='past_hidden_closed', starts_in_days=-7, public=False)
+        EventFactory(title='past_hidden_opens_soon', starts_in_days=-7, public=False,
                      registration_opens_in_days=1)
-        EventFactory(title='past_hidden_open_now', start_days_from_now=-7, public=False,
+        EventFactory(title='past_hidden_open_now', starts_in_days=-7, public=False,
                      registration_opens_in_days=-8)
-        EventFactory(title='past_public_closed', start_days_from_now=-7, public=True)
-        EventFactory(title='past_public_opens_soon', start_days_from_now=-7, public=True,
+        EventFactory(title='past_public_closed', starts_in_days=-7, public=True)
+        EventFactory(title='past_public_opens_soon', starts_in_days=-7, public=True,
                      registration_opens_in_days=1)
 
         # This is how past events should usually be: public and with an open date in the past before the start date
-        EventFactory(title='past_public_open_now', start_days_from_now=-7, public=True,
+        EventFactory(title='past_public_open_now', starts_in_days=-7, public=True,
                      registration_opens_in_days=-8)
 
         # Check uniqueness of titles. Cannot use unittests asserts since we are not in a testcase yet.

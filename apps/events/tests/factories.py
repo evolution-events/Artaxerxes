@@ -10,14 +10,14 @@ class EventFactory(factory.django.DjangoModelFactory):
         model = Event
 
     class Params:
-        start_days_from_now = 0
+        starts_in_days = 0
         duration_days = 3
         registration_opens_in_days = None
 
     name = factory.Sequence(lambda n: 'Event %d' % n)
     title = "Title of event"
     description = "Description of event"
-    start_date = factory.LazyAttribute(lambda obj: date.today() + timedelta(days=obj.start_days_from_now))
+    start_date = factory.LazyAttribute(lambda obj: date.today() + timedelta(days=obj.starts_in_days))
     end_date = factory.LazyAttribute(lambda obj: obj.start_date + timedelta(days=obj.duration_days))
     url = "http://eventname.evolution-events.nl"
 

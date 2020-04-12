@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta, timezone
+
 from django.test import TestCase
 from django.urls import reverse
 from parameterized import parameterized
@@ -120,7 +122,8 @@ class TestRegisteredEventsView(TestCase):
     @parameterized.expand((s,) for s in Registration.statuses.FINALIZED)
     def test_finalized_replaces_cancelled(self, status):
         """ Check that finalized registrations replace earlier cancelled registrations. """
-        self.makeRegistrationsForEvents(status=Registration.statuses.CANCELLED, titles=[
+        earlier = datetime.now(timezone.utc) - timedelta(seconds=1)
+        self.makeRegistrationsForEvents(status=Registration.statuses.CANCELLED, registered_at=earlier, titles=[
             'future_public_open_now',
             'past_public_open_now',
         ])

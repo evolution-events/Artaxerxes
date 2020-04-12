@@ -56,6 +56,16 @@ class EventQuerySet(models.QuerySet):
                     user=user,
                 ).values('pk'),
             ))
+            # Also annotate the status, to allow filtering on that.
+            # TODO: It would be better if the registration instance was annotated directly (and would also support
+            # select_related, prefetch_related or filtering), but it seems Django does not currently support this
+            # currently. See https://code.djangoproject.com/ticket/27414#comment:3
+            qs = qs.annotate(registration_status=models.Subquery(
+                Registration.objects.current_for(
+                    event=models.OuterRef('pk'),
+                    user=user,
+                ).values('status'),
+            ))
         return qs
 
     def with_used_slots(self):

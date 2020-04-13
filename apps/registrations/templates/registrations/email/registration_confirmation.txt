@@ -23,6 +23,10 @@ otherwise it will not be considered if a spot frees up. If you
 cancel your waitinglist registration, or no spot frees up before the
 event, you will of course get a full refund.
 {% endblocktrans %}
+.
+{% blocktrans %}
+For details, see our house rules at: {{ house_rules_url }}.
+{% endblocktrans %}
 {% endif %}
 .
 {% if registration.options.all %}

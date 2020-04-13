@@ -260,7 +260,7 @@ class FinalCheck(RegistrationStepMixin, FormView):
             return self.form_invalid(form)
 
         # Confirm registration by e-mail
-        RegistrationNotifyService.send_confirmation_email(self.registration)
+        RegistrationNotifyService.send_confirmation_email(self.request, self.registration)
 
         return super().form_valid(form)
 

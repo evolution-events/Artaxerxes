@@ -206,7 +206,7 @@ SECRET_FILE = normpath(join(PROJECT_ROOT, 'run', 'SECRET.key'))
 
 # these persons receive error notification
 ADMINS = (
-    ('your name', 'your_name@example.com'),
+    ('Webmasters', 'webmaster@evolution-events.nl'),
 )
 MANAGERS = ADMINS
 

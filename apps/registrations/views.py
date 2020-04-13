@@ -117,7 +117,7 @@ class RegistrationOptionsStep(RegistrationStepMixin, FormView):
 
     def get_context_data(self, **kwargs):
         kwargs.update({
-            'cancel_url': reverse('core:main_index_view'),
+            'cancel_url': reverse('core:dashboard'),
         })
         return super().get_context_data(**kwargs)
 
@@ -308,5 +308,5 @@ class RegistrationConfirmationView(LoginRequiredMixin, DetailView):
     def get(self, *args, **kwargs):
         obj = self.get_object()
         if not obj.status.ACTIVE:
-            return redirect('core:main_index_view')
+            return redirect('core:dashboard')
         return super().get(*args, **kwargs)

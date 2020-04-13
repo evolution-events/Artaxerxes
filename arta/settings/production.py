@@ -7,11 +7,18 @@ DEBUG = False
 # You will have to determine, which hostnames should be served by Django
 ALLOWED_HOSTS = []
 
-# This logs to stdout/stderr, which ends up in the default uwsgi log
-# files.
+# This replaces the "django" logger with one that is pretty much identical to the default, except:
+#  - Normally stderr-logging only happens when DEBUG is True, but we want to always log to the UWSGI log (which helps
+#    diagnosing startup errors and keeps logs).
+#  - The log format is changed to match UWSGI.
+#  - The mail_admins handler also sends out WARNING messages.
+# Django also defines a "django.server" logger which we leave unchanged, since it should only be used for runserver
+# (though in practice, it was seen to be *sometimes* replaced by the "django" logger below, unsure how that works
+# exactly.
 LOGGING = {
     'version': 1,
-    # Recommended, otherwise default loggers are disabled but not removed, apparently?
+    # Recommended, otherwise default loggers are disabled but not removed, which can be problematic for non-propagating
+    # loggers (which then stop producing output but still prevent propagation).
     'disable_existing_loggers': False,
     'formatters': {
         'verbose': {
@@ -27,10 +34,14 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'verbose',
         },
+        'mail_admins': {
+            'level': 'WARNING',
+            'class': 'django.utils.log.AdminEmailHandler',
+        },
     },
     'loggers': {
         'django': {
-            'handlers': ['console'],
+            'handlers': ['console', 'mail_admins'],
             'level': 'INFO',
         },
     },

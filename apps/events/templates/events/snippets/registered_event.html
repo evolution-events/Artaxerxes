@@ -14,7 +14,9 @@
       <div class="event-top-right registration-info registration-state-payed">
         {% trans "Registration number" %}: {{e.registration.pk }}<br/>
         {% trans "Status" %}: {{ e.registration.status.label }}<br/>
+        {% if e.registration.price is not None %}
         {% trans "Price" %}: {{ e.registration.price | moneyformat }}<br/>
+        {% endif %}
       </div>
       <div class="event-bottom-right mt-auto">
         <a class="details-link collapsed" data-toggle="collapse" data-target="#collapse-event-registration-{{e.id}}" href="#">{% trans "Registration details" %}</a>

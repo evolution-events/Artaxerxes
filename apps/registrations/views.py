@@ -43,11 +43,15 @@ class RegistrationStartView(LoginRequiredMixin, TemplateResponseMixin, View):
 
     def post(self, request, eventid):
         event = get_object_or_404(Event.objects.for_user(request.user), pk=eventid)
-        registration, created = Registration.objects.filter(is_current=True).get_or_create(
-            event=event,
-            user=request.user,
-            defaults={'status': Registration.statuses.PREPARATION_IN_PROGRESS},
-        )
+        with reversion.create_revision():
+            reversion.set_user(self.request.user)
+            reversion.set_comment(_("Registration started via frontend."))
+
+            registration, created = Registration.objects.filter(is_current=True).get_or_create(
+                event=event,
+                user=request.user,
+                defaults={'status': Registration.statuses.PREPARATION_IN_PROGRESS},
+            )
         return redirect('registrations:step_registration_options', registration.id)
 
 

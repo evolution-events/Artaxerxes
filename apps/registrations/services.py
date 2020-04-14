@@ -1,10 +1,10 @@
 import re
+from datetime import datetime, timezone
 
 from django.conf import settings
 from django.core.mail import EmailMessage
 from django.db import transaction
 from django.db.models import Q
-from django.db.models.functions import Now
 from django.forms import ValidationError
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -99,7 +99,7 @@ class RegistrationStatusService:
                         o.full = True
                         o.save()
 
-            registration.registered_at = Now()
+            registration.registered_at = datetime.now(timezone.utc)
             registration.save()
 
 

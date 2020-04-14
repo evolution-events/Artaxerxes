@@ -187,6 +187,9 @@ class MedicalDetailsStep(RegistrationStepMixin, FormView):
     def form_valid(self, form):
         if form.has_changed():
             with reversion.create_revision():
+                # Make sure a revision is generated even when MedicalDetails is deleted
+                # TODO: This is a workaround, see https://github.com/etianen/django-reversion/issues/830
+                reversion.add_to_revision(form.instance)
                 form.save(registration=self.registration)
                 reversion.set_user(self.request.user)
                 reversion.set_comment(_("Medical info updated via frontend. The following "

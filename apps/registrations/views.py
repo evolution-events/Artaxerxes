@@ -260,7 +260,10 @@ class FinalCheck(RegistrationStepMixin, FormView):
 
     def form_valid(self, form):
         try:
-            RegistrationStatusService.finalize_registration(self.registration)
+            with reversion.create_revision():
+                RegistrationStatusService.finalize_registration(self.registration)
+                reversion.set_user(self.request.user)
+                reversion.set_comment(_("Registration finalized via frontend."))
         except ValidationError as ex:
             messages.error(self.request, ex)
 

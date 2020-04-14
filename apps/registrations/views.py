@@ -180,11 +180,10 @@ class MedicalDetailsStep(RegistrationStepMixin, FormView):
 
     def form_valid(self, form):
         with reversion.create_revision():
-            with reversion.create_revision():
-                form.save(registration=self.registration)
-                reversion.set_user(self.request.user)
-                reversion.set_comment(_("Medical info updated via frontend. The following "
-                                      "fields changed: %(fields)s" % {'fields': ", ".join(form.changed_data)}))
+            form.save(registration=self.registration)
+            reversion.set_user(self.request.user)
+            reversion.set_comment(_("Medical info updated via frontend. The following "
+                                  "fields changed: %(fields)s" % {'fields': ", ".join(form.changed_data)}))
 
         return super().form_valid(form)
 

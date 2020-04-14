@@ -471,15 +471,18 @@ class TestMedicalConsentLog(TestCase):
         if should_exist:
             details = MedicalDetails.objects.get(user=self.user)
         else:
-            with self.assertRaises(MedicalDetails.DoesNotExist):
+            with self.assertRaises(MedicalDetails.DoesNotExist, msg="MedicalDetails should not exist"):
                 MedicalDetails.objects.get(user=self.user)
 
         # Details should be unchanged if they existed beforehand and no consent was given or withdrawn
         if self.with_existing_details and consent is None:
-            self.assertDictEqual(model_to_dict(self.details), model_to_dict(details))
+            self.assertDictEqual(
+                model_to_dict(self.details), model_to_dict(details),
+                msg="MedicalDetails should be unchanged",
+            )
 
         if consent is None:
-            self.assertEqual(ConsentLog.objects.count(), 0)
+            self.assertEqual(ConsentLog.objects.count(), 0, msg="No ConsentLog should be created")
         else:
             log = ConsentLog.objects.get()
             self.assertEqual(log.user, self.user)

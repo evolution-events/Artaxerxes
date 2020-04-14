@@ -1,9 +1,10 @@
 import itertools
+from unittest import mock
 
 from django.conf import settings
 from django.core import mail
 from django.core.exceptions import ValidationError
-from django.db.utils import IntegrityError
+from django.db.utils import IntegrityError, OperationalError
 from django.forms.models import model_to_dict
 from django.test import TestCase, skipUnlessDBFeature
 from django.urls import reverse
@@ -463,9 +464,9 @@ class TestMedicalConsentLog(TestCase):
         self.client.force_login(self.user)
 
     def assertResponse(self, response, success, should_exist, consent):
-        if success:
+        if success is True:
             self.assertRedirects(response, self.redirect_to)
-        else:
+        elif success is False:
             self.assertFormError(response, 'form', self.consent_field, self.consent_error)
 
         if should_exist:
@@ -549,6 +550,19 @@ class TestMedicalConsentLog(TestCase):
 
         self.assertResponse(response, success=True,
                             should_exist=True,
+                            consent=None)
+
+    def test_consent_exception(self):
+        """ Check that an exception during ConsentLog creation does not produce MedicalDetails. """
+        data = {field: 'xxx' for field in self.info_fields}
+        data[self.consent_field] = True
+
+        with mock.patch('apps.core.models.consent_log.ConsentLog.save', side_effect=OperationalError):
+            with self.assertRaises(OperationalError):
+                self.client.post(self.form_url, data)
+
+        self.assertResponse(response=None, success=None,
+                            should_exist=self.with_existing_details,
                             consent=None)
 
 

@@ -59,6 +59,9 @@ class PersonalDetailForm:
     def is_valid(self):
         return all(form.is_valid() for form in self.forms)
 
+    def has_changed(self):
+        return any(form.has_changed() for form in self.forms)
+
 
 class MedicalDetailForm(forms.ModelForm):
     consent = forms.BooleanField(

@@ -101,11 +101,12 @@ class RegistrationOptionsStep(RegistrationStepMixin, FormView):
         return kwargs
 
     def form_valid(self, form):
-        with reversion.create_revision():
-            form.save(self.registration)
-            reversion.set_user(self.request.user)
-            reversion.set_comment(_("Options updated via frontend. The following "
-                                  "fields changed: %(fields)s" % {'fields': ", ".join(form.changed_data)}))
+        if form.has_changed():
+            with reversion.create_revision():
+                form.save(self.registration)
+                reversion.set_user(self.request.user)
+                reversion.set_comment(_("Options updated via frontend. The following "
+                                      "fields changed: %(fields)s" % {'fields': ", ".join(form.changed_data)}))
 
         return super().form_valid(form)
 
@@ -143,12 +144,13 @@ class PersonalDetailsStep(RegistrationStepMixin, FormView):
         return kwargs
 
     def form_valid(self, form):
-        with reversion.create_revision():
-            form.save()
-            reversion.set_user(self.request.user)
-            fields = form.user_form.changed_data + form.address_form.changed_data
-            reversion.set_comment(_("Personal info updated via frontend. The following "
-                                    "fields changed: %(fields)s" % {'fields': ", ".join(fields)}))
+        if form.has_changed():
+            with reversion.create_revision():
+                form.save()
+                reversion.set_user(self.request.user)
+                fields = form.user_form.changed_data + form.address_form.changed_data
+                reversion.set_comment(_("Personal info updated via frontend. The following "
+                                        "fields changed: %(fields)s" % {'fields': ", ".join(fields)}))
 
         return super().form_valid(form)
 
@@ -179,11 +181,12 @@ class MedicalDetailsStep(RegistrationStepMixin, FormView):
         return kwargs
 
     def form_valid(self, form):
-        with reversion.create_revision():
-            form.save(registration=self.registration)
-            reversion.set_user(self.request.user)
-            reversion.set_comment(_("Medical info updated via frontend. The following "
-                                  "fields changed: %(fields)s" % {'fields': ", ".join(form.changed_data)}))
+        if form.has_changed():
+            with reversion.create_revision():
+                form.save(registration=self.registration)
+                reversion.set_user(self.request.user)
+                reversion.set_comment(_("Medical info updated via frontend. The following "
+                                      "fields changed: %(fields)s" % {'fields': ", ".join(form.changed_data)}))
 
         return super().form_valid(form)
 
@@ -210,10 +213,11 @@ class EmergencyContactsStep(RegistrationStepMixin, FormView):
         return kwargs
 
     def form_valid(self, form):
-        with reversion.create_revision():
-            form.save()
-            reversion.set_user(self.request.user)
-            reversion.set_comment(_("Emergency contacts updated via frontend."))
+        if form.has_changed():
+            with reversion.create_revision():
+                form.save()
+                reversion.set_user(self.request.user)
+                reversion.set_comment(_("Emergency contacts updated via frontend."))
 
         try:
             with reversion.create_revision():

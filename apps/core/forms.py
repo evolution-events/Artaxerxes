@@ -29,6 +29,6 @@ class SignupFormBase(forms.Form):
             ConsentLog.objects.create(
                 user=user,
                 action=ConsentLog.actions.CONSENTED,
-                consent_name='announcements',
+                consent_name='email_announcements',
                 consent_description=self.fields['consent_announcements'].help_text,
             )

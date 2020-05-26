@@ -1,12 +1,13 @@
 import re
+from datetime import datetime, timezone
 
 from django.conf import settings
 from django.core.mail import EmailMessage
 from django.db import transaction
 from django.db.models import Q
-from django.db.models.functions import Now
 from django.forms import ValidationError
 from django.template.loader import render_to_string
+from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from apps.events.models import Event
@@ -98,16 +99,17 @@ class RegistrationStatusService:
                         o.full = True
                         o.save()
 
-            registration.registered_at = Now()
+            registration.registered_at = datetime.now(timezone.utc)
             registration.save()
 
 
 class RegistrationNotifyService:
     @staticmethod
-    def send_confirmation_email(registration):
+    def send_confirmation_email(request, registration):
         context = {
             'user': registration.user,
             'registration': registration,
+            'house_rules_url': request.build_absolute_uri(reverse('core:house_rules')),
         }
         body = render_to_string('registrations/email/registration_confirmation.txt', context)
         subject = render_to_string('registrations/email/registration_confirmation_subject.txt', context).strip()

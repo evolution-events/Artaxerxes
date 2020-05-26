@@ -1,4 +1,6 @@
+import reversion
 from django import forms
+from django.utils.translation import gettext as _
 
 from apps.core.models import ConsentLog
 from apps.people.models import ArtaUser
@@ -14,15 +16,19 @@ class SignupFormBase(forms.Form):
     consent_announcements = ArtaUser._meta.get_field('consent_announcements').formfield()
 
     def signup(self, request, user):
-        user.first_name = self.cleaned_data['first_name']
-        user.last_name = self.cleaned_data['last_name']
-        user.consent_announcements = self.cleaned_data['consent_announcements']
-        user.save()
+        with reversion.create_revision():
+            reversion.set_user(user)
+            reversion.set_comment(_("Account created via frontend."))
+
+            user.first_name = self.cleaned_data['first_name']
+            user.last_name = self.cleaned_data['last_name']
+            user.consent_announcements = self.cleaned_data['consent_announcements']
+            user.save()
 
         if user.consent_announcements:
             ConsentLog.objects.create(
                 user=user,
                 action=ConsentLog.actions.CONSENTED,
-                consent_name='announcements',
+                consent_name='email_announcements',
                 consent_description=self.fields['consent_announcements'].help_text,
             )

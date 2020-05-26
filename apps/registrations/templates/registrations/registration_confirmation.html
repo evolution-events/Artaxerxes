@@ -41,6 +41,12 @@
     event, you will of course get a full refund.
     {% endblocktrans %}
     </p>
+    <p>
+    {% url 'core:house_rules' as house_rules %}
+    {% blocktrans %}
+    For details, see our <a href="{{ house_rules }}">house rules</a>.
+    {% endblocktrans %}
+    </p>
   {% endif %}
 
   {% if registration.options.all %}

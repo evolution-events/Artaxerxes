@@ -43,11 +43,15 @@ class RegistrationStartView(LoginRequiredMixin, TemplateResponseMixin, View):
 
     def post(self, request, eventid):
         event = get_object_or_404(Event.objects.for_user(request.user), pk=eventid)
-        registration, created = Registration.objects.filter(is_current=True).get_or_create(
-            event=event,
-            user=request.user,
-            defaults={'status': Registration.statuses.PREPARATION_IN_PROGRESS},
-        )
+        with reversion.create_revision():
+            reversion.set_user(self.request.user)
+            reversion.set_comment(_("Registration started via frontend."))
+
+            registration, created = Registration.objects.filter(is_current=True).get_or_create(
+                event=event,
+                user=request.user,
+                defaults={'status': Registration.statuses.PREPARATION_IN_PROGRESS},
+            )
         return redirect('registrations:step_registration_options', registration.id)
 
 
@@ -101,11 +105,12 @@ class RegistrationOptionsStep(RegistrationStepMixin, FormView):
         return kwargs
 
     def form_valid(self, form):
-        with reversion.create_revision():
-            form.save(self.registration)
-            reversion.set_user(self.request.user)
-            reversion.set_comment(_("Options updated via frontend. The following "
-                                  "fields changed: %(fields)s" % {'fields': ", ".join(form.changed_data)}))
+        if form.has_changed():
+            with reversion.create_revision():
+                form.save(self.registration)
+                reversion.set_user(self.request.user)
+                reversion.set_comment(_("Options updated via frontend. The following "
+                                      "fields changed: %(fields)s" % {'fields': ", ".join(form.changed_data)}))
 
         return super().form_valid(form)
 
@@ -117,7 +122,7 @@ class RegistrationOptionsStep(RegistrationStepMixin, FormView):
 
     def get_context_data(self, **kwargs):
         kwargs.update({
-            'cancel_url': reverse('core:main_index_view'),
+            'cancel_url': reverse('core:dashboard'),
         })
         return super().get_context_data(**kwargs)
 
@@ -143,12 +148,13 @@ class PersonalDetailsStep(RegistrationStepMixin, FormView):
         return kwargs
 
     def form_valid(self, form):
-        with reversion.create_revision():
-            form.save()
-            reversion.set_user(self.request.user)
-            fields = form.user_form.changed_data + form.address_form.changed_data
-            reversion.set_comment(_("Personal info updated via frontend. The following "
-                                    "fields changed: %(fields)s" % {'fields': ", ".join(fields)}))
+        if form.has_changed():
+            with reversion.create_revision():
+                form.save()
+                reversion.set_user(self.request.user)
+                fields = form.user_form.changed_data + form.address_form.changed_data
+                reversion.set_comment(_("Personal info updated via frontend. The following "
+                                        "fields changed: %(fields)s" % {'fields': ", ".join(fields)}))
 
         return super().form_valid(form)
 
@@ -179,8 +185,11 @@ class MedicalDetailsStep(RegistrationStepMixin, FormView):
         return kwargs
 
     def form_valid(self, form):
-        with reversion.create_revision():
+        if form.has_changed():
             with reversion.create_revision():
+                # Make sure a revision is generated even when MedicalDetails is deleted
+                # TODO: This is a workaround, see https://github.com/etianen/django-reversion/issues/830
+                reversion.add_to_revision(form.instance)
                 form.save(registration=self.registration)
                 reversion.set_user(self.request.user)
                 reversion.set_comment(_("Medical info updated via frontend. The following "
@@ -211,16 +220,17 @@ class EmergencyContactsStep(RegistrationStepMixin, FormView):
         return kwargs
 
     def form_valid(self, form):
-        with reversion.create_revision():
-            form.save()
-            reversion.set_user(self.request.user)
-            reversion.set_comment(_("Emergency contacts updated via frontend."))
+        if form.has_changed():
+            with reversion.create_revision():
+                form.save()
+                reversion.set_user(self.request.user)
+                reversion.set_comment(_("Emergency contacts updated via frontend."))
 
         try:
             with reversion.create_revision():
                 RegistrationStatusService.preparation_completed(self.registration)
                 reversion.set_user(self.request.user)
-                reversion.set_comment(_("Registration preparation finalized via frontend."))
+                reversion.set_comment(_("Registration preparation completed via frontend."))
         except ValidationError as ex:
             messages.error(self.request, ex)
             return self.form_invalid(form)
@@ -253,14 +263,17 @@ class FinalCheck(RegistrationStepMixin, FormView):
 
     def form_valid(self, form):
         try:
-            RegistrationStatusService.finalize_registration(self.registration)
+            with reversion.create_revision():
+                RegistrationStatusService.finalize_registration(self.registration)
+                reversion.set_user(self.request.user)
+                reversion.set_comment(_("Registration finalized via frontend."))
         except ValidationError as ex:
             messages.error(self.request, ex)
 
             return self.form_invalid(form)
 
         # Confirm registration by e-mail
-        RegistrationNotifyService.send_confirmation_email(self.registration)
+        RegistrationNotifyService.send_confirmation_email(self.request, self.registration)
 
         return super().form_valid(form)
 
@@ -308,5 +321,5 @@ class RegistrationConfirmationView(LoginRequiredMixin, DetailView):
     def get(self, *args, **kwargs):
         obj = self.get_object()
         if not obj.status.ACTIVE:
-            return redirect('core:main_index_view')
+            return redirect('core:dashboard')
         return super().get(*args, **kwargs)

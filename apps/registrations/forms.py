@@ -1,4 +1,5 @@
 from django import forms
+from django.db import transaction
 from django.db.models import Q
 from django.forms.formsets import DELETION_FIELD_NAME
 from django.utils.safestring import mark_safe
@@ -58,6 +59,9 @@ class PersonalDetailForm:
     def is_valid(self):
         return all(form.is_valid() for form in self.forms)
 
+    def has_changed(self):
+        return any(form.has_changed() for form in self.forms)
+
 
 class MedicalDetailForm(forms.ModelForm):
     consent = forms.BooleanField(
@@ -92,29 +96,31 @@ class MedicalDetailForm(forms.ModelForm):
     def save(self, registration, *args, **kwargs):
         action = None
 
-        if self.cleaned_data['consent']:
-            if self.has_changed():
-                action = ConsentLog.actions.CONSENTED
-                obj = super().save()
-                user = obj.user
-        else:
-            if self.instance and self.instance.pk is not None:
-                action = ConsentLog.actions.WITHDRAWN
-                user = self.instance.user
-                self.instance.delete()
+        # Ensure that MedicalDetails are not created or modified when no ConsentLog could be created.
+        with transaction.atomic():
+            if self.cleaned_data['consent']:
+                if self.has_changed():
+                    action = ConsentLog.actions.CONSENTED
+                    obj = super().save()
+                    user = obj.user
+            else:
+                if self.instance and self.instance.pk is not None:
+                    action = ConsentLog.actions.WITHDRAWN
+                    user = self.instance.user
+                    self.instance.delete()
 
-        if action:
-            consent_description = "{} | {}".format(
-                self.fields['consent'].label,
-                self.fields['consent'].help_text,
-            )
-            ConsentLog.objects.create(
-                user=user,
-                registration=registration,
-                action=action,
-                consent_name='medical_data',
-                consent_description=consent_description,
-            )
+            if action:
+                consent_description = "{} | {}".format(
+                    self.fields['consent'].label,
+                    self.fields['consent'].help_text,
+                )
+                ConsentLog.objects.create(
+                    user=user,
+                    registration=registration,
+                    action=action,
+                    consent_name='medical_data',
+                    consent_description=consent_description,
+                )
 
     class Meta:
         model = MedicalDetails

@@ -72,8 +72,8 @@ class EventQuerySet(models.QuerySet):
     def with_used_slots(self):
         return self.annotate(
             used_slots=Count(
-                'registration',
-                filter=Q(registration__status=Registration.statuses.REGISTERED),
+                'registrations',
+                filter=Q(registrations__status=Registration.statuses.REGISTERED),
             ),
         )
 

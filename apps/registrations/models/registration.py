@@ -63,8 +63,10 @@ class Registration(models.Model):
         ConstantGroup("CURRENT", ("PREPARATION_IN_PROGRESS", "PREPARATION_COMPLETE", "REGISTERED", "WAITINGLIST")),
     )
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=False, on_delete=models.CASCADE)
-    event = models.ForeignKey('events.Event', null=False, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=False, on_delete=models.CASCADE,
+                             related_name='registrations')
+    event = models.ForeignKey('events.Event', null=False, on_delete=models.CASCADE,
+                              related_name='registrations')
     status = ConstantChoiceField(verbose_name=_('Status'), constants=statuses, null=False)
     created_at = models.DateTimeField(verbose_name=_('Creation timestamp'), auto_now_add=True, null=False)
     registered_at = models.DateTimeField(verbose_name=_('Registration timestamp'), blank=True, null=True)

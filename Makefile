@@ -105,3 +105,11 @@ refresh: ensure_virtual_env
 # runs a shell inside the virtualenv created by pipenv
 shell:
 	poetry shell
+
+# run everything needed after an update in the production environment
+deploy: ensure_virtual_env
+	@poetry install --no-dev
+	$(MAKE) migrate
+	$(CURDIR)/manage.py collectstatic
+	# Reload wsgi app, if configured like that
+	touch arta/wsgi.py

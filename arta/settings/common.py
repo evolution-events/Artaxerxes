@@ -1,4 +1,5 @@
 # Python imports
+import re
 import sys
 from os.path import abspath, basename, dirname, join, normpath
 
@@ -138,6 +139,7 @@ INSTALLED_APPS = [
 
 # Middlewares
 MIDDLEWARE = [
+    'django.middleware.common.BrokenLinkEmailsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
@@ -227,6 +229,12 @@ MEDIA_URL = '/media/'
 # ##### DEBUG CONFIGURATION ###############################
 DEBUG = False
 
+# 404 REPORTING ####################################
+
+# These are not reported by the BrokenLinkEmailsMiddleware
+IGNORABLE_404_URLS = [
+    re.compile(r'.php$'),
+]
 
 # finally grab the SECRET KEY
 try:

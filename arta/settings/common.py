@@ -204,12 +204,6 @@ LOGOUT_REDIRECT_URL = 'account_login'
 # The required SECRET_KEY is fetched at the end of this file
 SECRET_FILE = normpath(join(PROJECT_ROOT, 'run', 'SECRET.key'))
 
-# these persons receive error notification
-ADMINS = (
-    ('Webmasters', 'webmaster@evolution-events.nl'),
-)
-MANAGERS = ADMINS
-
 # ##### EMAIL CONFIGURATION ################################
 DEFAULT_EMAIL_FROM = 'inschrijvingen@evolution-events.nl'
 BCC_EMAIL_TO = ['inschrijvingen@evolution-events.nl']

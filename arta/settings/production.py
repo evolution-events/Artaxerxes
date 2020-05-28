@@ -1,6 +1,12 @@
 # for now fetch the development settings only
 from .common import *
 
+# these persons receive error notification
+ADMINS = (
+    ('Webmasters', 'webmaster@evolution-events.nl'),
+)
+MANAGERS = ADMINS
+
 # turn off all debugging
 DEBUG = False
 

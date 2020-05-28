@@ -76,8 +76,11 @@ class RegistrationStatusService:
             raise ValidationError(_("Registration not ready for finalization"))
 
         with transaction.atomic():
-            # Lock the event, to prevent multiple registrations from taking up the same slots
-            event = Event.objects.with_used_slots().select_for_update().get(pk=registration.event.pk)
+            # Lock the event, to prevent multiple registrations from taking up the same slots. Lock first, then
+            # retrieve, since postgresql does not support select_for_update combined with grouping (and just in case
+            # MySQL silently ignores this without a warning, do this separately).
+            Event.objects.select_for_update().get(pk=registration.event.pk)
+            event = Event.objects.with_used_slots().get(pk=registration.event.pk)
             # This selects all options that are associated with the current registration and that have non-null slots.
             # annotated with the number of slots used.
             options_with_slots = RegistrationFieldOption.objects.with_used_slots().filter(

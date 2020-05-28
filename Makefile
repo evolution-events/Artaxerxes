@@ -4,7 +4,7 @@ PYTHON_BIN := $(VIRTUAL_ENV)/bin
 
 DJANGO_TEST_SETTINGS_FILE := development
 DJANGO_TEST_SETTINGS := arta.settings.$(DJANGO_TEST_SETTINGS_FILE)
-DJANGO_TEST_POSTFIX := --settings=$(DJANGO_TEST_SETTINGS) --pythonpath=$(PYTHONPATH)
+DJANGO_TEST_POSTFIX := --settings=$(DJANGO_TEST_SETTINGS) --pythonpath=$(PYTHONPATH) --exclude-tag=benchmark
 
 
 .PHONY: all clean coverage ensure_virtual_env flake8 flake lint \

@@ -2,7 +2,7 @@ import reversion
 from django.conf import settings
 from django.db import models
 from django.db.models import Count, F, Q
-from django.db.models.functions import Now
+from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
@@ -27,6 +27,7 @@ class EventQuerySet(models.QuerySet):
            registration is current. Current is the one non-cancelled registration, or most recent cancelled
            registration.
         """
+        now = timezone.now()
         # This does not use the user yet, but this makes it easier to change that later
         # This essentially duplicates the similarly-named methods on the model below.
         # Split into multiple annotates to allow using annotations in subsequent annotations (the order of these can
@@ -37,14 +38,14 @@ class EventQuerySet(models.QuerySet):
             registration_is_open=QExpr(
                 Q(is_visible=True)
                 & ~Q(registration_opens_at=None)
-                & Q(registration_opens_at__lt=Now())
-                & Q(start_date__gt=Now()),
+                & Q(registration_opens_at__lt=now)
+                & Q(start_date__gt=now),
             ),
         ).annotate(
             preregistration_is_open=QExpr(
                 Q(is_visible=True)
                 & Q(registration_is_open=False)
-                & Q(start_date__gt=Now()),
+                & Q(start_date__gt=now),
             ),
         )
         if with_registration:

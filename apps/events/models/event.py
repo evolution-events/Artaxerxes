@@ -77,6 +77,10 @@ class EventQuerySet(models.QuerySet):
             ),
         )
 
+    def used_slots_for(self, event):
+        """ Returns the number of slots used (i.e. the number of REGISTERED registrations) for the given event. """
+        return Registration.objects.filter(event=event, status=Registration.statuses.REGISTERED).count()
+
 
 class EventManager(models.Manager.from_queryset(EventQuerySet)):
     def get_by_natural_key(self, name):

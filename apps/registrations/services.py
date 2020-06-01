@@ -110,9 +110,11 @@ class RegistrationStatusService:
 class RegistrationNotifyService:
     @staticmethod
     def send_confirmation_email(request, registration):
+        options = registration.options.select_related('field', 'option')
         context = {
             'user': registration.user,
             'registration': registration,
+            'options': options,
             'house_rules_url': request.build_absolute_uri(reverse('core:house_rules')),
         }
         body = render_to_string('registrations/email/registration_confirmation.txt', context)

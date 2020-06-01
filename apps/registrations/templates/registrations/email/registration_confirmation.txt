@@ -29,9 +29,9 @@ For details, see our house rules at: {{ house_rules_url }}.
 {% endblocktrans %}
 {% endif %}
 .
-{% if registration.options.all %}
+{% if options %}
 {% trans "Selected options" %}
-{% for value in registration.options.all %}
+{% for value in options %}
   {{ value.field.title }}: {{ value.display_value }}
 {% endfor %}
 {% endif %}

@@ -111,8 +111,12 @@ class RegistrationNotifyService:
     @staticmethod
     def send_confirmation_email(request, registration):
         options = registration.options.select_related('field', 'option')
+        # Use request.user when possible, since that will already have been loaded.
+        user = request.user
+        if user.pk != registration.user_id:
+            user = registration.user
         context = {
-            'user': registration.user,
+            'user': user,
             'registration': registration,
             'options': options,
             'house_rules_url': request.build_absolute_uri(reverse('core:house_rules')),
@@ -127,7 +131,7 @@ class RegistrationNotifyService:
         body = re.sub("\n\\.\n", "\n\n", body)
 
         email = EmailMessage(
-            body=body, subject=subject, to=[registration.user.email],
+            body=body, subject=subject, to=[user.email],
             bcc=settings.BCC_EMAIL_TO,
         )
         email.send()

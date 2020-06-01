@@ -1,5 +1,5 @@
 import itertools
-from unittest import mock
+from unittest import mock, skip
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -776,6 +776,7 @@ class TestRevisions(TestCase):
         # TODO: Check unmodified repost, which is a bit complicated since it requires adding emergency contact ids to
         # the form. Maybe a GET and submit that form would be easier?
 
+    @skip("revision creation disabled for speed")
     def test_final_check(self):
         """ Check created revisions for final check step. """
         reg = RegistrationFactory(event=self.event, user=self.user, preparation_complete=True)

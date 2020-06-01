@@ -68,10 +68,6 @@ DATABASES = {
     },
 }
 
-# ##### EMAIL CONFIGURATION ###############################
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'mail.local'
-
 # ##### SECURITY CONFIGURATION ############################
 
 # Note: Webserver guarantees only secure requests are processed and the

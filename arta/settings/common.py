@@ -211,6 +211,10 @@ DEFAULT_EMAIL_FROM = 'inschrijvingen@evolution-events.nl'
 BCC_EMAIL_TO = ['inschrijvingen@evolution-events.nl']
 SERVER_EMAIL = 'inschrijvingen@evolution-events.nl'
 
+# Dispatch e-mail using local sendmail, or equivalent
+EMAIL_BACKEND = 'django_sendmail_backend.backends.EmailBackend'
+SENDMAIL_BINARY = '/usr/sbin/sendmail'
+
 # ##### DJANGO RUNNING CONFIGURATION ######################
 
 # the default WSGI application

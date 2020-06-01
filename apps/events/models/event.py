@@ -70,6 +70,11 @@ class EventQuerySet(models.QuerySet):
         return qs
 
     def with_used_slots(self):
+        """
+        Adds used_slots annotation.
+
+        This is the number of slots used (i.e. the number of REGISTERED registrations) for the given event.
+        """
         return self.annotate(
             used_slots=Count(
                 'registrations',

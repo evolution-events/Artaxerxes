@@ -198,6 +198,17 @@ version = "3.0.5"
 django = ">=1.11"
 
 [[package]]
+category = "main"
+description = "Its a simple command line sendmail backend for Django"
+name = "django-sendmail-backend"
+optional = false
+python-versions = "*"
+version = "0.1.2"
+
+[package.dependencies]
+Django = ">=1.4"
+
+[[package]]
 category = "dev"
 description = "A versatile test fixtures replacement based on thoughtbot's factory_bot for Ruby."
 name = "factory-boy"
@@ -712,7 +723,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["pathlib2", "unittest2", "jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "8028c92cee500090ba914e117597cca3324400fc234b390f338012311ad78cb0"
+content-hash = "002aa881f49c401334700f080904922c051532edbb46ba3a336e9b3ebafc8625"
 python-versions = "^3.5"
 
 [metadata.files]
@@ -808,6 +819,9 @@ django-phonenumber-field = [
 django-reversion = [
     {file = "django-reversion-3.0.5.tar.gz", hash = "sha256:1add55bb05311f4acd26683dd71af60729d4f33dfe42c608da8e15e679a32009"},
     {file = "django_reversion-3.0.5-py2.py3-none-any.whl", hash = "sha256:60efa47f02d8b0451aff1d76e00e5122144b661bd720a099eb44241a081aa254"},
+]
+django-sendmail-backend = [
+    {file = "django_sendmail_backend-0.1.2.tar.gz", hash = "sha256:2d077f602aaa37633acdbf35f28f5799d6b57c8bc2122d193762d70c7d92b3ad"},
 ]
 factory-boy = [
     {file = "factory_boy-2.12.0-py2.py3-none-any.whl", hash = "sha256:728df59b372c9588b83153facf26d3d28947fc750e8e3c95cefa9bed0e6394ee"},
@@ -948,7 +962,7 @@ pyflakes = [
     {file = "pyflakes-2.0.0.tar.gz", hash = "sha256:9a7662ec724d0120012f6e29d6248ae3727d821bba522a0e6b356eff19126a49"},
 ]
 pygments = [
-    {file = "Pygments-2.6.1-py3-none-any.whl", hash = "sha256:ff7a40b4860b727ab48fad6360eb351cc1b33cbf9b15a0f689ca5353e9463324"},
+    {file = "Pygments-2.6.1-py2.py3-none-any.whl", hash = "sha256:aa931c0bd5daa25c475afadb2147115134cfe501f0656828cbe7cb566c7123bc"},
     {file = "Pygments-2.6.1.tar.gz", hash = "sha256:647344a061c249a3b74e230c739f434d7ea4d8b1d5f3721bc0f3558049b38f44"},
 ]
 python-dateutil = [

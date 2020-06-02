@@ -24,6 +24,7 @@ class RegistrationFieldValue(models.Model):
                 return "<value unset>"
         return self.string_value
 
+    @property
     def price(self):
         if self.field.field_type == self.field.TYPE_CHOICE and self.option:
             return self.option.price

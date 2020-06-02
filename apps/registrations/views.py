@@ -259,9 +259,6 @@ class FinalCheck(RegistrationStepMixin, FormView):
     success_view = 'registrations:registration_confirmation'
     form_class = FinalCheckForm
 
-    def get_queryset(self):
-        return super().get_queryset().with_price()
-
     def get_modify_url(self):
         return reverse('registrations:step_registration_options', args=(self.registration.pk,))
 
@@ -297,6 +294,7 @@ class FinalCheck(RegistrationStepMixin, FormView):
 
         options = self.registration.options.all().select_related('option', 'field')
         any_is_full = self.event.full or any(value.option.full for value in options)
+        total_price = sum(o.price for o in options if o.price is not None)
 
         kwargs.update({
             'user': self.request.user,
@@ -307,6 +305,7 @@ class FinalCheck(RegistrationStepMixin, FormView):
             'emergency_contacts': emergency_contacts,
             'any_is_full': any_is_full,
             'options': options,
+            'total_price': total_price,
             'modify_url': self.get_modify_url(),
         })
         return super().get_context_data(**kwargs)

@@ -6,6 +6,7 @@ from django.forms import ValidationError
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
+from django.utils.functional import cached_property
 from django.utils.translation import gettext as _
 from django.views.generic import DetailView, View
 from django.views.generic.base import TemplateResponseMixin
@@ -71,7 +72,10 @@ class RegistrationStepMixin(LoginRequiredMixin, SingleObjectMixin):
 
         self.object = self.get_object()
         self.registration = self.object
-        self.event = Event.objects.for_user(self.request.user).get(pk=self.registration.event.pk)
+
+    @cached_property
+    def event(self):
+        return Event.objects.for_user(self.request.user).get(pk=self.registration.event_id)
 
     def dispatch(self, *args, **kwargs):
         if not self.registration.status.PREPARATION_IN_PROGRESS and not self.registration.status.PREPARATION_COMPLETE:

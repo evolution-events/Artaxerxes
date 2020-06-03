@@ -207,7 +207,7 @@ LOGOUT_REDIRECT_URL = 'account_login'
 SECRET_FILE = normpath(join(PROJECT_ROOT, 'run', 'SECRET.key'))
 
 # ##### EMAIL CONFIGURATION ################################
-DEFAULT_EMAIL_FROM = 'inschrijvingen@evolution-events.nl'
+DEFAULT_FROM_EMAIL = 'inschrijvingen@evolution-events.nl'
 BCC_EMAIL_TO = ['inschrijvingen@evolution-events.nl']
 SERVER_EMAIL = 'inschrijvingen@evolution-events.nl'
 

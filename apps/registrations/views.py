@@ -9,8 +9,7 @@ from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.translation import gettext as _
 from django.views.generic import DetailView, View
-from django.views.generic.base import TemplateResponseMixin
-from django.views.generic.detail import SingleObjectMixin
+from django.views.generic.base import ContextMixin, TemplateResponseMixin
 from django.views.generic.edit import FormView
 
 from apps.events.models import Event
@@ -56,12 +55,10 @@ class RegistrationStartView(LoginRequiredMixin, TemplateResponseMixin, View):
         return redirect('registrations:step_registration_options', registration.id)
 
 
-class RegistrationStepMixin(LoginRequiredMixin, SingleObjectMixin):
-    model = Registration
-
+class RegistrationStepMixin(LoginRequiredMixin, ContextMixin):
     def get_queryset(self):
         # Only allow editing your own registrations
-        return super().get_queryset().filter(user=self.request.user)
+        return Registration.objects.filter(user=self.request.user)
 
     def get_success_url(self):
         # success_view is supplied by the subclass
@@ -70,8 +67,7 @@ class RegistrationStepMixin(LoginRequiredMixin, SingleObjectMixin):
     def setup(self, *args, **kwargs):
         super().setup(*args, **kwargs)
 
-        self.object = self.get_object()
-        self.registration = self.object
+        self.registration = get_object_or_404(self.get_queryset(), pk=self.kwargs['pk'])
 
     @cached_property
     def event(self):

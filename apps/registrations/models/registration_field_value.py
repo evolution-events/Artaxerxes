@@ -2,6 +2,16 @@ import reversion
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
+from apps.core.utils import UpdatedAtQuerySetMixin
+
+
+class RegistrationFieldValueQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
+    pass
+
+
+class RegistrationFieldValueManager(models.Manager.from_queryset(RegistrationFieldValueQuerySet)):
+    pass
+
 
 @reversion.register(follow=('registration',))
 class RegistrationFieldValue(models.Model):
@@ -15,6 +25,8 @@ class RegistrationFieldValue(models.Model):
 
     created_at = models.DateTimeField(verbose_name=_('Creation timestamp'), auto_now_add=True)
     updated_at = models.DateTimeField(verbose_name=_('Last update timestamp'), auto_now=True)
+
+    objects = RegistrationFieldValueManager()
 
     def __str__(self):
         return self.display_value()

@@ -5,6 +5,16 @@ from django.db.models import Q
 from django.utils.translation import gettext
 from django.utils.translation import ugettext_lazy as _
 
+from apps.core.utils import UpdatedAtQuerySetMixin
+
+
+class MedicalDetailsQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
+    pass
+
+
+class MedicalDetailsManager(models.Manager.from_queryset(MedicalDetailsQuerySet)):
+    pass
+
 
 @reversion.register(fields=('user',), follow=('user',))
 class MedicalDetails(models.Model):
@@ -29,6 +39,8 @@ class MedicalDetails(models.Model):
 
     created_at = models.DateTimeField(verbose_name=_('Creation timestamp'), auto_now_add=True)
     updated_at = models.DateTimeField(verbose_name=_('Last update timestamp'), auto_now=True)
+
+    objects = MedicalDetailsManager()
 
     def __str__(self):
         return gettext('Medical details of user %(user)s') % {'user': self.user}

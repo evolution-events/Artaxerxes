@@ -1,13 +1,18 @@
 import reversion
 from django.conf import settings
-from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
+from apps.core.utils import UpdatedAtQuerySetMixin
 
-class ArtaUserManager(BaseUserManager):
+
+class ArtaUserQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
+    pass
+
+
+class ArtaUserManager(models.Manager.from_queryset(ArtaUserQuerySet)):
     def get_by_natural_key(self, email):
         return self.get(email=email)
 

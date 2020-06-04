@@ -7,10 +7,10 @@ from konst import Constant, ConstantGroup, Constants
 from konst.models.fields import ConstantChoiceField
 
 from apps.core.fields import MonetaryField
-from apps.core.utils import QExpr
+from apps.core.utils import QExpr, UpdatedAtQuerySetMixin
 
 
-class RegistrationQuerySet(models.QuerySet):
+class RegistrationQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
     def with_price(self):
         return self.annotate(
             price=ExpressionWrapper(

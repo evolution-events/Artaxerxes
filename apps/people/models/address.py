@@ -5,6 +5,16 @@ from django.utils.translation import gettext
 from django.utils.translation import ugettext_lazy as _
 from phonenumber_field.modelfields import PhoneNumberField
 
+from apps.core.utils import UpdatedAtQuerySetMixin
+
+
+class AddressQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
+    pass
+
+
+class AddressManager(models.Manager.from_queryset(AddressQuerySet)):
+    pass
+
 
 @reversion.register(fields=('user',), follow=('user',))
 class Address(models.Model):
@@ -19,6 +29,8 @@ class Address(models.Model):
 
     created_at = models.DateTimeField(verbose_name=_('Creation timestamp'), auto_now_add=True)
     updated_at = models.DateTimeField(verbose_name=_('Last update timestamp'), auto_now=True)
+
+    objects = AddressManager()
 
     def __str__(self):
         return gettext('Address of user %(user)s') % {'user': self.user}

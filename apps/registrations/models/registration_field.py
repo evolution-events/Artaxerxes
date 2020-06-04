@@ -2,8 +2,14 @@ import reversion
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
+from apps.core.utils import UpdatedAtQuerySetMixin
 
-class RegistrationFieldManager(models.Manager):
+
+class RegistrationFieldQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
+    pass
+
+
+class RegistrationFieldManager(models.Manager.from_queryset(RegistrationFieldQuerySet)):
     def get_by_natural_key(self, eventname, fieldname):
         return self.get(event__name=eventname, name=fieldname)
 

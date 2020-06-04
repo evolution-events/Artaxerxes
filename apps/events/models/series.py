@@ -2,8 +2,14 @@ import reversion
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
+from apps.core.utils import UpdatedAtQuerySetMixin
 
-class SeriesManager(models.Manager):
+
+class SeriesQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
+    pass
+
+
+class SeriesManager(models.Manager.from_queryset(SeriesQuerySet)):
     def get_by_natural_key(self, name):
         return self.get(name=name)
 

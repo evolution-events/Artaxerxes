@@ -5,6 +5,16 @@ from django.utils.translation import gettext
 from django.utils.translation import ugettext_lazy as _
 from phonenumber_field.modelfields import PhoneNumberField
 
+from apps.core.utils import UpdatedAtQuerySetMixin
+
+
+class EmergenyContactQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
+    pass
+
+
+class EmergenyContactManager(models.Manager.from_queryset(EmergenyContactQuerySet)):
+    pass
+
 
 @reversion.register(fields=('user',), follow=('user',))
 class EmergencyContact(models.Model):
@@ -23,6 +33,8 @@ class EmergencyContact(models.Model):
 
     created_at = models.DateTimeField(verbose_name=_('Creation timestamp'), auto_now_add=True)
     updated_at = models.DateTimeField(verbose_name=_('Last update timestamp'), auto_now=True)
+
+    objects = EmergenyContactManager()
 
     def __str__(self):
         return gettext('Emergency contact of user %(user)s') % {'user': self.user}

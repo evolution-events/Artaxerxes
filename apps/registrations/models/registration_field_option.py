@@ -4,11 +4,12 @@ from django.db.models import Count, Q
 from django.utils.translation import ugettext_lazy as _
 
 from apps.core.fields import MonetaryField
+from apps.core.utils import UpdatedAtQuerySetMixin
 
 from . import Registration, RegistrationField
 
 
-class RegistrationFieldOptionQuerySet(models.QuerySet):
+class RegistrationFieldOptionQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
     def with_used_slots(self):
         return self.annotate(
             used_slots=Count(

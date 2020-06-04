@@ -6,13 +6,13 @@ from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
-from apps.core.utils import QExpr
+from apps.core.utils import QExpr, UpdatedAtQuerySetMixin
 from apps.registrations.models import Registration
 
 from .series import Series
 
 
-class EventQuerySet(models.QuerySet):
+class EventQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
     def for_user(self, user, with_registration=False):
         """
         Returns events annotated with properties applicable for the given user.

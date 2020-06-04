@@ -16,6 +16,9 @@ class Series(models.Model):
     url = models.CharField(max_length=100, verbose_name=_('Url'))
     email = models.CharField(max_length=100, verbose_name=_('E-mail address of game masters / organisation'))
 
+    created_at = models.DateTimeField(verbose_name=_('Creation timestamp'), auto_now_add=True)
+    updated_at = models.DateTimeField(verbose_name=_('Last update timestamp'), auto_now=True)
+
     objects = SeriesManager()
 
     def __str__(self):

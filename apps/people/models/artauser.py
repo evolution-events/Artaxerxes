@@ -43,6 +43,9 @@ class ArtaUser(AbstractBaseUser, PermissionsMixin):
         default=False,
     )
 
+    created_at = models.DateTimeField(verbose_name=_('Creation timestamp'), auto_now_add=True)
+    updated_at = models.DateTimeField(verbose_name=_('Last update timestamp'), auto_now=True)
+
     objects = ArtaUserManager()
 
     EMAIL_FIELD = 'email'

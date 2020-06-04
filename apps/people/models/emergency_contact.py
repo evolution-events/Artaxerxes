@@ -21,6 +21,9 @@ class EmergencyContact(models.Model):
     remarks = models.CharField(max_length=200, verbose_name=_('Remarks'), blank=True,
                                help_text=_('Optional. For example: Only call if #1 cannot be reached'))
 
+    created_at = models.DateTimeField(verbose_name=_('Creation timestamp'), auto_now_add=True)
+    updated_at = models.DateTimeField(verbose_name=_('Last update timestamp'), auto_now=True)
+
     def __str__(self):
         return gettext('Emergency contact of user %(user)s') % {'user': self.user}
 

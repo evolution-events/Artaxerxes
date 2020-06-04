@@ -13,6 +13,9 @@ class RegistrationFieldValue(models.Model):
                                on_delete=models.CASCADE)
     string_value = models.CharField(max_length=255, null=True, blank=True)
 
+    created_at = models.DateTimeField(verbose_name=_('Creation timestamp'), auto_now_add=True)
+    updated_at = models.DateTimeField(verbose_name=_('Last update timestamp'), auto_now=True)
+
     def __str__(self):
         return self.display_value()
 

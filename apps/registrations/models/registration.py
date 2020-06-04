@@ -69,6 +69,7 @@ class Registration(models.Model):
                               related_name='registrations')
     status = ConstantChoiceField(verbose_name=_('Status'), constants=statuses, null=False)
     created_at = models.DateTimeField(verbose_name=_('Creation timestamp'), auto_now_add=True, null=False)
+    updated_at = models.DateTimeField(verbose_name=_('Last update timestamp'), auto_now=True, null=False)
     registered_at = models.DateTimeField(verbose_name=_('Registration timestamp'), blank=True, null=True)
 
     objects = RegistrationManager()

@@ -38,6 +38,9 @@ class RegistrationFieldOption(models.Model):
     full = models.BooleanField(default=False)
     price = MonetaryField(null=True, blank=True)
 
+    created_at = models.DateTimeField(verbose_name=_('Creation timestamp'), auto_now_add=True)
+    updated_at = models.DateTimeField(verbose_name=_('Last update timestamp'), auto_now=True)
+
     objects = RegistrationFieldOptionManager()
 
     def __str__(self):

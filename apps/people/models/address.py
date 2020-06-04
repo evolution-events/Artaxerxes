@@ -17,6 +17,9 @@ class Address(models.Model):
     city = models.CharField(max_length=100, verbose_name=_('City of residence'), blank=True, help_text=_('Optional'))
     country = models.CharField(max_length=100, verbose_name=_('Country'), blank=True, help_text=_('Optional'))
 
+    created_at = models.DateTimeField(verbose_name=_('Creation timestamp'), auto_now_add=True)
+    updated_at = models.DateTimeField(verbose_name=_('Last update timestamp'), auto_now=True)
+
     def __str__(self):
         return gettext('Address of user %(user)s') % {'user': self.user}
 

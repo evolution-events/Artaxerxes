@@ -140,6 +140,9 @@ class Event(models.Model):
 
     user = models.ManyToManyField(settings.AUTH_USER_MODEL, through=Registration)
 
+    created_at = models.DateTimeField(verbose_name=_('Creation timestamp'), auto_now_add=True)
+    updated_at = models.DateTimeField(verbose_name=_('Last update timestamp'), auto_now=True)
+
     objects = EventManager()
 
     @cached_property

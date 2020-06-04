@@ -29,6 +29,9 @@ class RegistrationField(models.Model):
     invite_only = models.ForeignKey('auth.Group', null=True, blank=True, on_delete=models.SET_NULL)
     allow_change_until = models.DateField(null=True, blank=True)
 
+    created_at = models.DateTimeField(verbose_name=_('Creation timestamp'), auto_now_add=True)
+    updated_at = models.DateTimeField(verbose_name=_('Last update timestamp'), auto_now=True)
+
     objects = RegistrationFieldManager()
 
     def __str__(self):

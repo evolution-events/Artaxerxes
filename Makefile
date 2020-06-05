@@ -4,7 +4,7 @@ PYTHON_BIN := $(VIRTUAL_ENV)/bin
 
 DJANGO_TEST_SETTINGS_FILE := development
 DJANGO_TEST_SETTINGS := arta.settings.$(DJANGO_TEST_SETTINGS_FILE)
-DJANGO_TEST_POSTFIX := --settings=$(DJANGO_TEST_SETTINGS) --pythonpath=$(PYTHONPATH) --exclude-tag=benchmark
+DJANGO_TEST_POSTFIX := --settings=$(DJANGO_TEST_SETTINGS) --pythonpath=$(PYTHONPATH)
 
 
 .PHONY: all clean coverage ensure_virtual_env flake8 flake lint \
@@ -79,7 +79,7 @@ django_check: ensure_virtual_env
 test: ensure_virtual_env
 	@echo "Using setting file '$(DJANGO_TEST_SETTINGS_FILE)'..."
 	@echo ""
-	@$(PYTHON_BIN)/coverage run $(PYTHON_BIN)/django-admin.py test $(DJANGO_TEST_POSTFIX)
+	@$(PYTHON_BIN)/coverage run $(PYTHON_BIN)/django-admin.py test $(DJANGO_TEST_POSTFIX) --exclude-tag=benchmark
 
 # runs the tests with development settings
 test/dev:

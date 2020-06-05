@@ -438,6 +438,28 @@ class TestRegistrationForm(TestCase):
         response = self.client.post(url, follow=True)
         self.assertRedirects(response, confirm_url)
 
+    def test_not_logged_in(self):
+        """ Check that the registration steps redirect when not logged in. """
+        def test_view(view, args):
+            url = reverse(view, args=args)
+            with self.subTest(view=view, method='GET'):
+                # Follow to redirect to the login page so we can check resolver_match
+                response = self.client.get(url, follow=True)
+                self.assertEqual(response.resolver_match.url_name, 'account_login')
+
+            with self.subTest(view=view, method='POST'):
+                # Follow to redirect to the login page so we can check resolver_match
+                # This posts without data, since we should be redirected anyway
+                response = self.client.post(url, follow=True)
+                self.assertEqual(response.resolver_match.url_name, 'account_login')
+
+        self.client.logout()
+        registration = RegistrationFactory(event=self.event, user=self.user)
+
+        test_view('registrations:registration_start', args=(self.event.pk,))
+        for view in self.registration_steps:
+            test_view(view, args=(registration.pk,))
+
 
 # Parameterization produces TestMedicalConsentLog_0 and _1 class names
 @parameterized_class([

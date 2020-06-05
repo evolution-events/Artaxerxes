@@ -55,7 +55,7 @@ class RegistrationStartView(LoginRequiredMixin, TemplateResponseMixin, View):
         return redirect('registrations:step_registration_options', registration.id)
 
 
-class RegistrationStepMixin(LoginRequiredMixin, ContextMixin):
+class RegistrationStepMixinBase(ContextMixin):
     def get_queryset(self):
         # Only allow editing your own registrations
         return Registration.objects.filter(user=self.request.user)
@@ -95,6 +95,12 @@ class RegistrationStepMixin(LoginRequiredMixin, ContextMixin):
             'event': self.event,
         })
         return super().get_context_data(**kwargs)
+
+
+class RegistrationStepMixin(LoginRequiredMixin, RegistrationStepMixinBase):
+    """ This class ensures that LoginRequiredMixin runs its checks in dispatch before RegistrationStepMixinBase. """
+
+    pass
 
 
 class RegistrationOptionsStep(RegistrationStepMixin, FormView):

@@ -72,12 +72,22 @@ class RegistrationStepMixin(LoginRequiredMixin, ContextMixin):
     def event(self):
         return Event.objects.for_user(self.request.user).get(pk=self.registration.event_id)
 
-    def dispatch(self, *args, **kwargs):
+    def check_request(self):
+        """
+        Called at the start of dispatch (so for all HTTP methods) to check if the registration is in the right state.
+
+        Should return None for normal processing, or a response to bypass normal processing.
+        """
         if not self.registration.status.PREPARATION_IN_PROGRESS and not self.registration.status.PREPARATION_COMPLETE:
             # Let finalcheck sort out where to go
             return redirect('registrations:step_final_check', self.registration.id)
+        return None
 
-        return super().dispatch(*args, **kwargs)
+    def dispatch(self, *args, **kwargs):
+        response = self.check_request()
+        if response is None:
+            response = super().dispatch(*args, **kwargs)
+        return response
 
     def get_context_data(self, **kwargs):
         kwargs.update({
@@ -113,11 +123,11 @@ class RegistrationOptionsStep(RegistrationStepMixin, FormView):
 
         return super().form_valid(form)
 
-    def dispatch(self, *args, **kwargs):
+    def check_request(self):
         # No fields? Just skip this step
         if not self.event.registration_fields.all():
             return redirect(self.get_success_url())
-        return super().dispatch(*args, **kwargs)
+        return super().check_request()
 
     def get_context_data(self, **kwargs):
         kwargs.update({
@@ -272,7 +282,7 @@ class FinalCheck(RegistrationStepMixin, FormView):
 
         return super().form_valid(form)
 
-    def dispatch(self, *args, **kwargs):
+    def check_request(self):
         if self.registration.status.ACTIVE:
             return redirect(self.get_success_url())
         elif self.registration.status.PREPARATION_IN_PROGRESS:
@@ -280,7 +290,7 @@ class FinalCheck(RegistrationStepMixin, FormView):
         elif not self.registration.status.PREPARATION_COMPLETE:
             raise Http404("Registration in invalid state")
 
-        return super().dispatch(*args, **kwargs)
+        return super().check_request()
 
     def get_context_data(self, **kwargs):
         personal_details = Address.objects.filter(user=self.request.user).first()

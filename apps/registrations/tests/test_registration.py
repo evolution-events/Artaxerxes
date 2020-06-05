@@ -875,20 +875,34 @@ class TestCaching(TestCase):
 
     def test_finalcheck_registration_opens(self):
         """ Check that finalcheck regenerates a response after registration opens. """
-        opens_in_seconds = 1
-        self.event.refresh_from_db()
-        self.event.registration_opens_at = timezone.now() + timedelta(seconds=opens_in_seconds)
+        # Make sure registration_opens_at is in the future (and newer than all updated_at timestamps)
+        self.event.registration_opens_at = timezone.now() + timedelta(days=1)
         self.event.save()
 
-        response = self.client.get(self.final_check_url)
-        self.assertLess(
-            timezone.now(), self.event.registration_opens_at,
-            msg="Test too slow, already past registration open",
-        )
+        opens_at = self.event.registration_opens_at
+        before_opens_at = opens_at - timedelta(seconds=1)
 
-        # Wait until registration opens
-        time.sleep(opens_in_seconds)
-        self.assertCache(response, changed=True)
+        response = self.client.get(self.final_check_url)
+        with mock.patch('django.utils.timezone.now', return_value=before_opens_at):
+            self.assertCache(response, changed=False)
+            response = self.client.get(self.final_check_url)
+
+        with mock.patch('django.utils.timezone.now', return_value=opens_at):
+            self.assertCache(response, changed=True)
+
+    @skip("Not implemented, see TODO in FinalCheck view")
+    def test_finalcheck_registration_closes(self):
+        """ Check that finalcheck regenerates a response after registration opens. """
+        start_date_midnight = timezone.make_aware(datetime.combine(self.event.start_date, dt_time.min))
+        before_start_date = start_date_midnight - timedelta(seconds=1)
+
+        response = self.client.get(self.final_check_url)
+        with mock.patch('django.utils.timezone.now', return_value=before_start_date):
+            self.assertCache(response, changed=False)
+
+        response = self.client.get(self.final_check_url)
+        with mock.patch('django.utils.timezone.now', return_value=start_date_midnight):
+            self.assertCache(response, changed=True)
 
     def test_finalcheck_data_changed(self):
         """ Check that finalcheck regenerates a resonse when models are changed. """

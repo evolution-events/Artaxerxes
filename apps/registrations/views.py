@@ -2,10 +2,12 @@
 import reversion
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Case, F, When
 from django.forms import ValidationError
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import gettext as _
 from django.views.generic import DetailView, View
@@ -13,12 +15,12 @@ from django.views.generic.base import ContextMixin, TemplateResponseMixin
 from django.views.generic.edit import FormView
 
 from apps.events.models import Event
-from apps.people.models import Address, ArtaUser, MedicalDetails
+from apps.people.models import Address, ArtaUser, EmergencyContact, MedicalDetails
 from arta.common.views import CacheUsingTimestampsMixin
 
 from .forms import (EmergencyContactFormSet, FinalCheckForm, MedicalDetailForm, PersonalDetailForm,
                     RegistrationOptionsForm)
-from .models import Registration
+from .models import Registration, RegistrationFieldOption, RegistrationFieldValue
 from .services import RegistrationNotifyService, RegistrationStatusService
 
 
@@ -295,6 +297,47 @@ class FinalCheck(RegistrationStepMixin, FormView):
         RegistrationNotifyService.send_confirmation_email(self.request, self.registration)
 
         return super().form_valid(form)
+
+    def instances_used(self):
+        """ Returns all model instances used by this view, their updated_at fields are used for caching. """
+        user = self.request.user
+        # We need to return querysets, so can't just return request.user
+        yield ArtaUser.objects.filter(pk=user.pk)
+        yield Registration.objects.filter(pk=self.registration_id)
+
+        yield RegistrationFieldValue.objects.filter(registration=self.registration_id)
+        # This returns RegistrationFieldOptions, which are used for their "full" status.
+        yield RegistrationFieldOption.objects.filter(registrationfieldvalue__registration=self.registration_id)
+
+        # These are reverse OneToOne on user, but accessing them through there returns objects rather than querysets
+        yield Address.objects.filter(user=user.pk)
+        yield MedicalDetails.objects.filter(user=user.pk)
+        yield EmergencyContact.objects.filter(user=user.pk)
+
+        # The event has a virtual updated timestamp at the moment registration opens (e.g. when registration is open
+        # and the event was not updated *after* the registration opened, use registration_opens_at instead of
+        # updated_at).
+        # Calling values() without arguments clears field list and allows redefining updated_at with a different value.
+        event_qs = Event.objects.filter(registrations=self.registration_id)
+        yield event_qs.values().values(updated_at=Case(
+            # TODO: This should check against the start date to invalidate the cache when registration closes.
+            # However, casting date to datetime produces a naive timestamp at midnight, which is interpreted by Django
+            # (django.db.backends.mysql.DatabaseOperations.convert_datetimefield_value) in the db connection timezone
+            # (UTC by default). However, for Event.registration_is_open timezone.now is converted to a date to compare
+            # against start_date, and that conversion happens in the django TIMEZONE, so this check does not match.
+            # A solution could be to have a registration_closes_at timestamp instead of using the start_date.
+            # When(
+            #     start_date__lte=timezone.now(),
+            #     start_date__gt=F('updated_at'),
+            #     then=Cast(F('start_date'), output_field=DateTimeField()),
+            # ),
+            When(
+                registration_opens_at__lte=timezone.now(),
+                registration_opens_at__gt=F('updated_at'),
+                then=F('registration_opens_at'),
+            ),
+            default=F('updated_at'),
+        ))
 
     def check_request(self):
         if self.registration.status.ACTIVE:

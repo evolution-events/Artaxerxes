@@ -14,6 +14,7 @@ from django.views.generic.edit import FormView
 
 from apps.events.models import Event
 from apps.people.models import Address, ArtaUser, MedicalDetails
+from arta.common.views import CacheUsingTimestampsMixin
 
 from .forms import (EmergencyContactFormSet, FinalCheckForm, MedicalDetailForm, PersonalDetailForm,
                     RegistrationOptionsForm)
@@ -81,6 +82,9 @@ class RegistrationStepMixinBase(ContextMixin):
         Called at the start of dispatch (so for all HTTP methods) to check if the registration is in the right state.
 
         Should return None for normal processing, or a response to bypass normal processing.
+
+        These checks are not run when CacheUsingTimestampsMixin decides the cache is still valid, but in general
+        anything that changes these checks should also cause the cache to become invalid.
         """
         if not self.registration.status.PREPARATION_IN_PROGRESS and not self.registration.status.PREPARATION_COMPLETE:
             # Let finalcheck sort out where to go
@@ -101,7 +105,7 @@ class RegistrationStepMixinBase(ContextMixin):
         return super().get_context_data(**kwargs)
 
 
-class RegistrationStepMixin(LoginRequiredMixin, RegistrationStepMixinBase):
+class RegistrationStepMixin(LoginRequiredMixin, CacheUsingTimestampsMixin, RegistrationStepMixinBase):
     """ This class ensures that LoginRequiredMixin runs its checks in dispatch before RegistrationStepMixinBase. """
 
     pass

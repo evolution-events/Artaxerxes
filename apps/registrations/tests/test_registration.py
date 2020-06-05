@@ -1,4 +1,6 @@
 import itertools
+import time
+from datetime import timedelta
 from unittest import mock, skip
 
 from django.conf import settings
@@ -9,6 +11,7 @@ from django.db.utils import IntegrityError, OperationalError
 from django.forms.models import model_to_dict
 from django.test import TestCase, skipUnlessDBFeature
 from django.urls import reverse
+from django.utils import timezone
 from parameterized import parameterized, parameterized_class
 from reversion.models import Revision
 
@@ -812,6 +815,145 @@ class TestRevisions(TestCase):
         revision = Revision.objects.get()
         (version,) = self.assertRevision(revision, [Registration])
         self.assertFields(version, included=['status'])
+
+
+class TestCaching(TestCase):
+    def setUp(self):
+        self.event = EventFactory(registration_opens_in_days=-1, public=True)
+
+        self.type = RegistrationFieldFactory(event=self.event, name="type")
+        self.player = RegistrationFieldOptionFactory(field=self.type, title="Player")
+        self.crew = RegistrationFieldOptionFactory(field=self.type, title="Crew")
+
+        self.user = ArtaUserFactory()
+        self.reg = RegistrationFactory(event=self.event, user=self.user, options=[self.player])
+        self.address = AddressFactory(user=self.user)
+        self.emergency_contacts = EmergencyContactFactory.create_batch(2, user=self.user)
+        self.medical_details = MedicalDetailsFactory(user=self.user)
+
+        self.final_check_url = reverse('registrations:step_final_check', args=(self.reg.pk,))
+
+        self.client.force_login(self.user)
+
+    def assertCache(self, response, changed):
+        """ Assert that re-requesting the given response's request indeed returns a (not) modified status. """
+        self.assertTrue(response.has_header('ETag'))
+        # Repeat the same request without additional headers
+        repeat = self.client.request(**response.request)
+        self.assertHeaders(repeat, response, changed)
+
+        # Then with If-None-Match
+        request = {
+            **response.request,
+            'HTTP_IF_NONE_MATCH': response['ETag'],
+        }
+
+        second = self.client.request(**request)
+        if changed:
+            self.assertIn(second.status_code, [200, 302, 404])
+        else:
+            self.assertEqual(second.status_code, 304)
+            self.assertEqual(second.content, b'')
+        self.assertHeaders(second, response, changed)
+
+    def assertHeaders(self, response, original, changed):
+        # Other status codes (redirect when not logged in, 404) might bypass the ETag header addition, but 200 should
+        # always have it.
+        if response.status_code == 200:
+            self.assertTrue(response.has_header('ETag'))
+
+        if changed:
+            if response.has_header('ETag'):
+                self.assertNotEqual(response['ETag'], original['ETag'])
+        else:
+            self.assertEqual(response['ETag'], original['ETag'])
+
+    def test_finalcheck_nochange(self):
+        """ Check that finalcheck returns not-modified when nothing was changed. """
+        response = self.client.get(self.final_check_url)
+        self.assertCache(response, changed=False)
+
+    def test_finalcheck_registration_opens(self):
+        """ Check that finalcheck regenerates a response after registration opens. """
+        opens_in_seconds = 1
+        self.event.refresh_from_db()
+        self.event.registration_opens_at = timezone.now() + timedelta(seconds=opens_in_seconds)
+        self.event.save()
+
+        response = self.client.get(self.final_check_url)
+        self.assertLess(
+            timezone.now(), self.event.registration_opens_at,
+            msg="Test too slow, already past registration open",
+        )
+
+        # Wait until registration opens
+        time.sleep(opens_in_seconds)
+        self.assertCache(response, changed=True)
+
+    def test_finalcheck_data_changed(self):
+        """ Check that finalcheck regenerates a resonse when models are changed. """
+
+        objs = [
+            self.event,
+            self.user,
+            self.address,
+            self.medical_details,
+            *self.emergency_contacts,
+            self.reg,
+            self.reg.options.first(),
+            self.reg.options.first().option,
+        ]
+
+        for obj in objs:
+            with self.subTest(data=repr(obj)):
+                response = self.client.get(self.final_check_url)
+                obj.save()
+                self.assertCache(response, changed=True)
+
+    def test_finalcheck_data_deleted(self):
+        """ Check that finalcheck regenerates a resonse when models are deleted. """
+
+        # In practice, probably only MedicalDetails or RegistrationOptionValue could be deleted (deleting an address
+        # would invalidate the registration), but check everything anyway.
+        objs = [
+            self.emergency_contacts[0],
+            self.reg.options.first(),
+            self.address,
+        ]
+
+        for obj in objs:
+            with self.subTest(data=repr(obj)):
+                response = self.client.get(self.final_check_url)
+                obj.delete()
+                self.assertCache(response, changed=True)
+
+    def test_finalcheck_registration_deleted(self):
+        """ Check that finalcheck regenerates a resonse when the registration itself is deleted. """
+
+        response = self.client.get(self.final_check_url)
+        time.sleep(1)
+        self.reg.delete()
+        self.assertCache(response, changed=True)
+
+    def test_finalcheck_logged_out(self):
+        """ Check that finalcheck regenerates a response when the user logs out. """
+
+        response = self.client.get(self.final_check_url)
+        self.client.logout()
+        self.assertCache(response, changed=True)
+
+    def test_finalcheck_different_user(self):
+        """ Check that finalcheck regenerates a response when the user logs in as another user. """
+
+        other_user = ArtaUserFactory()
+        # Let the registration updated_at be the largest of  all timestamps, to make an implementation that just takes
+        # the max timestamp fail.
+        self.reg.save()
+
+        response = self.client.get(self.final_check_url)
+        self.client.logout()
+        self.client.force_login(other_user)
+        self.assertCache(response, changed=True)
 
 
 class TestConstraints(TestCase):

@@ -64,9 +64,13 @@ class RegistrationStepMixinBase(ContextMixin):
         # success_view is supplied by the subclass
         return reverse(self.success_view, args=(self.registration.id,))
 
+    @property
+    def registration_id(self):
+        return self.kwargs['pk']
+
     @cached_property
     def registration(self):
-        return get_object_or_404(self.get_queryset(), pk=self.kwargs['pk'])
+        return get_object_or_404(self.get_queryset(), pk=self.registration_id)
 
     @cached_property
     def event(self):

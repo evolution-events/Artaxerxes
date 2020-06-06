@@ -10,7 +10,7 @@ class EventFactory(factory.django.DjangoModelFactory):
         model = Event
 
     class Params:
-        starts_in_days = 0
+        starts_in_days = 1
         duration_days = 3
         registration_opens_in_days = None
 

@@ -207,9 +207,9 @@ LOGOUT_REDIRECT_URL = 'account_login'
 SECRET_FILE = normpath(join(PROJECT_ROOT, 'run', 'SECRET.key'))
 
 # ##### EMAIL CONFIGURATION ################################
-DEFAULT_FROM_EMAIL = 'inschrijvingen@evolution-events.nl'
-BCC_EMAIL_TO = ['inschrijvingen@evolution-events.nl']
-SERVER_EMAIL = 'inschrijvingen@evolution-events.nl'
+DEFAULT_FROM_EMAIL = 'registrations@evolution-events.nl'
+BCC_EMAIL_TO = ['registrations@evolution-events.nl']
+SERVER_EMAIL = 'registrations@evolution-events.nl'
 
 # Dispatch e-mail using local sendmail, or equivalent
 EMAIL_BACKEND = 'django_sendmail_backend.backends.EmailBackend'

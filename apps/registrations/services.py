@@ -79,8 +79,11 @@ class RegistrationStatusService:
             # Lock the event, to prevent multiple registrations from taking up the same slots.
             # This locks the event separately first and uses used_slots_for() rather than with_used_slots() in a single
             # query, to prevent locking any other rows than the event itself.
-            event = Event.objects.select_for_update().get(pk=registration.event_id)
+            event = Event.objects.select_for_update().for_user(registration.user_id).get(pk=registration.event_id)
             event.used_slots = Event.objects.used_slots_for(event)
+
+            if not event.registration_is_open:
+                raise ValidationError(_("Registration is not open"))
 
             # This selects all options that are associated with the current registration and that have non-null slots.
             # annotated with the number of slots used.

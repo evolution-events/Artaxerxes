@@ -295,11 +295,15 @@ description = "Its a simple command line sendmail backend for Django"
 name = "django-sendmail-backend"
 optional = false
 python-versions = "*"
-version = "0.1.2"
+version = "0.1.1"
 
 [package.dependencies]
 Django = ">=1.4"
 
+[package.source]
+reference = "43d239faabdfe83bcc5e174ea8ea7d7532f039c1"
+type = "git"
+url = "https://github.com/perenecabuto/django-sendmail-backend"
 [[package]]
 category = "dev"
 description = "A versatile test fixtures replacement based on thoughtbot's factory_bot for Ruby."
@@ -1068,7 +1072,7 @@ version = "0.5.1"
 [[package]]
 category = "main"
 description = "Backport of pathlib-compatible object wrapper for zip files"
-marker = "python_version >= \"3.5\" and python_version < \"3.8\" or python_version < \"3.8\""
+marker = "python_version >= \"3.5\" and python_version < \"3.8\" or python_version < \"3.8\" or python_version >= \"3.5\" and python_version < \"3.8\" and (python_version >= \"3.5\" and python_version < \"3.8\" or python_version < \"3.8\")"
 name = "zipp"
 optional = false
 python-versions = ">=2.7"
@@ -1079,7 +1083,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["pathlib2", "unittest2", "jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "831b1def1a7ed860f84e439e2d55cbcd498ced86a6a02f706c88a2ee2476caf2"
+content-hash = "c4e688dfb08af29a28720dac59c344ed160b7718e2d83a19adacd7253edf6d61"
 python-versions = "^3.5"
 
 [metadata.files]
@@ -1243,9 +1247,7 @@ django-reversion = [
     {file = "django-reversion-3.0.5.tar.gz", hash = "sha256:1add55bb05311f4acd26683dd71af60729d4f33dfe42c608da8e15e679a32009"},
     {file = "django_reversion-3.0.5-py2.py3-none-any.whl", hash = "sha256:60efa47f02d8b0451aff1d76e00e5122144b661bd720a099eb44241a081aa254"},
 ]
-django-sendmail-backend = [
-    {file = "django_sendmail_backend-0.1.2.tar.gz", hash = "sha256:2d077f602aaa37633acdbf35f28f5799d6b57c8bc2122d193762d70c7d92b3ad"},
-]
+django-sendmail-backend = []
 factory-boy = [
     {file = "factory_boy-2.12.0-py2.py3-none-any.whl", hash = "sha256:728df59b372c9588b83153facf26d3d28947fc750e8e3c95cefa9bed0e6394ee"},
     {file = "factory_boy-2.12.0.tar.gz", hash = "sha256:faf48d608a1735f0d0a3c9cbf536d64f9132b547dae7ba452c4d99a79e84a370"},

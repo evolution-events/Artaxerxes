@@ -12,7 +12,8 @@ django-allauth = "*"
 django-konst = "*"
 django-airplane = "^1.0.0"
 django-phonenumber-field = {extras = ["phonenumbers"], version = "^4.0.0"}
-django_sendmail_backend = "^0.1.2"
+# Use git master for unreleased BCC support, see https://github.com/perenecabuto/django-sendmail-backend/issues/14
+django_sendmail_backend = { git = "https://github.com/perenecabuto/django-sendmail-backend", rev = "43d239f" }
 poetry = {version = "^1.0.7", optional = true}
 mysqlclient = {version = "^1.4.6", optional = true}
 

@@ -126,6 +126,7 @@ class RegistrationNotifyService:
         }
         body = render_to_string('registrations/email/registration_confirmation.txt', context)
         subject = render_to_string('registrations/email/registration_confirmation_subject.txt', context).strip()
+        subject = settings.EMAIL_SUBJECT_PREFIX + subject
         # Remove all empty lines, except for the ones that contain just a . (then just remove the .). This allows
         # removing the empty lines produced by template tags that got removed, while keeping the empty lines that were
         # explicitly added in the template.

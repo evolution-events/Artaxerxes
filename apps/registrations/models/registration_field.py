@@ -2,7 +2,7 @@ import reversion
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from apps.core.utils import UpdatedAtQuerySetMixin
+from arta.common.db import UpdatedAtQuerySetMixin
 
 
 class RegistrationFieldQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):

@@ -4,7 +4,7 @@ from django.db.models import Count, Q
 from django.utils.translation import ugettext_lazy as _
 
 from apps.core.fields import MonetaryField
-from apps.core.utils import UpdatedAtQuerySetMixin
+from arta.common.db import UpdatedAtQuerySetMixin
 
 from . import Registration, RegistrationField
 

@@ -5,7 +5,7 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
-from apps.core.utils import UpdatedAtQuerySetMixin
+from arta.common.db import UpdatedAtQuerySetMixin
 
 
 class ArtaUserQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):

@@ -7,7 +7,7 @@ from konst import Constant, ConstantGroup, Constants
 from konst.models.fields import ConstantChoiceField
 
 from apps.core.fields import MonetaryField
-from apps.core.utils import QExpr, UpdatedAtQuerySetMixin
+from arta.common.db import QExpr, UpdatedAtQuerySetMixin
 
 
 class RegistrationQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):

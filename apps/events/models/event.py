@@ -6,8 +6,8 @@ from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
-from apps.core.utils import QExpr, UpdatedAtQuerySetMixin
 from apps.registrations.models import Registration
+from arta.common.db import QExpr, UpdatedAtQuerySetMixin
 
 from .series import Series
 

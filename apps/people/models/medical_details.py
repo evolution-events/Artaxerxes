@@ -5,7 +5,7 @@ from django.db.models import Q
 from django.utils.translation import gettext
 from django.utils.translation import ugettext_lazy as _
 
-from apps.core.utils import UpdatedAtQuerySetMixin
+from arta.common.db import UpdatedAtQuerySetMixin
 
 
 class MedicalDetailsQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):

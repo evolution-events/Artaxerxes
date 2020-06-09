@@ -5,7 +5,7 @@ from django.utils.translation import gettext
 from django.utils.translation import ugettext_lazy as _
 from phonenumber_field.modelfields import PhoneNumberField
 
-from apps.core.utils import UpdatedAtQuerySetMixin
+from arta.common.db import UpdatedAtQuerySetMixin
 
 
 class AddressQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):

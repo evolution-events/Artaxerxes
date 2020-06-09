@@ -26,6 +26,11 @@ LOGGING = {
     # Recommended, otherwise default loggers are disabled but not removed, which can be problematic for non-propagating
     # loggers (which then stop producing output but still prevent propagation).
     'disable_existing_loggers': False,
+    'filters': {
+        'ignore_404': {
+            '()': 'arta.common.log.Ignore404',
+        },
+    },
     'formatters': {
         'verbose': {
             'format': '{asctime} - {levelname} - {message}',
@@ -42,6 +47,8 @@ LOGGING = {
         },
         'mail_admins': {
             'level': 'WARNING',
+            # These are already handled by BrokenLinksEmailMiddleware
+            'filters': ['ignore_404'],
             'class': 'django.utils.log.AdminEmailHandler',
         },
     },

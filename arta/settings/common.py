@@ -211,6 +211,7 @@ DEFAULT_FROM_EMAIL = 'registrations@evolution-events.nl'
 BCC_EMAIL_TO = ['registrations@evolution-events.nl']
 SERVER_EMAIL = 'registrations@evolution-events.nl'
 EMAIL_SUBJECT_PREFIX = "Evolution Events: "
+ACCOUNT_EMAIL_SUBJECT_PREFIX = EMAIL_SUBJECT_PREFIX
 
 # Dispatch e-mail using local sendmail, or equivalent
 EMAIL_BACKEND = 'django_sendmail_backend.backends.EmailBackend'

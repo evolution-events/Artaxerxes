@@ -350,6 +350,13 @@ class FinalCheck(RegistrationStepMixin, FormView):
         return super().check_request()
 
     def get_context_data(self, **kwargs):
+        # This would be more logical to check in check_request, but putting it here ensures this code does not run for
+        # the POST request handling, which should be as fast as possible (and finalize_registration needs to query
+        # event already for locking it, and already checks registration_is_open), so it's ok to not run this check
+        # there.
+        if not self.event.registration_is_open and not self.event.preregistration_is_open:
+            raise Http404("Registration is not open")
+
         personal_details = Address.objects.filter(user=self.request.user).first()
         medical_details = MedicalDetails.objects.filter(user=self.request.user).first()
         emergency_contacts = self.request.user.emergency_contacts.all()

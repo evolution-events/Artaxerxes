@@ -38,7 +38,7 @@ class EventQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
             registration_is_open=QExpr(
                 Q(is_visible=True)
                 & ~Q(registration_opens_at=None)
-                & Q(registration_opens_at__lt=now)
+                & Q(registration_opens_at__lte=now)
                 & Q(start_date__gt=now),
             ),
         ).annotate(

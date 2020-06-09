@@ -49,6 +49,7 @@ class RegistrationField(models.Model):
     class Meta:
         verbose_name = _('registration field')
         verbose_name_plural = _('registration fields')
+        ordering = ('order', 'title')
 
         constraints = [
             models.UniqueConstraint(fields=['event', 'name'], name='unique_name_for_event'),

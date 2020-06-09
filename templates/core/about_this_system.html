@@ -7,7 +7,7 @@
 <h2>{% trans 'What is it?' %}</h2>
 <p>
   {% blocktrans trimmed %}
-  This is the registration system for events by Evolution Events. After signing in you will find
+  This is Artaxerxes, the registration system for events by Evolution Events. After signing in you will find
   an overview of our events that you can register for, if there are any in the future. By registering
   for an event you reserve a spot at the event and agree to follow our rules concerning payment,
   cancelling and participation. More information about this can be found at the 'practical information' page
@@ -58,6 +58,26 @@
   {% url 'core:privacy_policy' as privacy_url %}
   {% blocktrans trimmed %}
   Please read all about how we handle your data and privacy in our <a href="{{ privacy_url }}">privacy policy</a>.
+  {% endblocktrans %}
+</p>
+<h2>{% trans "What's up with the name?" %}</h2>
+<p>
+  {% blocktrans trimmed %}
+  We have named this system Artaxerxes, or Arta for
+  friends. Naming a system like this makes it easier to refer to it
+  ("the registration system" is so non-specific and long and "My
+  Evolution Events" is, well, let's just not).
+  {% endblocktrans %}
+<p>
+</p>
+  {% blocktrans trimmed %}
+  As for this particular name: Years ago, when we were still running our
+  first LARP series Lextalionis, we created Xerxes, a system to track
+  characters' influences, named after a Persian king in the fifth
+  century BC. The name was mostly chosen because it sounded cool and had
+  enough X'. Then when we started building this system, we picked
+  Artaxerxes, named after the third son and successor of Xerxes, which
+  seemed sortof appropriate.
   {% endblocktrans %}
 </p>
 {% endblock content %}

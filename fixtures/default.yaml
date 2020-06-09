@@ -3,6 +3,8 @@
     name: EE Bestuur
 - model: people.artauser
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     password: pbkdf2_sha256$100000$UWCYmYSsv24X$NdoT1TDMpenfSQKkg6rtCeHlIkXJajkBEhzevcgq3QA=
     last_login: "2018-05-21 11:55:35+00:00"
     is_superuser: true
@@ -16,12 +18,16 @@
     user_permissions: []
 - model: account.emailaddress
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     user: [brenda@evolution-events.nl]
     email: brenda@evolution-events.nl
     verified: True
     primary: True
 - model: people.artauser
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     password: pbkdf2_sha256$100000$1RJ5vdU7eHkz$XoBjFR2t4Vrhc0XksGcZOFTbkz8YoLDQz3IONtaQtwo=
     last_login: "2018-05-21 12:12:43+00:00"
     is_superuser: false
@@ -35,12 +41,16 @@
     user_permissions: []
 - model: account.emailaddress
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     user: [cora@evolution-events.nl]
     email: cora@evolution-events.nl
     verified: True
     primary: True
 - model: people.artauser
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     password: pbkdf2_sha256$100000$xsqFoTM4fiXW$tqTgOoED73/DamIKurIEcmO4BWNgtX1QzTPw/fRJ2pc=
     last_login: "2018-05-21 12:40:40+00:00"
     is_superuser: false
@@ -54,12 +64,16 @@
     user_permissions: []
 - model: account.emailaddress
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     user: [janwillem@evolution-events.nl]
     email: janwillem@evolution-events.nl
     verified: True
     primary: True
 - model: people.artauser
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     password: pbkdf2_sha256$100000$mIywSDE1QZX6$cjg6eeAvlk9EtN7IRe/VQYGmgyAa9XvWzPeBg8YBPrg=
     last_login: "2018-05-21 12:42:48+00:00"
     is_superuser: false
@@ -73,12 +87,16 @@
     user_permissions: []
 - model: account.emailaddress
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     user: [karijn@evolution-events.nl]
     email: karijn@evolution-events.nl
     verified: True
     primary: True
 - model: people.artauser
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     password: pbkdf2_sha256$100000$JST6AfJWnpu1$ynP/tMYRbmqMEGQAOw7HCLq9trks5QtR8cwbitVpPPo=
     last_login: "2018-05-21 12:43:24+00:00"
     is_superuser: true
@@ -92,12 +110,16 @@
     user_permissions: []
 - model: account.emailaddress
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     user: [matthijs@evolution-events.nl]
     email: matthijs@evolution-events.nl
     verified: True
     primary: True
 - model: people.artauser
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     password: pbkdf2_sha256$100000$QBZJto8WEGXz$eD2qpLUrDZmQNpm0q3DB+dXOLMA+nBXmCWBoGokaURk=
     last_login: "2018-05-21 12:44:28+00:00"
     is_superuser: true
@@ -111,12 +133,16 @@
     user_permissions: []
 - model: account.emailaddress
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     user: [rene@evolution-events.nl]
     email: rene@evolution-events.nl
     verified: True
     primary: True
 - model: people.artauser
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     password: pbkdf2_sha256$100000$5KsqalhKma5G$pYbhqk23MS+eB8GZWcFQD38tmIjowazeYoX5bZauqPU=
     last_login: "2018-05-21 12:45:06+00:00"
     is_superuser: false
@@ -130,12 +156,16 @@
     user_permissions: []
 - model: account.emailaddress
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     user: [sander@evolution-events.nl]
     email: sander@evolution-events.nl
     verified: True
     primary: True
 - model: events.event
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     series: [Xenophobia]
     name: Xenophobia III
     title: De Waard
@@ -156,6 +186,8 @@
     public: True
 - model: events.event
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     series: null
     name: On the Styx
     title: Run 3
@@ -175,6 +207,8 @@
     public: True
 - model: events.event
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     series: null
     name: Exhumation
     description: "Xombie!"
@@ -183,17 +217,23 @@
     public: True
 - model: events.series
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     name: Xenophobia
     url: https://xenophobia.evolution-events.nl
     email: artaxerxes-test@evolution-events.nl
 - model: registrations.registrationfield
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     name: type
     title: Registration Type
     event: [On the Styx]
     field_type: choice
 - model: registrations.registrationfieldoption
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     field: [On the Styx, type]
     title: Crew
     invite_only: [EE Bestuur]
@@ -201,12 +241,16 @@
     price: 100
 - model: registrations.registrationfieldoption
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     field: [On the Styx, type]
     title: Player
     slots: 16
     price: 200
 - model: registrations.registrationfield
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     name: small_purse
     title: Small purse ticket
     event: [On the Styx]
@@ -214,16 +258,22 @@
     field_type: choice
 - model: registrations.registrationfieldoption
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     field: [On the Styx, small_purse]
     title: "No"
     order: 0
 - model: registrations.registrationfieldoption
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     field: [On the Styx, small_purse]
     title: "Yes"
     price: -50
 - model: registrations.registrationfield
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     name: nationality
     title: Nationality
     event: [On the Styx]
@@ -231,16 +281,22 @@
     field_type: choice
 - model: registrations.registrationfieldoption
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     field: [On the Styx, nationality]
     title: Dutch
     slots: 8
 - model: registrations.registrationfieldoption
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     field: [On the Styx, nationality]
     title: International
     slots: 8
 - model: registrations.registrationfield
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     name: gender
     title: Character Gender
     event: [On the Styx]
@@ -248,22 +304,30 @@
     field_type: choice
 - model: registrations.registrationfieldoption
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     field: [On the Styx, gender]
     title: No preference
     slots: 16
     order: 0
 - model: registrations.registrationfieldoption
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     field: [On the Styx, gender]
     title: Male God
     slots: 8
 - model: registrations.registrationfieldoption
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     field: [On the Styx, gender]
     title: Female God
     slots: 8
 - model: registrations.registrationfield
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     name: alcohol
     title: Alcohol Package
     event: [On the Styx]
@@ -271,16 +335,22 @@
     allow_change_until: 2019-07-01
 - model: registrations.registrationfieldoption
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     field: [On the Styx, alcohol]
     title: "No"
     order: 0
 - model: registrations.registrationfieldoption
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     field: [On the Styx, alcohol]
     title: "Yes"
     price: 15
 - model: registrations.registrationfield
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     name: extra_nights
     title: Stay extra nights
     event: [On the Styx]
@@ -288,23 +358,31 @@
     allow_change_until: 2019-07-01
 - model: registrations.registrationfieldoption
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     field: [On the Styx, extra_nights]
     title: No, leave on sunday or monday
     order: 0
 - model: registrations.registrationfieldoption
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     field: [On the Styx, extra_nights]
     title: Yes, leave on tuesday
     price: 10
     order: 1
 - model: registrations.registrationfieldoption
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     field: [On the Styx, extra_nights]
     title: Yes, leave on wednesday
     price: 20
     order: 2
 - model: registrations.registrationfieldoption
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     field: [On the Styx, extra_nights]
     title: Yes, leave on thursday
     price: 30
@@ -312,12 +390,16 @@
 
 - model: registrations.registrationfield
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     name: type
     title: Registration Type
     event: [Exhumation]
     field_type: choice
 - model: registrations.registrationfieldoption
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     field: [Exhumation, type]
     title: Crew
     invite_only: [EE Bestuur]
@@ -325,18 +407,24 @@
     price: 45
 - model: registrations.registrationfieldoption
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     field: [Exhumation, type]
     title: Player
     slots: 40
     price: 80
 - model: registrations.registrationfieldoption
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     field: [Exhumation, type]
     title: NPC
     slots: 20
     price: 60
 - model: registrations.registration
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     user: [brenda@evolution-events.nl]
     event: [Xenophobia III]
     status: 2 # REGISTERED
@@ -344,6 +432,8 @@
     registered_at: "2015-01-01 12:34:56+02:00"
 - model: registrations.registration
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     user: [cora@evolution-events.nl]
     event: [Xenophobia III]
     status: 2 # REGISTERED
@@ -351,6 +441,8 @@
     registered_at: "2015-01-01 12:34:56+02:00"
 - model: registrations.registration
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     user: [janwillem@evolution-events.nl]
     event: [Xenophobia III]
     status: 2 # REGISTERED
@@ -358,6 +450,8 @@
     registered_at: "2015-01-01 12:34:56+02:00"
 - model: registrations.registration
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     user: [karijn@evolution-events.nl]
     event: [Xenophobia III]
     status: 2 # REGISTERED
@@ -365,6 +459,8 @@
     registered_at: "2015-01-01 12:34:56+02:00"
 - model: registrations.registration
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     user: [matthijs@evolution-events.nl]
     event: [Xenophobia III]
     status: 2 # REGISTERED
@@ -372,6 +468,8 @@
     registered_at: "2015-01-01 12:34:56+02:00"
 - model: registrations.registration
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     user: [rene@evolution-events.nl]
     event: [Xenophobia III]
     status: 2 # REGISTERED
@@ -379,6 +477,8 @@
     registered_at: "2015-01-01 12:34:56+02:00"
 - model: registrations.registration
   fields:
+    created_at: "2020-06-01 00:00:00+00:00"
+    updated_at: "2020-06-01 00:00:00+00:00"
     user: [sander@evolution-events.nl]
     event: [Xenophobia III]
     status: 2 # REGISTERED

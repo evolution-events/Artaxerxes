@@ -1,5 +1,7 @@
 import itertools
 import time
+from datetime import datetime
+from datetime import time as dt_time
 from datetime import timedelta
 from unittest import mock, skip
 
@@ -462,6 +464,71 @@ class TestRegistrationForm(TestCase):
         test_view('registrations:registration_start', args=(self.event.pk,))
         for view in self.registration_steps:
             test_view(view, args=(registration.pk,))
+
+    def test_registration_opens(self):
+        """ Check that finalcheck is closed until the right time and then opens. """
+        reg = RegistrationFactory(event=self.event, user=self.user, preparation_complete=True)
+        opens_at = self.event.registration_opens_at
+        before_opens_at = opens_at - timedelta(seconds=1)
+        final_check_url = reverse('registrations:step_final_check', args=(reg.pk,))
+        confirm_url = reverse('registrations:registration_confirmation', args=(reg.pk,))
+
+        # This assumes that this will be the only form on the page
+        form_html = b'<form '
+
+        with mock.patch('django.utils.timezone.now', return_value=before_opens_at):
+            response = self.client.get(final_check_url)
+            self.assertNotIn(form_html, response.content)
+            self.assertFalse(response.context['event'].registration_is_open)
+
+            response = self.client.post(final_check_url, {'agree': 1})
+            self.assertEqual(response.status_code, 200)
+            self.assertFalse(response.context['event'].registration_is_open)
+            reg.refresh_from_db()
+            self.assertFalse(reg.status.REGISTERED)
+
+        with mock.patch('django.utils.timezone.now', return_value=opens_at):
+            response = self.client.get(final_check_url)
+            self.assertIn(form_html, response.content)
+            self.assertTrue(response.context['event'].registration_is_open)
+
+            response = self.client.post(final_check_url, {'agree': 1})
+            self.assertRedirects(response, confirm_url)
+            reg.refresh_from_db()
+            self.assertTrue(reg.status.REGISTERED)
+
+    def test_registration_closes(self):
+        """ Check that finalcheck regenerates a response after registration opens. """
+        reg = RegistrationFactory(event=self.event, user=self.user, preparation_complete=True)
+        start_date_midnight = timezone.make_aware(datetime.combine(self.event.start_date, dt_time.min))
+        before_start_date = start_date_midnight - timedelta(seconds=1)
+        final_check_url = reverse('registrations:step_final_check', args=(reg.pk,))
+        confirm_url = reverse('registrations:registration_confirmation', args=(reg.pk,))
+
+        # This assumes that this will be the only form on the page
+        form_html = b'<form '
+
+        with mock.patch('django.utils.timezone.now', return_value=before_start_date):
+            response = self.client.get(final_check_url)
+            self.assertIn(form_html, response.content)
+            self.assertTrue(response.context['event'].registration_is_open)
+
+            response = self.client.post(final_check_url, {'agree': 1})
+            self.assertRedirects(response, confirm_url)
+            reg.refresh_from_db()
+            self.assertTrue(reg.status.REGISTERED)
+
+        reg.status = Registration.statuses.PREPARATION_COMPLETE = True
+        reg.save()
+
+        with mock.patch('django.utils.timezone.now', return_value=start_date_midnight):
+            response = self.client.get(final_check_url)
+            self.assertEqual(response.status_code, 404)
+
+            response = self.client.post(final_check_url, {'agree': 1})
+            self.assertEqual(response.status_code, 404)
+            reg.refresh_from_db()
+            self.assertFalse(reg.status.REGISTERED)
 
 
 # Parameterization produces TestMedicalConsentLog_0 and _1 class names

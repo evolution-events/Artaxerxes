@@ -1,4 +1,5 @@
 import itertools
+import re
 import time
 from datetime import datetime
 from datetime import time as dt_time
@@ -9,15 +10,18 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core import mail
 from django.core.exceptions import ValidationError
+from django.db import connection
 from django.db.utils import IntegrityError, OperationalError
 from django.forms.models import model_to_dict
 from django.test import TestCase, skipUnlessDBFeature
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone
 from parameterized import parameterized, parameterized_class
 from reversion.models import Revision
 
 from apps.core.models import ConsentLog
+from apps.events.models import Event
 from apps.events.tests.factories import EventFactory
 from apps.people.models import Address, ArtaUser, EmergencyContact, MedicalDetails
 from apps.people.tests.factories import AddressFactory, ArtaUserFactory, EmergencyContactFactory, MedicalDetailsFactory
@@ -144,6 +148,24 @@ class TestRegistration(TestCase):
         reg = RegistrationFactory(event=e, preparation_complete=True, options=[self.option_f, self.option_intl])
         RegistrationStatusService.finalize_registration(reg)
         self.assertEqual(reg.status, Registration.statuses.WAITINGLIST)
+
+    @skipUnlessDBFeature('has_select_for_update')
+    def test_finalize_locks_event(self):
+        reg = RegistrationFactory(
+            event=self.event, preparation_complete=True,
+            options=[self.player, self.option_m, self.option_nl],
+        )
+        with CaptureQueriesContext(connection) as queries:
+            RegistrationStatusService.finalize_registration(reg)
+        # This ensures a transaction is started
+        self.assertRegex(queries[0]["sql"], "^SAVEPOINT ")
+        # This ensures that FOR UPDATE is used and that *only* the event is locked (i.e. no joins)
+        match = ' FROM {table} WHERE {table}.{id_field} = {id} FOR UPDATE$'.format(
+            table=re.escape(connection.ops.quote_name(Event._meta.db_table)),
+            id_field=re.escape(connection.ops.quote_name(Event._meta.pk.column)),
+            id=self.event.id,
+        )
+        self.assertRegex(queries[1]["sql"], match)
 
 
 class TestRegistrationForm(TestCase):

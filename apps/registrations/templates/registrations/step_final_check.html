@@ -2,7 +2,9 @@
 {% load i18n %}
 {% load coretags %}
 
-{% block pagetitle %}{% trans 'Final check' %} - {{ event.display_name }}{% endblock pagetitle%}
+{% block pagetitle %}
+{% blocktrans %}Registering for {{event}}{% endblocktrans %}
+{% endblock pagetitle%}
 
 {% block content %}
   {% if message %}

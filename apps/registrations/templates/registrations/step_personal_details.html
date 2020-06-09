@@ -1,12 +1,16 @@
 {% extends "base.html" %}
 {% load i18n %}
 
-{% block pagetitle %}{% trans 'Edit personal details' %}{% endblock pagetitle%}
+{% block pagetitle %}
+{% blocktrans %}Registering for {{event}}{% endblocktrans %}
+{% endblock pagetitle%}
 
 {% block content %}
   {% if message %}
     <p class="notification">{{ message }}</p>
   {% endif %}
+
+  <h2>{% trans 'Personal details' %}</h2>
 
   <p>
   {% url 'core:privacy_policy' as privacy_url %}

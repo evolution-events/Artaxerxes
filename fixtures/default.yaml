@@ -18,8 +18,6 @@
     user_permissions: []
 - model: account.emailaddress
   fields:
-    created_at: "2020-06-01 00:00:00+00:00"
-    updated_at: "2020-06-01 00:00:00+00:00"
     user: [brenda@evolution-events.nl]
     email: brenda@evolution-events.nl
     verified: True
@@ -41,8 +39,6 @@
     user_permissions: []
 - model: account.emailaddress
   fields:
-    created_at: "2020-06-01 00:00:00+00:00"
-    updated_at: "2020-06-01 00:00:00+00:00"
     user: [cora@evolution-events.nl]
     email: cora@evolution-events.nl
     verified: True
@@ -64,8 +60,6 @@
     user_permissions: []
 - model: account.emailaddress
   fields:
-    created_at: "2020-06-01 00:00:00+00:00"
-    updated_at: "2020-06-01 00:00:00+00:00"
     user: [janwillem@evolution-events.nl]
     email: janwillem@evolution-events.nl
     verified: True
@@ -87,8 +81,6 @@
     user_permissions: []
 - model: account.emailaddress
   fields:
-    created_at: "2020-06-01 00:00:00+00:00"
-    updated_at: "2020-06-01 00:00:00+00:00"
     user: [karijn@evolution-events.nl]
     email: karijn@evolution-events.nl
     verified: True
@@ -110,8 +102,6 @@
     user_permissions: []
 - model: account.emailaddress
   fields:
-    created_at: "2020-06-01 00:00:00+00:00"
-    updated_at: "2020-06-01 00:00:00+00:00"
     user: [matthijs@evolution-events.nl]
     email: matthijs@evolution-events.nl
     verified: True
@@ -133,8 +123,6 @@
     user_permissions: []
 - model: account.emailaddress
   fields:
-    created_at: "2020-06-01 00:00:00+00:00"
-    updated_at: "2020-06-01 00:00:00+00:00"
     user: [rene@evolution-events.nl]
     email: rene@evolution-events.nl
     verified: True
@@ -156,8 +144,6 @@
     user_permissions: []
 - model: account.emailaddress
   fields:
-    created_at: "2020-06-01 00:00:00+00:00"
-    updated_at: "2020-06-01 00:00:00+00:00"
     user: [sander@evolution-events.nl]
     email: sander@evolution-events.nl
     verified: True

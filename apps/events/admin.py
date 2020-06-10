@@ -11,6 +11,8 @@ class EventAdmin(VersionAdmin):
     list_display = ('display_name', 'start_date', 'end_date', 'location_name')
     inlines = (RegistrationFieldInline,)
 
+    ordering = ('start_date',)
+
 
 @admin.register(Series)
 class SeriesAdmin(VersionAdmin):

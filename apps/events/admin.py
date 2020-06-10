@@ -12,6 +12,7 @@ class EventAdmin(VersionAdmin):
     inlines = (RegistrationFieldInline,)
 
     ordering = ('start_date',)
+    date_hierarchy = 'start_date'
 
 
 @admin.register(Series)

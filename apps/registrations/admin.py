@@ -65,7 +65,7 @@ class RegistrationAdmin(VersionAdmin):
     # add a search field to quickly search by name and title
     search_fields = ['user__first_name', 'user__last_name', 'event__title', 'event__series__name']
     list_select_related = ['user', 'event__series']
-    list_filter = ['status']
+    list_filter = ['status', 'event']
     inlines = [RegistrationFieldValueInline]
 
     def registered_at_milliseconds(self, obj):

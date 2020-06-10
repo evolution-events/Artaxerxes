@@ -59,13 +59,21 @@ class RegistrationFieldValueInline(admin.TabularInline):
     extra = 0
 
 
+class CustomRelatedFieldListFilter(admin.filters.RelatedFieldListFilter):
+    """ Related field filter that uses a customized string for the empty option (instead of the default -). """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.empty_value_display = ugettext_lazy('None')
+
+
 @admin.register(Registration)
 class RegistrationAdmin(VersionAdmin):
     list_display = ('event_display_name', 'user_name', 'status', 'registered_at_milliseconds')
     # add a search field to quickly search by name and title
     search_fields = ['user__first_name', 'user__last_name', 'event__title', 'event__series__name']
     list_select_related = ['user', 'event__series']
-    list_filter = ['status', 'event']
+    list_filter = ['status', 'event', ('user__groups', CustomRelatedFieldListFilter)]
     inlines = [RegistrationFieldValueInline]
 
     def registered_at_milliseconds(self, obj):

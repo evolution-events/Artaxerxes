@@ -16,6 +16,8 @@ django-phonenumber-field = {extras = ["phonenumbers"], version = "^4.0.0"}
 django_sendmail_backend = { git = "https://github.com/perenecabuto/django-sendmail-backend", rev = "43d239f" }
 poetry = {version = "^1.0.7", optional = true}
 mysqlclient = {version = "^1.4.6", optional = true}
+django-hijack = "^2.1.10"
+django-hijack-admin = "^2.1.10"
 
 [tool.poetry.dev-dependencies]
 flake8 = "*"
@@ -35,5 +37,3 @@ django-debug-toolbar = "*"
 factory_boy = "^2.12"
 bpython = "^0.18"
 parameterized = "^0.7.1"
-django-hijack = "^2.1.10"
-django-hijack-admin = "^2.1.10"

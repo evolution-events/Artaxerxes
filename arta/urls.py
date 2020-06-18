@@ -25,11 +25,11 @@ urlpatterns = [
     path('people/', include('apps.people.urls')),
     path('events/', include('apps.events.urls')),
     path('registrations/', include('apps.registrations.urls')),
+    path('hijack/', include('hijack.urls', namespace='hijack')),
 ]
 
 if settings.DEBUG:
     import debug_toolbar
     urlpatterns += [
         path('__debug__/', include(debug_toolbar.urls)),
-        path('hijack/', include('hijack.urls', namespace='hijack')),
     ]

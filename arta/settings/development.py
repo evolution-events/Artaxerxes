@@ -9,13 +9,6 @@ from .common import *
 # ##### DEBUG CONFIGURATION ###############################
 DEBUG = True
 
-# ##### DJANGO HIJACK #####################################
-HIJACK_USE_BOOTSTRAP = True
-# Register admin fields manually
-HIJACK_REGISTER_ADMIN = False
-# Needed for hijack-admin. TODO: How about CSRF?
-HIJACK_ALLOW_GET_REQUESTS = True
-
 # allow all hosts during development
 ALLOWED_HOSTS = ['*']
 
@@ -35,9 +28,6 @@ DATABASES = {
 
 INSTALLED_APPS += [
     'debug_toolbar',
-    'hijack',
-    'hijack_admin',
-    'compat',
 ]
 
 FIXTURE_DIRS = [

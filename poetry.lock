@@ -236,7 +236,7 @@ requests = "*"
 requests-oauthlib = ">=0.3.0"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "For- and backwards compatibility layer for Django 1.4, 1.7, 1.8, 1.9, 1.10, and 1.11"
 name = "django-compat"
 optional = false
@@ -259,7 +259,7 @@ Django = ">=1.11"
 sqlparse = ">=0.2.0"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "django-hijack allows superusers to hijack (=login as) and work on behalf of another user."
 name = "django-hijack"
 optional = false
@@ -273,7 +273,7 @@ django-compat = ">=1.0.14"
 dev = ["flake8"]
 
 [[package]]
-category = "dev"
+category = "main"
 description = "Django admin integration for Django Hijack (https://github.com/arteria/django-hijack/)"
 name = "django-hijack-admin"
 optional = false
@@ -1124,7 +1124,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["pathlib2", "unittest2", "jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "e06226d2d67cc5881c72cf05a638122cc878deefbfa616a9900a0516fc430077"
+content-hash = "2ae8753a78d38b5956f6428bd14f826c740d4107f41da39ef6bbf769dc2579ad"
 python-versions = "^3.5"
 
 [metadata.files]

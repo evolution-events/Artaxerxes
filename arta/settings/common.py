@@ -135,6 +135,9 @@ INSTALLED_APPS = [
     'apps.core.apps.CoreConfig',
     'phonenumber_field',
     'airplane',
+    'hijack',
+    'hijack_admin',
+    'compat',
 ]
 
 # Middlewares
@@ -241,6 +244,14 @@ DEBUG = False
 IGNORABLE_404_URLS = [
     re.compile(r'.php$'),
 ]
+
+# ##### DJANGO HIJACK #####################################
+HIJACK_USE_BOOTSTRAP = True
+# We register admin fields manually
+HIJACK_REGISTER_ADMIN = False
+# Needed for hijack-admin. TODO: How about CSRF?
+HIJACK_ALLOW_GET_REQUESTS = True
+
 
 # finally grab the SECRET KEY
 try:

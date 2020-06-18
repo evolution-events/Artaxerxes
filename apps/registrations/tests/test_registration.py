@@ -10,7 +10,7 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core import mail
 from django.core.exceptions import ValidationError
-from django.db import connection
+from django.db import connection, transaction
 from django.db.utils import IntegrityError, OperationalError
 from django.forms.models import model_to_dict
 from django.test import TestCase, skipUnlessDBFeature
@@ -148,6 +148,46 @@ class TestRegistration(TestCase):
         reg = RegistrationFactory(event=e, preparation_complete=True, options=[self.option_f, self.option_intl])
         RegistrationStatusService.finalize_registration(reg)
         self.assertEqual(reg.status, Registration.statuses.WAITINGLIST)
+
+    def test_register_twice_race_condition(self):
+        """ Finalize *the same* registration twice with specific timing, regression test. """
+        e = self.event
+        e.refresh_from_db()
+        e.slots = 1
+        e.save()
+
+        reg = RegistrationFactory(event=e, preparation_complete=True, options=[self.option_f, self.option_intl])
+        reg_clone = Registration.objects.get(pk=reg.pk)
+
+        now = timezone.now()
+
+        # Finalize the registration just before finalize_registration enters the transaction. This should *not* run
+        # inside the services' transaction, after the lock, since that would deadlock (that would need threading and
+        # more coordination (that would need threading and more coordination).
+        # TODO: Can we write this more concise?
+        def before_transaction(*args, **kwargs):
+            reg_clone.status = Registration.statuses.REGISTERED
+            reg_clone.registered_at = now
+            reg_clone.save()
+
+            # Let the original function also run
+            return mock.DEFAULT
+
+        with mock.patch(
+            'django.db.transaction.atomic',
+            side_effect=before_transaction,
+            wraps=transaction.atomic,
+        ):
+            with self.subTest("Should raise validationError"):
+                with self.assertRaises(ValidationError):
+                    RegistrationStatusService.finalize_registration(reg)
+
+        reg.refresh_from_db()
+        with self.subTest("Should not change status"):
+            self.assertEqual(reg.status, Registration.statuses.REGISTERED)
+
+        with self.subTest("Should not change timestamp"):
+            self.assertEqual(reg.registered_at, now)
 
     @skipUnlessDBFeature('has_select_for_update')
     def test_finalize_locks_event(self):

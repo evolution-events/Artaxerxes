@@ -72,9 +72,6 @@ class RegistrationStatusService:
         When there are sufficient slots available for the options selected by this registration, the status is set to
         REGISTERED. If not, status is changed to STATUS_WAITINGLIST.
         """
-        if not registration.status.PREPARATION_COMPLETE:
-            raise ValidationError(_("Registration not ready for finalization"))
-
         with transaction.atomic():
             # Lock the event, to prevent multiple registrations from taking up the same slots.
             # This locks the event separately first and uses used_slots_for() rather than with_used_slots() in a single
@@ -84,6 +81,11 @@ class RegistrationStatusService:
 
             if not event.registration_is_open:
                 raise ValidationError(_("Registration is not open"))
+
+            # Refresh after taking the lock
+            registration.refresh_from_db()
+            if not registration.status.PREPARATION_COMPLETE:
+                raise ValidationError(_("Registration not ready for finalization"))
 
             # This selects all options that are associated with the current registration and that have non-null slots.
             # annotated with the number of slots used.

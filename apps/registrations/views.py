@@ -421,10 +421,11 @@ class ConflictingRegistrationsView(LoginRequiredMixin, DetailView):
             return redirect('registrations:registration_confirmation')
 
         conflicts = Registration.objects.conflicting_registrations_for(self.object).select_related('event')
-        conflicting_event = conflicts.first().event
-        if not conflicting_event:
+        if not conflicts:
             # Let finalcheck sort out where to go
             return redirect('registrations:step_final_check', self.registration.id)
+
+        conflicting_event = conflicts.first().event
 
         context.update({
             'conflicting_event': conflicting_event,

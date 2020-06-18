@@ -28,6 +28,7 @@ from apps.people.tests.factories import AddressFactory, ArtaUserFactory, Emergen
 
 from ..models import Registration, RegistrationFieldValue
 from ..services import RegistrationStatusService
+from ..views import FinalCheck
 from .factories import RegistrationFactory, RegistrationFieldFactory, RegistrationFieldOptionFactory
 
 
@@ -591,7 +592,7 @@ class TestRegistrationForm(TestCase):
             self.assertHasNoForm(response)
             self.assertFalse(response.context['event'].registration_is_open)
 
-            response = self.client.post(final_check_url, {'agree': 1})
+            response = self.client.post(final_check_url, {'agree': 1}, follow=True)
             self.assertEqual(response.status_code, 200)
             self.assertFalse(response.context['event'].registration_is_open)
             reg.refresh_from_db()
@@ -629,13 +630,117 @@ class TestRegistrationForm(TestCase):
         reg.save()
 
         with mock.patch('django.utils.timezone.now', return_value=start_date_midnight):
-            response = self.client.get(final_check_url)
+            response = self.client.get(final_check_url, follow=True)
             self.assertEqual(response.status_code, 404)
 
-            response = self.client.post(final_check_url, {'agree': 1})
+            response = self.client.post(final_check_url, {'agree': 1}, follow=True)
             self.assertEqual(response.status_code, 404)
             reg.refresh_from_db()
             self.assertFalse(reg.status.REGISTERED)
+
+    @parameterized.expand(registration_steps)
+    def test_other_event_redirect_to_finalcheck(self, viewname):
+        """ Check that all registration steps redirect to finalcheck when registered for another event. """
+        e = self.event
+        e2 = EventFactory(registration_opens_in_days=-1, public=True)
+        RegistrationFactory(user=self.user, event=e2, registered=True)
+        reg = RegistrationFactory(user=self.user, event=e, preparation_complete=True)
+
+        url = reverse(viewname, args=(reg.pk,))
+        conflict_url = reverse('registrations:conflicting_registrations', args=(reg.pk,))
+
+        with self.subTest(method='GET'):
+            response = self.client.get(url)
+            self.assertRedirects(response, conflict_url)
+
+        with self.subTest(method='GET'):
+            response = self.client.post(url)
+            self.assertRedirects(response, conflict_url)
+
+    def test_register_two_events(self):
+        """ Check that you can only register for one event. """
+        e = self.event
+        e2 = EventFactory(registration_opens_in_days=-1, public=True)
+
+        # Existing registration
+        RegistrationFactory(user=self.user, event=e2, registered=True)
+
+        reg = RegistrationFactory(user=self.user, event=e, preparation_complete=True)
+        final_check_url = reverse('registrations:step_final_check', args=(reg.pk,))
+        conflict_url = reverse('registrations:conflicting_registrations', args=(reg.pk,))
+
+        # Causes second registration to be refused on GET
+        response = self.client.get(final_check_url)
+        with self.subTest(msg="Should redirect"):
+            self.assertRedirects(response, conflict_url)
+
+        # Causes second registration to be refused on POST
+        response = self.client.post(final_check_url, {'agree': 1})
+        with self.subTest(msg="Should redirect"):
+            self.assertRedirects(response, conflict_url)
+        with self.subTest(msg="Should not set status"):
+            reg.refresh_from_db()
+            self.assertTrue(reg.status.PREPARATION_COMPLETE)
+
+    def test_register_two_events_between_view_and_service(self):
+        """ Check that a second registration is refused, even when the first one happens late. """
+        e = self.event
+        e2 = EventFactory(registration_opens_in_days=-1, public=True)
+        other_reg = RegistrationFactory(user=self.user, event=e2, registered=True)
+
+        reg = RegistrationFactory(user=self.user, event=e, preparation_complete=True)
+        final_check_url = reverse('registrations:step_final_check', args=(reg.pk,))
+        conflict_url = reverse('registrations:conflicting_registrations', args=(reg.pk,))
+
+        # Make an existing registration just before the service finalizes. This should *not* run inside the services'
+        # transaction, after the lock, since that would deadlock (that would need threading and more coordination (that
+        # would need threading and more coordination).
+        # TODO: Can we write this more concise?
+        def before_finalize(*args, **kwargs):
+            other_reg.status.REGISTERED = True
+            other_reg.save()
+
+            # Let the original function also run
+            return mock.DEFAULT
+
+        with mock.patch(
+            'apps.registrations.services.RegistrationStatusService.finalize_registration',
+            side_effect=before_finalize,
+            wraps=RegistrationStatusService.finalize_registration,
+        ):
+            response = self.client.post(final_check_url, {'agree': 1})
+            with self.subTest(msg="Should redirect"):
+                self.assertRedirects(response, conflict_url)
+            with self.subTest(msg="Should not set status"):
+                reg.refresh_from_db()
+                self.assertTrue(reg.status.PREPARATION_COMPLETE)
+
+    def test_register_second_after_waiting_list(self):
+        """ Check that you can still register for a second event after a waitinglist registration. """
+        e = self.event
+        e2 = EventFactory(registration_opens_in_days=-1, public=True)
+
+        # Existing registration on the waitinglist
+        RegistrationFactory(user=self.user, event=e2, waiting_list=True)
+
+        # Does not prevent another registration on GET
+        reg = RegistrationFactory(user=self.user, event=e, preparation_complete=True)
+        final_check_url = reverse('registrations:step_final_check', args=(reg.pk,))
+        confirm_url = reverse('registrations:registration_confirmation', args=(reg.pk,))
+        response = self.client.get(final_check_url)
+        with self.subTest(msg="Should show finalcheck with form"):
+            self.assertTemplateUsed(response, FinalCheck.template_name)
+            self.assertHasForm(response)
+        with self.subTest(msg="Should not set status"):
+            self.assertTrue(reg.status.PREPARATION_COMPLETE)
+
+        # Does not prevent another registration on POST
+        response = self.client.post(final_check_url, {'agree': 1})
+        with self.subTest(msg="Should redirect"):
+            self.assertRedirects(response, confirm_url)
+        with self.subTest(msg="Should set status"):
+            reg.refresh_from_db()
+            self.assertTrue(reg.status.REGISTERED)
 
 
 # Parameterization produces TestMedicalConsentLog_0 and _1 class names
@@ -1141,6 +1246,13 @@ class TestCaching(TestCase):
         response = self.client.get(self.final_check_url)
         self.client.logout()
         self.client.force_login(other_user)
+        self.assertCache(response, changed=True)
+
+    def test_finalcheck_other_event(self):
+        """ Check that finalcheck regenerates a response when the user registers for another event. """
+
+        response = self.client.get(self.final_check_url)
+        RegistrationFactory(user=self.user)
         self.assertCache(response, changed=True)
 
 

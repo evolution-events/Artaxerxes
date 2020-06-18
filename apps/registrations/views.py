@@ -61,7 +61,9 @@ class RegistrationStartView(LoginRequiredMixin, TemplateResponseMixin, View):
 class RegistrationStepMixinBase(ContextMixin):
     def get_queryset(self):
         # Only allow editing your own registrations
-        return Registration.objects.filter(user=self.request.user)
+        qs = Registration.objects.filter(user=self.request.user)
+        qs = qs.with_has_conflicting_registrations()
+        return qs
 
     def get_success_url(self):
         # success_view is supplied by the subclass
@@ -88,6 +90,8 @@ class RegistrationStepMixinBase(ContextMixin):
         These checks are not run when CacheUsingTimestampsMixin decides the cache is still valid, but in general
         anything that changes these checks should also cause the cache to become invalid.
         """
+        if self.registration.has_conflicting_registrations:
+            return redirect('registrations:conflicting_registrations', self.registration.id)
         if not self.registration.status.PREPARATION_IN_PROGRESS and not self.registration.status.PREPARATION_COMPLETE:
             # Let finalcheck sort out where to go
             return redirect('registrations:step_final_check', self.registration.id)
@@ -291,7 +295,9 @@ class FinalCheck(RegistrationStepMixin, FormView):
         except ValidationError as ex:
             [messages.error(self.request, _("Could not complete registration: {}").format(m)) for m in ex.messages]
 
-            return self.form_invalid(form)
+            # Redirect to ourselves to force a clean recheck of everything (in case things changed between the start of
+            # the request and finalize_registration checking them).
+            return redirect('registrations:step_final_check', self.registration.id)
 
         # Confirm registration by e-mail
         RegistrationNotifyService.send_confirmation_email(self.request, self.registration)
@@ -303,7 +309,10 @@ class FinalCheck(RegistrationStepMixin, FormView):
         user = self.request.user
         # We need to return querysets, so can't just return request.user
         yield ArtaUser.objects.filter(pk=user.pk)
-        yield Registration.objects.filter(pk=self.registration_id)
+        # Include all a users registrations (technically only the current one and other REGISTERED ones, though
+        # CANCELLED ones could previously have been included wheh they were still REGISTERED, so basically all of
+        # them).
+        yield Registration.objects.filter(user=user.pk)
 
         yield RegistrationFieldValue.objects.filter(registration=self.registration_id)
         # This returns RegistrationFieldOptions, which are used for their "full" status.
@@ -393,4 +402,33 @@ class RegistrationConfirmationView(LoginRequiredMixin, DetailView):
         # Check this in render_to_response, which is late enough to access self.object *and* can return a response.
         if not self.object.status.ACTIVE:
             return redirect('core:dashboard')
+        return super().render_to_response(context)
+
+
+class ConflictingRegistrationsView(LoginRequiredMixin, DetailView):
+    """ Rejected registration due to conflicting registrations. """
+
+    context_object_name = 'registration'
+    template_name = 'registrations/conflicting_registrations.html'
+
+    def get_queryset(self):
+        return Registration.objects.filter(user=self.request.user).select_related('event')
+
+    def render_to_response(self, context):
+        # Check this in render_to_response, which is late enough to access self.object *and* can return a response.
+
+        if self.object.status.ACTIVE:
+            return redirect('registrations:registration_confirmation')
+
+        conflicts = Registration.objects.conflicting_registrations_for(self.object).select_related('event')
+        conflicting_event = conflicts.first().event
+        if not conflicting_event:
+            # Let finalcheck sort out where to go
+            return redirect('registrations:step_final_check', self.registration.id)
+
+        context.update({
+            'conflicting_event': conflicting_event,
+            'back_url': reverse('core:dashboard'),
+        })
+
         return super().render_to_response(context)

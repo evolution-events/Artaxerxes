@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load coretags %}
+
+{% block pagetitle %}
+{% blocktrans %} Already registered for {{conflicting_event}} {% endblocktrans %}
+{% endblock pagetitle%}
+
+{% block content %}
+  {% if message %}
+    <p class="notification">{{ message }}</p>
+  {% endif %}
+
+    <p><b>
+      {% blocktrans with registration.event as event %}
+      You cannot register for {{event}}, because you have already registered for {{ conflicting_event }}.
+      {% endblocktrans %}
+    </b></p>
+    <a class="btn btn-success" href="{{ back_url }}" role="button">{% trans 'Back' %}</a>
+{% endblock content %}

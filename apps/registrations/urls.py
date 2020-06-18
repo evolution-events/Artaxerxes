@@ -11,4 +11,5 @@ urlpatterns = [
     path('op/<int:pk>/', views.RegistrationOptionsStep.as_view(), name="step_registration_options"),
     path('fc/<int:pk>/', views.FinalCheck.as_view(), name="step_final_check"),
     path('rc/<int:pk>/', views.RegistrationConfirmationView.as_view(), name="registration_confirmation"),
+    path('cr/<int:pk>/', views.ConflictingRegistrationsView.as_view(), name="conflicting_registrations"),
 ]

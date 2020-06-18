@@ -237,6 +237,17 @@ requests-oauthlib = ">=0.3.0"
 
 [[package]]
 category = "dev"
+description = "For- and backwards compatibility layer for Django 1.4, 1.7, 1.8, 1.9, 1.10, and 1.11"
+name = "django-compat"
+optional = false
+python-versions = "*"
+version = "1.0.15"
+
+[package.dependencies]
+six = ">=1.10.0"
+
+[[package]]
+category = "dev"
 description = "A configurable set of panels that display various debug information about the current request/response."
 name = "django-debug-toolbar"
 optional = false
@@ -246,6 +257,35 @@ version = "2.2"
 [package.dependencies]
 Django = ">=1.11"
 sqlparse = ">=0.2.0"
+
+[[package]]
+category = "dev"
+description = "django-hijack allows superusers to hijack (=login as) and work on behalf of another user."
+name = "django-hijack"
+optional = false
+python-versions = "*"
+version = "2.1.10"
+
+[package.dependencies]
+django-compat = ">=1.0.14"
+
+[package.extras]
+dev = ["flake8"]
+
+[[package]]
+category = "dev"
+description = "Django admin integration for Django Hijack (https://github.com/arteria/django-hijack/)"
+name = "django-hijack-admin"
+optional = false
+python-versions = "*"
+version = "2.1.10"
+
+[package.dependencies]
+django-compat = ">=1.0.13"
+django-hijack = ">=2.1.5"
+
+[package.extras]
+dev = ["flake8"]
 
 [[package]]
 category = "main"
@@ -304,6 +344,7 @@ Django = ">=1.4"
 reference = "43d239faabdfe83bcc5e174ea8ea7d7532f039c1"
 type = "git"
 url = "https://github.com/perenecabuto/django-sendmail-backend"
+
 [[package]]
 category = "dev"
 description = "A versatile test fixtures replacement based on thoughtbot's factory_bot for Ruby."
@@ -1083,7 +1124,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["pathlib2", "unittest2", "jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "c4e688dfb08af29a28720dac59c344ed160b7718e2d83a19adacd7253edf6d61"
+content-hash = "e06226d2d67cc5881c72cf05a638122cc878deefbfa616a9900a0516fc430077"
 python-versions = "^3.5"
 
 [metadata.files]
@@ -1231,9 +1272,18 @@ django-airplane = [
 django-allauth = [
     {file = "django-allauth-0.42.0.tar.gz", hash = "sha256:f17209410b7f87da0a84639fd79d3771b596a6d3fc1a8e48ce50dabc7f441d30"},
 ]
+django-compat = [
+    {file = "django-compat-1.0.15.tar.gz", hash = "sha256:3ac9a3bedc56b9365d9eb241bc5157d0c193769bf995f9a78dc1bc24e7c2331b"},
+]
 django-debug-toolbar = [
     {file = "django-debug-toolbar-2.2.tar.gz", hash = "sha256:eabbefe89881bbe4ca7c980ff102e3c35c8e8ad6eb725041f538988f2f39a943"},
     {file = "django_debug_toolbar-2.2-py3-none-any.whl", hash = "sha256:ff94725e7aae74b133d0599b9bf89bd4eb8f5d2c964106e61d11750228c8774c"},
+]
+django-hijack = [
+    {file = "django-hijack-2.1.10.tar.gz", hash = "sha256:be484f0ca67a092d5bf9bf8a5307beb716dc2e86b56a69796479183fdeb9036c"},
+]
+django-hijack-admin = [
+    {file = "django-hijack-admin-2.1.10.tar.gz", hash = "sha256:330f9be331ada831248c9cee5a21202aea70fb9911b443249ce4c28d57d9e2e3"},
 ]
 django-konst = [
     {file = "django-konst-2.0.0.tar.gz", hash = "sha256:789301f4e1fd4492f5e305ad4c26cda807104def025d83ebb6be592d1807058f"},

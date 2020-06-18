@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy
+from hijack_admin.admin import HijackRelatedAdminMixin
 from reversion.admin import VersionAdmin
 
 from apps.events.models import Event
@@ -68,8 +69,8 @@ class CustomRelatedFieldListFilter(admin.filters.RelatedFieldListFilter):
 
 
 @admin.register(Registration)
-class RegistrationAdmin(VersionAdmin):
-    list_display = ('event_display_name', 'user_name', 'status', 'registered_at_milliseconds')
+class RegistrationAdmin(HijackRelatedAdminMixin, VersionAdmin):
+    list_display = ('event_display_name', 'user_name', 'status', 'registered_at_milliseconds', 'hijack_field')
     # add a search field to quickly search by name and title
     search_fields = ['user__first_name', 'user__last_name', 'event__title', 'event__series__name']
     list_select_related = ['user', 'event__series']

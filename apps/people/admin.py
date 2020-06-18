@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import ugettext_lazy as _
+from hijack_admin.admin import HijackUserAdminMixin
 from reversion.admin import VersionAdmin
 
 from .models import Address, ArtaUser, EmergencyContact
@@ -21,9 +22,9 @@ class EmergencyContactInline(admin.StackedInline):
 
 
 @admin.register(ArtaUser)
-class ArtaUserAdmin(UserAdmin, VersionAdmin):
+class ArtaUserAdmin(UserAdmin, HijackUserAdminMixin, VersionAdmin):
     inlines = (AddressInline, EmergencyContactInline)
-    list_display = ('email', 'first_name', 'last_name', 'is_staff', 'is_active')
+    list_display = ('email', 'first_name', 'last_name', 'is_staff', 'is_active', 'hijack_field')
     search_fields = ('first_name', 'last_name', 'email')
     ordering = ('email',)
 

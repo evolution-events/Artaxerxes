@@ -271,6 +271,18 @@ class TestRegistrationForm(TestCase):
         self.user = ArtaUserFactory()
         self.client.force_login(self.user)
 
+    def assertHasForm(self, response):
+        # This assumes that this will be the only form on the page
+        form_html = b'<form '
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(form_html, response.content)
+
+    def assertHasNoForm(self, response):
+        # This assumes that this will be the only form on the page
+        form_html = b'<form '
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn(form_html, response.content)
+
     def test_full_registration(self):
         """ Run through an entire registration flow. """
         e = self.event
@@ -574,12 +586,9 @@ class TestRegistrationForm(TestCase):
         final_check_url = reverse('registrations:step_final_check', args=(reg.pk,))
         confirm_url = reverse('registrations:registration_confirmation', args=(reg.pk,))
 
-        # This assumes that this will be the only form on the page
-        form_html = b'<form '
-
         with mock.patch('django.utils.timezone.now', return_value=before_opens_at):
             response = self.client.get(final_check_url)
-            self.assertNotIn(form_html, response.content)
+            self.assertHasNoForm(response)
             self.assertFalse(response.context['event'].registration_is_open)
 
             response = self.client.post(final_check_url, {'agree': 1})
@@ -590,7 +599,7 @@ class TestRegistrationForm(TestCase):
 
         with mock.patch('django.utils.timezone.now', return_value=opens_at):
             response = self.client.get(final_check_url)
-            self.assertIn(form_html, response.content)
+            self.assertHasForm(response)
             self.assertTrue(response.context['event'].registration_is_open)
 
             response = self.client.post(final_check_url, {'agree': 1})
@@ -606,12 +615,9 @@ class TestRegistrationForm(TestCase):
         final_check_url = reverse('registrations:step_final_check', args=(reg.pk,))
         confirm_url = reverse('registrations:registration_confirmation', args=(reg.pk,))
 
-        # This assumes that this will be the only form on the page
-        form_html = b'<form '
-
         with mock.patch('django.utils.timezone.now', return_value=before_start_date):
             response = self.client.get(final_check_url)
-            self.assertIn(form_html, response.content)
+            self.assertHasForm(response)
             self.assertTrue(response.context['event'].registration_is_open)
 
             response = self.client.post(final_check_url, {'agree': 1})

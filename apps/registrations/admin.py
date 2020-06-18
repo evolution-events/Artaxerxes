@@ -93,7 +93,7 @@ class RegistrationAdmin(HijackRelatedAdminMixin, VersionAdmin):
     event_display_name.short_description = ugettext_lazy("Event")
 
     def user_name(self, obj):
-        return obj.user.get_full_name()
+        return obj.user.full_name
     user_name.short_description = ugettext_lazy("User")
 
 

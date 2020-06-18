@@ -1,6 +1,6 @@
 {% load i18n %}
 {% load coretags %}
-Dear {{user.get_full_name}},
+Dear {{user.full_name}},
 .
 {% if registration.status.REGISTERED %}
 {% blocktrans with event=registration.event eventurl=registration.event.display_url %}

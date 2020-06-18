@@ -9,7 +9,7 @@
 {% if pdetails %}
 <h2>{% trans 'Personal details' %}</h2>
 <table class="table">
-    <tr><td>{% trans 'Name' %}</td><td>{{user.get_full_name}}</td></tr>
+    <tr><td>{% trans 'Name' %}</td><td>{{user.full_name}}</td></tr>
     <tr><td>{% trans 'Address' %}</td><td>{{pdetails.address}}</td></tr>
     <tr><td>{% trans 'Postal code' %}</td><td>{{pdetails.postalcode}}</td></tr>
     <tr><td>{% trans 'City of residence' %}</td><td>{{pdetails.city}}</td></tr>

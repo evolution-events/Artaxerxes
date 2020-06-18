@@ -5,7 +5,6 @@ import threading
 
 from locust import HttpUser, SequentialTaskSet, between, tag, task
 
-
 """
 This file allows load testing an instance. The instance should be set up as normal (possibly on another machine), then
 this script (using the locust tool) will fire requests at it. There is also a preparedb.py script that should be run on
@@ -31,9 +30,16 @@ export DJANGO_SETTINGS_MODULE=arta.settings.test_mysql
 from apps.registrations.models import Registration
 from apps.events.models import Event
 from datetime import datetime, timedelta, timezone
+from django.db.models import Count
 Event.objects.all().update(registration_opens_at=datetime.now(timezone.utc))
 Event.objects.all().update(registration_opens_at=datetime.now(timezone.utc) + timedelta(days=1))
 Registration.objects.all().update(status=Registration.statuses.PREPARATION_COMPLETE)
+# Counts per registration status
+Registration.objects.all().values('status').annotate(count=Count('status'))
+# Users with more than one REGISTERED status
+Registration.objects.all().values('user').filter(
+    status=Registration.statuses.REGISTERED).annotate(count=Count('user')).filter(count__gt=1)
+
 # The update() calls above don't work right now (See TODO in arta.common.db), so you can use these instead:
 e = Event.objects.get()
 e.registration_opens_at=datetime.now(timezone.utc)
@@ -46,11 +52,15 @@ for r in Registration.objects.all():
     r.save()
 """
 
+# Run this many threads (locust users) per Arta user
+events_per_user = 2
+
 
 class ApplicationUser(HttpUser):
     wait_time = between(2, 10)
     next_user_lock = threading.Lock()
     next_user = 0
+    next_event_idx = 0
     # TODO: Generate these using django's reverse?
     login_url = '/accounts/login/'
     dashboard_url = '/'
@@ -61,6 +71,7 @@ class ApplicationUser(HttpUser):
     ]
     register_link_re = re.compile(r'href="[^"/]*(/registrations/\d+/)"')
     finalcheck_url_re = re.compile(r'/registrations/fc/\d+/$')
+    conflict_url_re = re.compile(r'/registrations/cr/\d+/$')
     confirm_url_re = re.compile(r'/registrations/rc/\d+/$')
     password = os.environ['LOCUST_USER_PASSWORD']
 
@@ -70,7 +81,11 @@ class ApplicationUser(HttpUser):
         # distributed mode.
         with cls.next_user_lock:
             self.user_id = cls.next_user
-            cls.next_user += 1
+            self.event_idx = cls.next_event_idx
+            cls.next_event_idx += 1
+            if cls.next_event_idx == events_per_user:
+                cls.next_event_idx = 0
+                cls.next_user += 1
 
         self.login()
 
@@ -113,7 +128,7 @@ class ApplicationUser(HttpUser):
     @task
     class RegisterTaskSet(SequentialTaskSet):
         # Aggressive refreshing
-        wait_time = between(1, 1)
+        wait_time = between(0, 0)
         use_etag = True
 
         @task
@@ -124,15 +139,22 @@ class ApplicationUser(HttpUser):
             assert(response.status_code == 200)
 
             # Find the link to the registration start view
-            match = self.user.register_link_re.search(response.text)
+            matches = self.user.register_link_re.findall(response.text)
+
             # Abort if no link found (already registered)
-            if match is None:
+            if self.user.event_idx >= len(matches):
                 self.interrupt(reschedule=False)
-            url = match[1]
+
+            # TODO: This is fragile, since the events get shifted once registration completes (and if there are extra
+            # events, another registration run might start).
+            url = matches[self.user.event_idx]
 
             # Start view should redirect to the finalcheck view, which is what we'll be refreshing
             response = self.client.get(url, name="registration_start")
             assert response.status_code == 200
+            # When redirected to the conflict url, we cannot register anymore either
+            if self.user.conflict_url_re.search(response.url):
+                self.interrupt(reschedule=False)
             assert self.user.finalcheck_url_re.search(response.url)
             self.refresh_url = response.url
             # Make sure to do at least one proper get in refresh() in case registration is already open
@@ -167,4 +189,6 @@ class ApplicationUser(HttpUser):
             data = {'agree': 1}
             response = self.client.post(url, data, allow_redirects=False, name="register")
             assert(response.status_code == 302)
-            assert(self.user.confirm_url_re.search(response.next.path_url))
+            assert(self.user.confirm_url_re.search(response.next.path_url)
+                   or self.user.finalcheck_url_re.search(response.next.path_url)
+                   or self.user.conflict_url_re.search(response.next.path_url))

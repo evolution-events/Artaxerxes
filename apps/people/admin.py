@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
+from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
 from hijack_admin.admin import HijackUserAdminMixin
 from reversion.admin import VersionAdmin
@@ -27,6 +28,7 @@ class ArtaUserAdmin(UserAdmin, HijackUserAdminMixin, VersionAdmin):
     list_display = ('email', 'first_name', 'last_name', 'is_staff', 'is_active', 'hijack_field')
     search_fields = ('first_name', 'last_name', 'email')
     ordering = ('email',)
+    actions = ['make_mailing_list']
 
     fieldsets = (
         (None, {'fields': ('password',)}),
@@ -42,3 +44,9 @@ class ArtaUserAdmin(UserAdmin, HijackUserAdminMixin, VersionAdmin):
             'fields': ('email', 'password1', 'password2'),
         }),
     )
+
+    def make_mailing_list(self, request, queryset):
+        return HttpResponse(
+            "\n".join("{} <{}>,".format(u.full_name, u.email) for u in queryset),
+            content_type="text/plain; charset=utf-8",
+        )

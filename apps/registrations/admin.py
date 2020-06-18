@@ -1,10 +1,12 @@
 from django.contrib import admin
+from django.http import HttpResponse
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy
 from hijack_admin.admin import HijackRelatedAdminMixin
 from reversion.admin import VersionAdmin
 
 from apps.events.models import Event
+from apps.people.models import ArtaUser
 
 from .models import Registration, RegistrationField, RegistrationFieldOption, RegistrationFieldValue
 
@@ -76,6 +78,7 @@ class RegistrationAdmin(HijackRelatedAdminMixin, VersionAdmin):
     list_select_related = ['user', 'event__series']
     list_filter = ['status', 'event', ('user__groups', CustomRelatedFieldListFilter)]
     inlines = [RegistrationFieldValueInline]
+    actions = ['make_mailing_list']
 
     def registered_at_milliseconds(self, obj):
         tz = timezone.get_current_timezone()
@@ -95,6 +98,13 @@ class RegistrationAdmin(HijackRelatedAdminMixin, VersionAdmin):
     def user_name(self, obj):
         return obj.user.full_name
     user_name.short_description = ugettext_lazy("User")
+
+    def make_mailing_list(self, request, queryset):
+        users = ArtaUser.objects.filter(registrations__in=queryset).distinct()
+        return HttpResponse(
+            "\n".join("{} <{}>,".format(u.full_name, u.email) for u in users),
+            content_type="text/plain; charset=utf-8",
+        )
 
 
 class RegistrationFieldOptionInline(LimitDependsMixin, admin.TabularInline):

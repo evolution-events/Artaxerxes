@@ -2,6 +2,7 @@ import reversion
 from django.conf import settings
 from django.db import models
 from django.db.models import Exists, ExpressionWrapper, Q, Sum
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from konst import Constant, ConstantGroup, Constants
 from konst.models.fields import ConstantChoiceField
@@ -87,6 +88,14 @@ class Registration(models.Model):
     registered_at = models.DateTimeField(verbose_name=_('Registration timestamp'), blank=True, null=True)
 
     objects = RegistrationManager()
+
+    @cached_property
+    def waitinglist_above(self):
+        return Registration.objects.filter(
+            event=self.event_id,
+            status=Registration.statuses.WAITINGLIST,
+            registered_at__lt=self.registered_at,
+        ).count()
 
     def __str__(self):
         return _('%(user)s - %(event)s - %(status)s') % {

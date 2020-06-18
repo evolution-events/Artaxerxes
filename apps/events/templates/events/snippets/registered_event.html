@@ -46,7 +46,14 @@
     </p>
 
     <h3>{% trans 'Status of registration' %}</h3>
-    <p>{{ e.registration.status.label }}</p>
+    <p>{{ e.registration.status.label }}
+    {% if e.registration.status.WAITINGLIST %}
+      {% blocktrans with e.registration.waitinglist_above as above %}
+      - there are {{above}} registrations above you on the waiting list.
+      {% endblocktrans %}
+    {% endif %}
+    </p>
+
 
     <h3>{% trans 'Options chosen for registration' %}</h3>
     <table class="table registration-options">

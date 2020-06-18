@@ -101,6 +101,9 @@ class Registration(models.Model):
             # Index to speed up current_for lookups
             models.Index(fields=['user', 'event', 'status', 'created_at'],
                          name='idx_user_event_status_created'),
+            # Index to speed up Event.used_slots_for lookups
+            models.Index(fields=['event', 'status'],
+                         name='idx_event_status'),
         ]
 
     # Put this outside of the meta class, so we can access the statuses constants

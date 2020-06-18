@@ -1,13 +1,13 @@
 import reversion
 from django.conf import settings
 from django.db import models
-from django.db.models import ExpressionWrapper, Q, Sum
+from django.db.models import Exists, ExpressionWrapper, Q, Sum
 from django.utils.translation import ugettext_lazy as _
 from konst import Constant, ConstantGroup, Constants
 from konst.models.fields import ConstantChoiceField
 
 from apps.core.fields import MonetaryField
-from arta.common.db import QExpr, UpdatedAtQuerySetMixin
+from arta.common.db import FromOuterRef, QExpr, UpdatedAtQuerySetMixin
 
 
 class RegistrationQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
@@ -17,6 +17,20 @@ class RegistrationQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
                 Sum('options__option__price'),
                 output_field=MonetaryField()),
         )
+
+    def with_has_conflicting_registrations(self):
+        """ Annotates with whether any conflicting registrations exists. """
+        return self.annotate(
+            has_conflicting_registrations=Exists(Registration.objects.conflicting_registrations_for(FromOuterRef())),
+        )
+
+    def conflicting_registrations_for(self, registration):
+        """ Returns queryset of other registrations that would prevent finalizing the passed registration. """
+        # Only allow one registration per user (temporary hack for the first two events)
+        return self.filter(
+            user=registration.user_id,
+            status=Registration.statuses.REGISTERED,
+        ).exclude(event=registration.event_id)
 
     def current_for(self, event, user):
         """

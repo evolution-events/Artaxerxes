@@ -389,8 +389,8 @@ class RegistrationConfirmationView(LoginRequiredMixin, DetailView):
     def get_queryset(self):
         return Registration.objects.filter(user=self.request.user)
 
-    def get(self, *args, **kwargs):
-        obj = self.get_object()
-        if not obj.status.ACTIVE:
+    def render_to_response(self, context):
+        # Check this in render_to_response, which is late enough to access self.object *and* can return a response.
+        if not self.object.status.ACTIVE:
             return redirect('core:dashboard')
-        return super().get(*args, **kwargs)
+        return super().render_to_response(context)

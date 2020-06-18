@@ -11,7 +11,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from apps.events.models import Event
-from apps.people.models import EmergencyContact
+from apps.people.models import ArtaUser, EmergencyContact
 
 from .models import Registration, RegistrationField, RegistrationFieldOption
 
@@ -77,6 +77,12 @@ class RegistrationStatusService:
             # This locks the event separately first and uses used_slots_for() rather than with_used_slots() in a single
             # query, to prevent locking any other rows than the event itself.
             event = Event.objects.select_for_update().for_user(registration.user_id).get(pk=registration.event_id)
+            # Lock the user, to prevent mutually exclusive registrations for the same user.
+            # We do not actually need the values, so just evaluate the query and check it returns one user for good
+            # meausure. We can't use .get(), since that always returns an object (wasteful) and it seems using the
+            # queryset count() method does not respect select_for_update.
+            if len(ArtaUser.objects.select_for_update().filter(pk=registration.user_id).values('id')) != 1:
+                raise RuntimeError("User does not exist?")
             event.used_slots = Event.objects.used_slots_for(event)
 
             if not event.registration_is_open:
@@ -86,6 +92,10 @@ class RegistrationStatusService:
             registration.refresh_from_db()
             if not registration.status.PREPARATION_COMPLETE:
                 raise ValidationError(_("Registration not ready for finalization"))
+
+            conflicts = Registration.objects.conflicting_registrations_for(registration).select_related('event')
+            if conflicts:
+                raise ValidationError(_("Already registered for {}".format(conflicts.first().event)))
 
             # This selects all options that are associated with the current registration and that have non-null slots.
             # annotated with the number of slots used.

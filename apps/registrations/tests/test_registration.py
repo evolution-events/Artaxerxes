@@ -189,23 +189,62 @@ class TestRegistration(TestCase):
         with self.subTest("Should not change timestamp"):
             self.assertEqual(reg.registered_at, now)
 
+    def test_register_two_events(self):
+        """ Check that you can only register for one event. """
+        e = self.event
+        e2 = EventFactory(registration_opens_in_days=-1, public=True)
+
+        # Existing registration
+        reg = RegistrationFactory(event=e, registered=True)
+
+        # Causes second registration to be refused
+        reg2 = RegistrationFactory(user=reg.user, event=e2, preparation_complete=True)
+        with self.subTest("Should refuse registration"):
+            with self.assertRaises(ValidationError):
+                RegistrationStatusService.finalize_registration(reg2)
+        with self.subTest("Should not change status"):
+            self.assertTrue(reg2.status.PREPARATION_COMPLETE)
+
+    def test_register_second_after_waitinglist(self):
+        """ Check that you can still register for a second event after a waitinglist registration. """
+        e = self.event
+        e2 = EventFactory(registration_opens_in_days=-1, public=True)
+
+        # Existing registration on the waitinglist
+        reg = RegistrationFactory(event=e, waiting_list=True)
+
+        # Does not prevent another registration
+        reg2 = RegistrationFactory(user=reg.user, event=e2, preparation_complete=True)
+        RegistrationStatusService.finalize_registration(reg2)
+        self.assertTrue(reg2.status.REGISTERED)
+
     @skipUnlessDBFeature('has_select_for_update')
-    def test_finalize_locks_event(self):
+    def test_finalize_locks(self):
         reg = RegistrationFactory(
             event=self.event, preparation_complete=True,
             options=[self.player, self.option_m, self.option_nl],
         )
         with CaptureQueriesContext(connection) as queries:
             RegistrationStatusService.finalize_registration(reg)
-        # This ensures a transaction is started
-        self.assertRegex(queries[0]["sql"], "^SAVEPOINT ")
-        # This ensures that FOR UPDATE is used and that *only* the event is locked (i.e. no joins)
-        match = ' FROM {table} WHERE {table}.{id_field} = {id} FOR UPDATE$'.format(
-            table=re.escape(connection.ops.quote_name(Event._meta.db_table)),
-            id_field=re.escape(connection.ops.quote_name(Event._meta.pk.column)),
-            id=self.event.id,
-        )
-        self.assertRegex(queries[1]["sql"], match)
+        with self.subTest("Must use SAVEPOINT"):
+            # This ensures a transaction is started
+            self.assertRegex(queries[0]["sql"], "^SAVEPOINT ")
+        with self.subTest("Must lock event"):
+            # This ensures that FOR UPDATE is used and that *only* the event is locked (i.e. no joins)
+            match = ' FROM {table} WHERE {table}.{id_field} = {id} FOR UPDATE$'.format(
+                table=re.escape(connection.ops.quote_name(Event._meta.db_table)),
+                id_field=re.escape(connection.ops.quote_name(Event._meta.pk.column)),
+                id=self.event.id,
+            )
+            self.assertRegex(queries[1]["sql"], match)
+        with self.subTest("Must lock user"):
+            # This ensures that FOR UPDATE is used and that *only* the event is locked (i.e. no joins)
+            match = ' FROM {table} WHERE {table}.{id_field} = {id} FOR UPDATE$'.format(
+                table=re.escape(connection.ops.quote_name(ArtaUser._meta.db_table)),
+                id_field=re.escape(connection.ops.quote_name(ArtaUser._meta.pk.column)),
+                id=reg.user.id,
+            )
+            self.assertRegex(queries[2]["sql"], match)
 
 
 class TestRegistrationForm(TestCase):

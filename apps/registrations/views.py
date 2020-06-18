@@ -257,7 +257,7 @@ class EmergencyContactsStep(RegistrationStepMixin, FormView):
                 reversion.set_user(self.request.user)
                 reversion.set_comment(_("Registration preparation completed via frontend."))
         except ValidationError as ex:
-            messages.error(self.request, ex)
+            [messages.error(self.request, m) for m in ex.messages]
             return self.form_invalid(form)
 
         return super().form_valid(form)
@@ -289,7 +289,7 @@ class FinalCheck(RegistrationStepMixin, FormView):
             # as a whole, but also the transaction that has the event locked, shorter).
             RegistrationStatusService.finalize_registration(self.registration)
         except ValidationError as ex:
-            messages.error(self.request, ex)
+            [messages.error(self.request, _("Could not complete registration: {}").format(m)) for m in ex.messages]
 
             return self.form_invalid(form)
 

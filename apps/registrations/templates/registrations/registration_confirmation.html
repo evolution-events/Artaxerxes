@@ -57,4 +57,21 @@
       {% endfor %}
     </table>
   {% endif %}
+
+  <h2>{% trans "Payments" %}</h2>
+  {% blocktrans trimmed with registration.id as regnum %}
+  Payments can be made to IBAN account NL52INGB0001297429, held by
+  "Stichting Evolution Events" in Capelle aan den IJssel, NL. Please note
+  your name, the event name and the registration number
+  ({{regnum}}) in the payment description.
+  {% endblocktrans %}
+
+  <h2>{% trans "Changes to your registration" %}</h2>
+  {% blocktrans trimmed with registration.event.display_email|urlize as mail %}
+  If you need to make changes to your registration (i.e. changing
+  registration options) or want to cancel your registration, please
+  contact the organisation at {{mail}}. In the future, you will be able
+  to make some changes yourself by logging in to Artaxerxes.
+  {% endblocktrans %}
+
 {% endblock %}

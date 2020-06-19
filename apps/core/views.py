@@ -24,6 +24,8 @@ class Dashboard(LoginRequiredMixin, View):
         ).filter(
             is_visible=True,
             start_date__gt=date.today(),
+        ).order_by(
+            'start_date',
         )
 
         def group(e):

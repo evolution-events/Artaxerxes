@@ -17,7 +17,7 @@ class HouseRules(RedirectView):
     url = 'https://www.evolution-events.nl/algemeen/?pg=huisregels#english'
 
 
-class RegistrationsDashboard(LoginRequiredMixin, View):
+class Dashboard(LoginRequiredMixin, View):
     def get(self, request):
         events = Event.objects.for_user(
             request.user,

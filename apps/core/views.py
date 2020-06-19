@@ -9,15 +9,15 @@ from django.views.generic import RedirectView, View
 from apps.events.models import Event
 
 
-class PrivacyPolicyView(RedirectView):
+class PrivacyPolicy(RedirectView):
     url = 'https://www.evolution-events.nl/algemeen/?pg=privacy#english'
 
 
-class HouseRulesView(RedirectView):
+class HouseRules(RedirectView):
     url = 'https://www.evolution-events.nl/algemeen/?pg=huisregels#english'
 
 
-class RegistrationsDashboardView(LoginRequiredMixin, View):
+class RegistrationsDashboard(LoginRequiredMixin, View):
     def get(self, request):
         events = Event.objects.for_user(
             request.user,
@@ -51,6 +51,6 @@ def practical_info_view(request):
 
 
 # No need to log in to see this page
-class AboutArtaView(View):
+class AboutArta(View):
     def get(self, request):
         return render(request, 'core/about_this_system.html')

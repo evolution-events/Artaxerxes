@@ -24,7 +24,7 @@ from .models import Registration, RegistrationFieldOption, RegistrationFieldValu
 from .services import RegistrationNotifyService, RegistrationStatusService
 
 
-class RegistrationStartView(LoginRequiredMixin, TemplateResponseMixin, View):
+class RegistrationStart(LoginRequiredMixin, TemplateResponseMixin, View):
     template_name = 'registrations/registration_start.html'
 
     def get(self, request, eventid):
@@ -389,7 +389,7 @@ class FinalCheck(RegistrationStepMixin, FormView):
         return super().get_context_data(**kwargs)
 
 
-class RegistrationConfirmationView(LoginRequiredMixin, DetailView):
+class RegistrationConfirmation(LoginRequiredMixin, DetailView):
     """ View confirmation after registration. """
 
     context_object_name = 'registration'
@@ -405,7 +405,7 @@ class RegistrationConfirmationView(LoginRequiredMixin, DetailView):
         return super().render_to_response(context)
 
 
-class ConflictingRegistrationsView(LoginRequiredMixin, DetailView):
+class ConflictingRegistrations(LoginRequiredMixin, DetailView):
     """ Rejected registration due to conflicting registrations. """
 
     context_object_name = 'registration'

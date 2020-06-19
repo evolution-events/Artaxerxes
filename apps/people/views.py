@@ -5,7 +5,7 @@ from django.views.generic import View
 from apps.people.models import Address, MedicalDetails
 
 
-class PersonDetailsView(LoginRequiredMixin, View):
+class PersonDetails(LoginRequiredMixin, View):
     def get(self, request):
         personal_details = Address.objects.filter(user=request.user).first()  # Returns None if nothing was found
         medical_details = MedicalDetails.objects.filter(user=request.user).first()  # Returns None if nothing was found

@@ -18,6 +18,7 @@ class RegisteredEventList(LoginRequiredMixin, TemplateView):
             Event.objects
             .for_user(self.request.user, with_registration=True)
             .filter(registration_status__in=Registration.statuses.FINALIZED)
+            .order_by('-start_date')
         )
 
         events = {'future': [], 'past': []}
@@ -26,6 +27,8 @@ class RegisteredEventList(LoginRequiredMixin, TemplateView):
                 events['future'].append(e)
             else:
                 events['past'].append(e)
+
+        events['future'].reverse()
 
         context = super().get_context_data(**kwargs)
         context.update({

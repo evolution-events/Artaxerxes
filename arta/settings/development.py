@@ -15,6 +15,7 @@ ALLOWED_HOSTS = ['*']
 # ##### EMAIL CONFIGURATION ###############################
 DEFAULT_FROM_EMAIL = "artaxerxes-test@evolution-events.nl"
 BCC_EMAIL_TO = []
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # ##### DATABASE CONFIGURATION ############################
 DATABASES = {

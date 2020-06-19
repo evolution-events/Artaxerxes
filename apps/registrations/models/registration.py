@@ -27,11 +27,8 @@ class RegistrationQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
 
     def conflicting_registrations_for(self, registration):
         """ Returns queryset of other registrations that would prevent finalizing the passed registration. """
-        # Only allow one registration per user (temporary hack for the first two events)
-        return self.filter(
-            user=registration.user_id,
-            status=Registration.statuses.REGISTERED,
-        ).exclude(event=registration.event_id)
+        # Disabled until this can be made more configurable
+        return self.none()
 
     def current_for(self, event, user):
         """

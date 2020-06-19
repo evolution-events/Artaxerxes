@@ -190,6 +190,7 @@ class TestRegistration(TestCase):
         with self.subTest("Should not change timestamp"):
             self.assertEqual(reg.registered_at, now)
 
+    @skip("Conflict check disabled until improved")
     def test_register_two_events(self):
         """ Check that you can only register for one event. """
         e = self.event
@@ -639,6 +640,7 @@ class TestRegistrationForm(TestCase):
             self.assertFalse(reg.status.REGISTERED)
 
     @parameterized.expand(registration_steps)
+    @skip("Conflict check disabled until improved")
     def test_other_event_redirect_to_finalcheck(self, viewname):
         """ Check that all registration steps redirect to finalcheck when registered for another event. """
         e = self.event
@@ -657,6 +659,7 @@ class TestRegistrationForm(TestCase):
             response = self.client.post(url)
             self.assertRedirects(response, conflict_url)
 
+    @skip("Conflict check disabled until improved")
     def test_register_two_events(self):
         """ Check that you can only register for one event. """
         e = self.event
@@ -682,6 +685,7 @@ class TestRegistrationForm(TestCase):
             reg.refresh_from_db()
             self.assertTrue(reg.status.PREPARATION_COMPLETE)
 
+    @skip("Conflict check disabled until improved")
     def test_register_two_events_between_view_and_service(self):
         """ Check that a second registration is refused, even when the first one happens late. """
         e = self.event

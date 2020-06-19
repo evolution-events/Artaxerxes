@@ -4,7 +4,7 @@ from datetime import date
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
-from django.views.generic import RedirectView, View
+from django.views.generic import RedirectView, TemplateView, View
 
 from apps.events.models import Event
 
@@ -51,6 +51,5 @@ def practical_info_view(request):
 
 
 # No need to log in to see this page
-class AboutArta(View):
-    def get(self, request):
-        return render(request, 'core/about_this_system.html')
+class AboutArta(TemplateView):
+    template_name = 'core/about_this_system.html'

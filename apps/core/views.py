@@ -1,7 +1,6 @@
 import collections
 from datetime import date
 
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
 from django.views.generic import RedirectView, TemplateView, View
@@ -44,10 +43,8 @@ class Dashboard(LoginRequiredMixin, View):
         return render(request, 'core/dashboard.html', context)
 
 
-@login_required
-def practical_info_view(request):
-    """ Show some information about the organisation, payments and policies. """
-    return render(request, 'core/practical_info.html')
+class PracticalInfo(LoginRequiredMixin, TemplateView):
+    template_name = 'core/practical_info.html'
 
 
 # No need to log in to see this page

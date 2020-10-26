@@ -2,6 +2,7 @@ import reversion
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
+from django.db.models.functions import Concat
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
@@ -57,7 +58,6 @@ class ArtaUser(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 
-    @property
     def full_name(self):
         """Return the first_name plus the last_name, with a space in between."""
         full_name = '%s %s' % (self.first_name, self.last_name)
@@ -65,6 +65,8 @@ class ArtaUser(AbstractBaseUser, PermissionsMixin):
         if not full_name:
             full_name = self.email
         return full_name
+    full_name.admin_order_field = Concat('first_name', 'last_name')
+    full_name = property(full_name)
 
     def __str__(self):
         return self.full_name

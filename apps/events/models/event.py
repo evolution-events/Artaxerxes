@@ -1,7 +1,8 @@
 import reversion
 from django.conf import settings
 from django.db import models
-from django.db.models import Count, F, Q
+from django.db.models import Case, Count, F, Q, When
+from django.db.models.functions import Concat
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
@@ -160,6 +161,7 @@ class Event(models.Model):
             return self.name
         else:
             return "{0}: {1}".format(self.name, self.title)
+    display_name.admin_order_field = Concat('name', 'title')
 
     def display_url(self):
         """ Return either own url or the one of the series event is part of, or empty string. """
@@ -168,6 +170,10 @@ class Event(models.Model):
         elif self.series and self.series.url:
             return self.series.url
         return ''
+    display_url.admin_order_field = Case(
+        When(~Q(url=""), then='url'),
+        When(~Q(series__url=""), then='series__url'),
+        default_value='')
 
     def display_email(self):
         """ Return either own e-mail or the one of the series event is part of, or empty string. """
@@ -176,6 +182,10 @@ class Event(models.Model):
         elif self.series and self.series.email:
             return self.series.email
         return ''
+    display_email.admin_order_field = Case(
+        When(~Q(email=""), then='email'),
+        When(~Q(series__email=""), then='series__email'),
+        default_value='')
 
     def __str__(self):
         return self.display_name()

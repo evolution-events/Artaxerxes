@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.db.models.functions import Concat
 from django.http import HttpResponse
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy
@@ -90,14 +91,21 @@ class RegistrationAdmin(HijackRelatedAdminMixin, VersionAdmin):
             return ''
 
     registered_at_milliseconds.short_description = ugettext_lazy("Registered at")
+    registered_at_milliseconds.admin_order_field = 'registered_at'
 
     def event_display_name(self, obj):
         return obj.event.display_name()
     event_display_name.short_description = ugettext_lazy("Event")
+    # TODO: This hardcodes info about how event.display_name works, but Django cannot seem to derive this
+    # automatically by referencing to the computed field here
+    event_display_name.admin_order_field = Concat('event__name', 'event__title')
 
     def user_name(self, obj):
         return obj.user.full_name
     user_name.short_description = ugettext_lazy("User")
+    # TODO: This hardcodes info about how user.full_name works, but Django cannot seem to derive this
+    # automatically by referencing to the computed field here
+    user_name.admin_order_field = Concat('user__first_name', 'user__last_name')
 
     def make_mailing_list(self, request, queryset):
         users = ArtaUser.objects.filter(registrations__in=queryset).distinct()

@@ -79,7 +79,10 @@ class RegistrationAdmin(HijackRelatedAdminMixin, VersionAdmin):
         'event_display_name', 'user_name', 'status', 'registered_at_milliseconds', 'selected_options', 'hijack_field'
     )
     # add a search field to quickly search by name and title
-    search_fields = ['user__first_name', 'user__last_name', 'event__title', 'event__series__name']
+    search_fields = [
+        'user__first_name', 'user__last_name', 'event__title', 'event__series__name', 'options__string_value',
+        'options__option__title'
+    ]
     list_select_related = ['user', 'event__series']
     list_filter = ['status', 'event', ('user__groups', CustomRelatedFieldListFilter)]
     inlines = [RegistrationFieldValueInline]

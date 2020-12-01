@@ -1,7 +1,7 @@
 import reversion
 from django.conf import settings
 from django.db import models
-from django.db.models import Exists, ExpressionWrapper, Q, Sum
+from django.db.models import Exists, ExpressionWrapper, Prefetch, Q, Sum
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from konst import Constant, ConstantGroup, Constants
@@ -29,6 +29,14 @@ class RegistrationQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
         """ Returns queryset of other registrations that would prevent finalizing the passed registration. """
         # Disabled until this can be made more configurable
         return self.none()
+
+    def prefetch_options(self):
+        from . import RegistrationFieldValue
+
+        return self.prefetch_related(Prefetch(
+            'options',
+            queryset=RegistrationFieldValue.objects.select_related('field', 'option')
+        ))
 
     def current_for(self, event, user):
         """

@@ -16,7 +16,7 @@ class ConsentLog(models.Model):
     )
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=False, on_delete=models.CASCADE)
-    registration = models.ForeignKey(Registration, null=True, on_delete=models.CASCADE)
+    registration = models.ForeignKey(Registration, null=True, on_delete=models.SET_NULL)
     timestamp = models.DateTimeField(auto_now_add=True, null=False)
     action = ConstantChoiceField(constants=actions, null=False)
     consent_name = models.CharField(

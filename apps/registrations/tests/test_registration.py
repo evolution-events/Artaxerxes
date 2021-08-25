@@ -11,7 +11,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core import mail
 from django.core.exceptions import ValidationError
 from django.db import connection, transaction
-from django.db.utils import IntegrityError, OperationalError
+from django.db.utils import OperationalError
 from django.forms.models import model_to_dict
 from django.test import TestCase, skipUnlessDBFeature
 from django.test.utils import CaptureQueriesContext
@@ -1258,27 +1258,3 @@ class TestCaching(TestCase):
         response = self.client.get(self.final_check_url)
         RegistrationFactory(user=self.user)
         self.assertCache(response, changed=True)
-
-
-class TestConstraints(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        pass
-
-    @skipUnlessDBFeature('supports_table_check_constraints')
-    def test_registration_has_timestamp(self):
-        reg = RegistrationFactory(registered=True)
-        reg.registered_at = None
-        with self.assertRaises(IntegrityError):
-            reg.save()
-
-    @skipUnlessDBFeature('supports_partial_indexes')
-    def test_one_registration_per_user_per_event(self):
-        reg = RegistrationFactory(registered=True)
-        with self.assertRaises(IntegrityError):
-            RegistrationFactory(registered=True, user=reg.user, event=reg.event)
-
-    @skipUnlessDBFeature('supports_partial_indexes')
-    def test_one_registration_per_user_per_event_cancelled(self):
-        reg = RegistrationFactory(cancelled=True)
-        RegistrationFactory(registered=True, user=reg.user, event=reg.event)

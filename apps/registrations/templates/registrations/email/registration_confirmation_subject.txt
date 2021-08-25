@@ -1,11 +1,11 @@
 {% load i18n %}
 {% load coretags %}
-{% if registration.status.REGISTERED %}
+{% if registration.status.WAITINGLIST %}
   {% blocktrans with event=registration.event %}
-  Registration for {{event}}
+  Waitinglist registration for {{event}}
   {% endblocktrans %}
 {% else %}
   {% blocktrans with event=registration.event %}
-  Waitinglist registration for {{event}}
+  Registration for {{event}}
   {% endblocktrans %}
 {% endif %}

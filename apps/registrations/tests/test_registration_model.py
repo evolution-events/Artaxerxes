@@ -4,6 +4,7 @@ from django.test import TestCase, skipUnlessDBFeature
 from apps.events.tests.factories import EventFactory
 
 from ..models import Registration
+from ..services import RegistrationStatusService
 from .factories import RegistrationFactory, RegistrationFieldFactory, RegistrationFieldOptionFactory
 
 
@@ -82,3 +83,46 @@ class TestIsCurrentAnnotation(TestCase):
                     self.assertEqual(reg.is_current, False)
                 else:
                     self.assertEqual(reg.is_current, True)
+
+
+class TestWaitinglistAboveProperty(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.event = EventFactory(registration_opens_in_days=-1, public=True, slots=0)
+
+    def check_order_helper(self, regs):
+        """ Check that the waiting list order, as implied by waiting_list_above, matches the given iterable """
+        aboves = [reg.waitinglist_above for reg in regs]
+        self.assertListEqual(aboves, list(range(len(aboves))))
+
+    def test_in_order(self):
+        """ Test waitinglist registrations only, made in order """
+        regs = [RegistrationFactory(event=self.event, status=Registration.statuses.WAITINGLIST) for i in range(5)]
+        self.check_order_helper(regs)
+
+    def test_interleaved(self):
+        """ Test waitinglist registrations interleaved with other statuses """
+        ss = Registration.statuses
+        # First, a bunch of non-waitinglist registrations with all possible statuses
+        regs = [RegistrationFactory(event=self.event, status=s) for s in ss.constants if s != ss.WAITINGLIST]
+        # Then a waitinglist registration
+        wl1 = RegistrationFactory(event=self.event, status=Registration.statuses.WAITINGLIST)
+        # Then, more non-waitinglist registrations
+        regs.extend([RegistrationFactory(event=self.event, status=s) for s in ss.constants if s != ss.WAITINGLIST])
+        # Finally one more waitinglist registration
+        wl2 = RegistrationFactory(event=self.event, status=Registration.statuses.WAITINGLIST)
+
+        self.check_order_helper([wl1, wl2])
+
+    def test_reversed(self):
+        """ Test waitinglist registrations where creation order and finalization order does not match """
+
+        regs = [
+            RegistrationFactory(event=self.event, status=Registration.statuses.PREPARATION_COMPLETE)
+            for i in range(5)
+        ]
+
+        for reg in reversed(regs):
+            RegistrationStatusService.finalize_registration(reg)
+
+        self.check_order_helper(reversed(regs))

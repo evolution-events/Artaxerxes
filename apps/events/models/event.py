@@ -134,6 +134,16 @@ class Event(models.Model):
         help_text=_('When checked, the event is visible to users. If registration is not open yet, they can prepare a '
                     'registration already.'))
 
+    admit_immediately = models.BooleanField(
+        verbose_name=_('Admit registrations immediately (i.e. "first come, first served")'), default=True,
+        help_text=_('When checked, registrations are admitted immediately when finalized (subject to available '
+                    'slots), making the registration first come, first served. When unchecked, registrations are set '
+                    'to pending, to be admitted through some other process later (e.g. lottery or selection).'))
+    pending_mail_text = models.TextField(
+        verbose_name=_('Mail text for pending registrations'), blank=True,
+        help_text=_('Text to include in the registration confirmation e-mail for pending (e.g. lottery) '
+                    'registrations, explaining how admission works.'))
+
     slots = models.IntegerField(
         null=True, blank=True,
         help_text=_('Maximum number of attendees for this event. If omitted, no there is no limit.'))

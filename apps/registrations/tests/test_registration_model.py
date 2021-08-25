@@ -126,3 +126,37 @@ class TestWaitinglistAboveProperty(TestCase):
             RegistrationStatusService.finalize_registration(reg)
 
         self.check_order_helper(reversed(regs))
+
+
+class TestAdmitImmediatelyProperty(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.event = EventFactory(registration_opens_in_days=-1, public=True)
+        cls.event_imm_false = EventFactory(registration_opens_in_days=-1, public=True, admit_immediately=False)
+
+        cls.type = RegistrationFieldFactory(event=cls.event_imm_false, name="type")
+        cls.player = RegistrationFieldOptionFactory(field=cls.type, title="Player")
+        cls.crew = RegistrationFieldOptionFactory(field=cls.type, title="Crew", admit_immediately=True)
+
+    def test_event_admit_immediately_true(self):
+        """ Check that by default, events admit immediately"""
+        e = EventFactory(registration_opens_in_days=-1, public=True)
+        reg = RegistrationFactory(event=e, status=Registration.statuses.PREPARATION_COMPLETE)
+        self.assertEqual(reg.admit_immediately, True)
+
+    def test_event_admit_immediately_false(self):
+        """ Check that admit_immediately=False on an event makes admit_immediately False """
+        e = EventFactory(registration_opens_in_days=-1, public=True, admit_immediately=False)
+        reg = RegistrationFactory(event=e, status=Registration.statuses.PREPARATION_COMPLETE)
+        self.assertEqual(reg.admit_immediately, False)
+
+    def test_option_admit_immediately_true(self):
+        """ Check that admit_immediately=True on a selected option has precedence over the event """
+        e = EventFactory(registration_opens_in_days=-1, public=True, admit_immediately=False)
+
+        typeopt = RegistrationFieldFactory(event=e, name="type")
+        RegistrationFieldOptionFactory(field=typeopt, title="Player")
+        crew = RegistrationFieldOptionFactory(field=typeopt, title="Crew", admit_immediately=True)
+
+        reg = RegistrationFactory(event=e, status=Registration.statuses.PREPARATION_COMPLETE, options=[crew])
+        self.assertEqual(reg.admit_immediately, True)

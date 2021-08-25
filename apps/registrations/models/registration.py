@@ -77,10 +77,12 @@ class Registration(models.Model):
         Constant(REGISTERED=2, label=_('Registered')),
         Constant(WAITINGLIST=3, label=_('Waiting list')),
         Constant(CANCELLED=4, label=_('Cancelled')),
-        ConstantGroup("ACTIVE", ("REGISTERED", "WAITINGLIST")),
+        Constant(PENDING=5, label=_('Pending')),
+        ConstantGroup("ACTIVE", ("REGISTERED", "WAITINGLIST", "PENDING")),
         ConstantGroup("DRAFT", ("PREPARATION_IN_PROGRESS", "PREPARATION_COMPLETE")),
-        ConstantGroup("FINALIZED", ("REGISTERED", "WAITINGLIST", "CANCELLED")),
-        ConstantGroup("CURRENT", ("PREPARATION_IN_PROGRESS", "PREPARATION_COMPLETE", "REGISTERED", "WAITINGLIST")),
+        ConstantGroup("FINALIZED", ("REGISTERED", "WAITINGLIST", "CANCELLED", "PENDING")),
+        ConstantGroup("CURRENT", ("PREPARATION_IN_PROGRESS", "PREPARATION_COMPLETE",
+                                  "REGISTERED", "WAITINGLIST", "PENDING")),
     )
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=False, on_delete=models.CASCADE,
@@ -101,6 +103,10 @@ class Registration(models.Model):
             status=Registration.statuses.WAITINGLIST,
             registered_at__lt=self.registered_at,
         ).count()
+
+    @cached_property
+    def admit_immediately(self):
+        return self.event.admit_immediately or self.options.filter(option__admit_immediately=True).exists()
 
     def __str__(self):
         return _('%(user)s - %(event)s - %(status)s') % {

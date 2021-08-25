@@ -38,6 +38,11 @@ class RegistrationFieldOption(models.Model):
     slots = models.IntegerField(null=True, blank=True)
     full = models.BooleanField(default=False)
     price = MonetaryField(null=True, blank=True)
+    admit_immediately = models.BooleanField(
+        verbose_name=_('Admit registrations immediately'), default=False,
+        help_text=_('When checked, registrations that select this option are admitted immediately, bypassing any '
+                    'lottery or similar configured for the event. Has no effect effect when "admit immediately" is '
+                    'already set for the event.'))
 
     created_at = models.DateTimeField(verbose_name=_('Creation timestamp'), auto_now_add=True)
     updated_at = models.DateTimeField(verbose_name=_('Last update timestamp'), auto_now=True)

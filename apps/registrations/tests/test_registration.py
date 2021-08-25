@@ -435,6 +435,7 @@ class TestRegistrationForm(TestCase):
         self.assertEqual(mail.outbox[0].to, [reg.user.email])
         self.assertEqual(mail.outbox[0].bcc, settings.BCC_EMAIL_TO)
         self.assertNotIn('waiting', mail.outbox[0].subject.lower())
+        self.assertNotEqual(mail.outbox[0].subject.lower(), "")
         self.assertNotEqual(mail.outbox[0].body, '')
 
     def test_waitinglist_registration_sends_email(self):

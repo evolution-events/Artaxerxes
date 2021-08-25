@@ -1,6 +1,8 @@
 import reversion
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from konst import Constant, Constants
+from konst.models.fields import ConstantChoiceCharField
 
 from arta.common.db import UpdatedAtQuerySetMixin
 
@@ -18,18 +20,16 @@ class RegistrationFieldManager(models.Manager.from_queryset(RegistrationFieldQue
 class RegistrationField(models.Model):
     """ A field that should get a value during registration for a specific event.  """
 
-    TYPE_CHOICE = 'choice'
-    TYPE_STRING = 'string'
-    TYPE_CHOICES = (
-        (TYPE_CHOICE, _('Choice')),
-        (TYPE_STRING, _('String')),
+    types = Constants(
+        Constant(CHOICE='choice', label=_('Choice')),
+        Constant(STRING='string', label=_('String')),
     )
 
     event = models.ForeignKey('events.Event', related_name='registration_fields', on_delete=models.CASCADE)
     order = models.IntegerField(default=1)
     title = models.CharField(max_length=100)
     name = models.CharField(max_length=20)
-    field_type = models.CharField(max_length=10, choices=TYPE_CHOICES)
+    field_type = ConstantChoiceCharField(max_length=10, constants=types)
     depends = models.ForeignKey('registrations.RegistrationFieldOption', null=True, blank=True,
                                 on_delete=models.SET_NULL)
     invite_only = models.ForeignKey('auth.Group', null=True, blank=True, on_delete=models.SET_NULL)

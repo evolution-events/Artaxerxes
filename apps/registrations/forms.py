@@ -201,7 +201,7 @@ class RegistrationOptionsForm(forms.Form):
     def values_for_registration(self, registration):
         values = {}
         for option in registration.options.all():
-            if option.field.field_type == RegistrationField.TYPE_CHOICE:
+            if option.field.field_type.CHOICE:
                 value = option.option
             else:
                 value = option.string_value
@@ -216,11 +216,11 @@ class RegistrationOptionsForm(forms.Form):
             # TODO: Handle depends
             # TODO: Handle allow_change_until
 
-            if field.field_type == RegistrationField.TYPE_CHOICE:
+            if field.field_type.CHOICE:
                 # TODO: Handle depends
                 options = field.options.filter(Q(invite_only=None) | Q(invite_only__user=self.user))
                 form_field = RegistrationOptionField(queryset=options, label=field.title, empty_label=None)
-            elif field.field_type == RegistrationField.TYPE_STRING:
+            elif field.field_type.STRING:
                 form_field = forms.CharField(label=field.title)
             form_field.readonly = True
             self.fields[field.name] = form_field
@@ -242,7 +242,7 @@ class RegistrationOptionsForm(forms.Form):
             if field.depends and d.get(field.depends.field.name, None) != field.depends:
                 continue
 
-            if field.field_type == RegistrationField.TYPE_CHOICE:
+            if field.field_type.CHOICE:
                 try:
                     option = d[field.name]
                 except KeyError:
@@ -262,7 +262,7 @@ class RegistrationOptionsForm(forms.Form):
                 continue
 
             (value, created) = RegistrationFieldValue.objects.get_or_create(registration=registration, field=field)
-            if field.field_type == RegistrationField.TYPE_CHOICE:
+            if field.field_type.CHOICE:
                 value.option = d[field.name]
             else:
                 value.string_value = d[field.name]

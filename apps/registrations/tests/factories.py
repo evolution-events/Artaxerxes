@@ -48,7 +48,7 @@ class RegistrationFieldFactory(factory.django.DjangoModelFactory):
 
     name = factory.Sequence(lambda n: 'field_%d' % n)
     title = factory.Sequence(lambda n: 'Field title %d' % n)
-    field_type = RegistrationField.TYPE_CHOICE
+    field_type = RegistrationField.types.CHOICE
 
 
 class RegistrationFieldOptionFactory(factory.django.DjangoModelFactory):

@@ -35,19 +35,19 @@ class RegistrationFieldValue(models.Model):
         return self.display_value()
 
     def display_value(self):
-        if self.field.field_type == self.field.TYPE_CHOICE:
+        if self.field.field_type.CHOICE:
             if self.option:
                 return self.option.title
             else:
                 return "<value unset>"
         return self.string_value
     display_value.admin_order_field = Case(
-        When(field__field_type=RegistrationField.TYPE_CHOICE, then='option__title'),
+        When(field__field_type=RegistrationField.types.CHOICE, then='option__title'),
         default_value = 'string_value',
     )
 
     def price(self):
-        if self.field.field_type == self.field.TYPE_CHOICE and self.option:
+        if self.field.field_type.CHOICE and self.option:
             return self.option.price
         return None
     price.admin_order_field = 'option__price'

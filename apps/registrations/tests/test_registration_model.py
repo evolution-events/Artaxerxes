@@ -69,3 +69,16 @@ class TestPriceAnnotation(TestCase):
     def test_negative_priced_option(self):
         """ Test that negative priced options are subtracted """
         self.price_helper(90, [self.player, self.discount_yes])
+
+
+class TestIsCurrentAnnotation(TestCase):
+    def test_is_current(self):
+        """ Check the is_current annotation """
+        for status in Registration.statuses.constants:
+            with self.subTest(status=status):
+                reg = RegistrationFactory(status=status)
+                reg = Registration.objects.get(pk=reg.pk)
+                if status == Registration.statuses.CANCELLED:
+                    self.assertEqual(reg.is_current, False)
+                else:
+                    self.assertEqual(reg.is_current, True)

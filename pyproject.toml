@@ -5,7 +5,7 @@ description = ""
 authors = []
 
 [tool.poetry.dependencies]
-python = "^3.5"
+python = "^3.6"
 django = "^2.2"
 django-reversion = "*"
 django-allauth = "*"

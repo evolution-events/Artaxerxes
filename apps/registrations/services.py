@@ -65,18 +65,22 @@ class RegistrationStatusService:
     @staticmethod
     def finalize_registration(registration):
         """
-        Finalizes a registration by setting its status to REGISTERED and doing additional needed bookkeeping.
+        Finalizes a registration by setting its status and doing additional needed bookkeeping.
 
         Current status must be PREPARATION_COMPLETE, otherwise a ValidationError is raised.
 
-        When there are sufficient slots available for the options selected by this registration, the status is set to
-        REGISTERED. If not, status is changed to STATUS_WAITINGLIST.
+        When this registration needs to admitted later (e.g. lottery or other selection mechanism), the status becomes
+        PENDING (indepenent of slots). Otherwhise, when there are sufficient slots available for the options selected
+        by this registration, the status is set to REGISTERED. If there insufficient slots, the status is changed to
+        WAITINGLIST.
         """
         with transaction.atomic():
             # Lock the event, to prevent multiple registrations from taking up the same slots.
             # This locks the event separately first and uses used_slots_for() rather than with_used_slots() in a single
             # query, to prevent locking any other rows than the event itself.
+            # Not strictly needed for pending registrations, but does not hurt (much) either
             event = Event.objects.select_for_update().for_user(registration.user_id).get(pk=registration.event_id)
+
             # Lock the user, to prevent mutually exclusive registrations for the same user.
             # We do not actually need the values, so just evaluate the query and check it returns one user for good
             # meausure. We can't use .get(), since that always returns an object (wasteful) and it seems using the
@@ -88,7 +92,7 @@ class RegistrationStatusService:
             if not event.registration_is_open:
                 raise ValidationError(_("Registration is not open"))
 
-            # Refresh after taking the lock
+            # Refresh after taking the lock (if any)
             registration.refresh_from_db()
             if not registration.status.PREPARATION_COMPLETE:
                 raise ValidationError(_("Registration not ready for finalization"))
@@ -97,26 +101,30 @@ class RegistrationStatusService:
             if conflicts:
                 raise ValidationError(_("Already registered for {}".format(conflicts.first().event)))
 
-            # This selects all options that are associated with the current registration and that have non-null slots.
-            # annotated with the number of slots used.
-            options_with_slots = RegistrationFieldOption.objects.with_used_slots().filter(
-                Q(registrationfieldvalue__registration=registration) & ~Q(slots=None),
-            )
-
-            # If the event has slots defined, we can treat it just like any option with slots
-            if event.slots is not None:
-                options_with_slots = [*options_with_slots, event]
-
-            if any(o.full or o.used_slots >= o.slots for o in options_with_slots):
-                registration.status = Registration.statuses.WAITINGLIST
+            if not registration.admit_immediately:
+                # Pending registrations are super-easy, just set the status, no need to look at the slots
+                registration.status = Registration.statuses.PENDING
             else:
-                registration.status = Registration.statuses.REGISTERED
+                # This selects all options that are associated with the current registration and that have non-null
+                # slots. annotated with the number of slots used.
+                options_with_slots = RegistrationFieldOption.objects.with_used_slots().filter(
+                    Q(registrationfieldvalue__registration=registration) & ~Q(slots=None),
+                )
 
-                # Set full for any options (or the event as a whole) where we used the last slot
-                for o in options_with_slots:
-                    if o.slots - o.used_slots == 1:
-                        o.full = True
-                        o.save()
+                # If the event has slots defined, we can treat it just like any option with slots
+                if event.slots is not None:
+                    options_with_slots = [*options_with_slots, event]
+
+                if any(o.full or o.used_slots >= o.slots for o in options_with_slots):
+                    registration.status = Registration.statuses.WAITINGLIST
+                else:
+                    registration.status = Registration.statuses.REGISTERED
+
+                    # Set full for any options (or the event as a whole) where we used the last slot
+                    for o in options_with_slots:
+                        if o.slots - o.used_slots == 1:
+                            o.full = True
+                            o.save()
 
             registration.registered_at = datetime.now(timezone.utc)
             registration.save()

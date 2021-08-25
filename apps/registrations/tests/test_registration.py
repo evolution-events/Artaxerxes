@@ -220,6 +220,63 @@ class TestRegistration(TestCase):
         RegistrationStatusService.finalize_registration(reg2)
         self.assertTrue(reg2.status.REGISTERED)
 
+    def test_event_admit_immediately_false(self):
+        """ Check that admit_immediately=False on an event produces a pending registration, regardless of slots """
+        e = self.event
+        e.refresh_from_db()
+        e.admit_immediately = False
+        e.slots = 3
+        e.save()
+
+        for _i in range(4):
+            reg = RegistrationFactory(
+                event=e, preparation_complete=True,
+                options=[self.player, self.option_m, self.option_nl],
+            )
+
+            RegistrationStatusService.finalize_registration(reg)
+            self.assertEqual(reg.status, Registration.statuses.PENDING)
+
+    def test_option_admit_immediately_true(self):
+        """ Check that admit_immediately=True on a selected option has precedence over the event """
+        e = self.event
+        e.refresh_from_db()
+        e.admit_immediately = False
+        e.slots = 3
+        e.save()
+
+        self.crew.refresh_from_db()
+        self.crew.admit_immediately = True
+        self.crew.save()
+
+        reg = RegistrationFactory(
+            event=e, preparation_complete=True,
+            options=[self.crew, self.option_m, self.option_nl],
+        )
+
+        RegistrationStatusService.finalize_registration(reg)
+        self.assertEqual(reg.status, Registration.statuses.REGISTERED)
+
+    def test_other_option_admit_immediately_true(self):
+        """ Check that admit_immediately=True on a non-selected option has no precedence over the event """
+        e = self.event
+        e.refresh_from_db()
+        e.admit_immediately = False
+        e.slots = 3
+        e.save()
+
+        self.crew.refresh_from_db()
+        self.crew.admit_immediately = True
+        self.crew.save()
+
+        reg = RegistrationFactory(
+            event=e, preparation_complete=True,
+            options=[self.player, self.option_m, self.option_nl],
+        )
+
+        RegistrationStatusService.finalize_registration(reg)
+        self.assertEqual(reg.status, Registration.statuses.PENDING)
+
     @skipUnlessDBFeature('has_select_for_update')
     def test_finalize_locks(self):
         reg = RegistrationFactory(
@@ -461,6 +518,32 @@ class TestRegistrationForm(TestCase):
         self.assertEqual(mail.outbox[0].to, [reg.user.email])
         self.assertEqual(mail.outbox[0].bcc, settings.BCC_EMAIL_TO)
         self.assertIn('waiting', mail.outbox[0].subject.lower())
+        self.assertEqual(len(mail.outbox), 1)
+
+    def test_pending_registration_sends_email(self):
+        """ Register until the option slots are taken and the next registration ends up on the waiting list. """
+        e = self.event
+        e.refresh_from_db()
+        e.admit_immediately = False
+        e.pending_mail_text = "MARKERMARKERMARKER"
+        e.save()
+
+        reg = RegistrationFactory(event=e, user=self.user, preparation_complete=True,
+                                  options=[self.option_m, self.option_nl])
+        check_url = reverse('registrations:step_final_check', args=(reg.pk,))
+        confirm_url = reverse('registrations:registration_confirmation', args=(reg.pk,))
+        response = self.client.post(check_url, {'agree': 1})
+        self.assertRedirects(response, confirm_url)
+
+        reg.refresh_from_db()
+        self.assertEqual(reg.status, Registration.statuses.PENDING)
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, [reg.user.email])
+        self.assertEqual(mail.outbox[0].bcc, settings.BCC_EMAIL_TO)
+        self.assertNotIn('waiting', mail.outbox[0].subject.lower())
+        self.assertNotEqual(mail.outbox[0].subject.lower(), "")
+        self.assertIn(e.pending_mail_text, mail.outbox[0].body)
         self.assertEqual(len(mail.outbox), 1)
 
     def test_registration_start(self):

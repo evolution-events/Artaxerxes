@@ -2,7 +2,17 @@
 {% load coretags %}
 Dear {{user.full_name}},
 .
-{% if registration.status.REGISTERED %}
+{% if registration.status.PENDING %}
+  {% if registration.event.pending_mail_text %}
+  {{ registration.event.pending_mail_text }}
+  {{ else }}
+  {% blocktrans with event=registration.event eventurl=registration.event.display_url %}
+Your registration for {{event}} was completed. You are not admitted yet,
+see the event website for details on how and when you will be admitted:
+{{eventurl}}).
+  {% endblocktrans %}
+  {% endif %}
+{% elif registration.status.REGISTERED %}
 {% blocktrans with event=registration.event eventurl=registration.event.display_url %}
 Your registration for {{event}} was completed. Your spot is secured for
 you, provided that you pay in time (see the event website for the

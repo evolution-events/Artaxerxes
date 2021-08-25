@@ -628,7 +628,7 @@ class TestRegistrationForm(TestCase):
             reg.refresh_from_db()
             self.assertTrue(reg.status.REGISTERED)
 
-        reg.status = Registration.statuses.PREPARATION_COMPLETE = True
+        reg.status = Registration.statuses.PREPARATION_COMPLETE
         reg.save()
 
         with mock.patch('django.utils.timezone.now', return_value=start_date_midnight):

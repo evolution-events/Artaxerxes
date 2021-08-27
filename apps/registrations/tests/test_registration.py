@@ -19,6 +19,7 @@ from django.urls import reverse
 from django.utils import timezone
 from parameterized import parameterized, parameterized_class
 from reversion.models import Revision
+from with_asserts.mixin import AssertHTMLMixin
 
 from apps.core.models import ConsentLog
 from apps.events.models import Event
@@ -306,7 +307,7 @@ class TestRegistration(TestCase):
             self.assertRegex(queries[2]["sql"], match)
 
 
-class TestRegistrationForm(TestCase):
+class TestRegistrationForm(TestCase, AssertHTMLMixin):
     registration_steps = (
         'registrations:step_registration_options',
         'registrations:step_personal_details',
@@ -330,17 +331,13 @@ class TestRegistrationForm(TestCase):
         self.user = ArtaUserFactory()
         self.client.force_login(self.user)
 
-    def assertHasForm(self, response):
-        # This assumes that this will be the only form on the page
-        form_html = b'<form '
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(form_html, response.content)
+    def assertFinalizeAllowed(self, response):
+        self.assertHTML(response, 'input[name="agree"]')
+        self.assertHTML(response, 'button[type="submit"]')
 
-    def assertHasNoForm(self, response):
-        # This assumes that this will be the only form on the page
-        form_html = b'<form '
-        self.assertEqual(response.status_code, 200)
-        self.assertNotIn(form_html, response.content)
+    def assertFinalizeNotAllowed(self, response, waiting=False):
+        self.assertNotHTML(response, 'input[name="agree"]')
+        self.assertNotHTML(response, 'input[type="submit"]')
 
     def test_full_registration(self):
         """ Run through an entire registration flow. """
@@ -674,7 +671,7 @@ class TestRegistrationForm(TestCase):
 
         with mock.patch('django.utils.timezone.now', return_value=before_opens_at):
             response = self.client.get(final_check_url)
-            self.assertHasNoForm(response)
+            self.assertFinalizeNotAllowed(response)
             self.assertFalse(response.context['event'].registration_is_open)
 
             response = self.client.post(final_check_url, {'agree': 1}, follow=True)
@@ -685,7 +682,7 @@ class TestRegistrationForm(TestCase):
 
         with mock.patch('django.utils.timezone.now', return_value=opens_at):
             response = self.client.get(final_check_url)
-            self.assertHasForm(response)
+            self.assertFinalizeAllowed(response)
             self.assertTrue(response.context['event'].registration_is_open)
 
             response = self.client.post(final_check_url, {'agree': 1})
@@ -703,7 +700,7 @@ class TestRegistrationForm(TestCase):
 
         with mock.patch('django.utils.timezone.now', return_value=before_start_date):
             response = self.client.get(final_check_url)
-            self.assertHasForm(response)
+            self.assertFinalizeAllowed(response)
             self.assertTrue(response.context['event'].registration_is_open)
 
             response = self.client.post(final_check_url, {'agree': 1})
@@ -818,7 +815,7 @@ class TestRegistrationForm(TestCase):
         response = self.client.get(final_check_url)
         with self.subTest(msg="Should show finalcheck with form"):
             self.assertTemplateUsed(response, FinalCheck.template_name)
-            self.assertHasForm(response)
+            self.assertFinalizeAllowed(response)
         with self.subTest(msg="Should not set status"):
             self.assertTrue(reg.status.PREPARATION_COMPLETE)
 

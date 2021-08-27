@@ -400,7 +400,7 @@ class RegistrationConfirmation(LoginRequiredMixin, DetailView):
     template_name = 'registrations/registration_confirmation.html'
 
     def get_queryset(self):
-        return Registration.objects.filter(user=self.request.user)
+        return Registration.objects.filter(user=self.request.user).with_price()
 
     def render_to_response(self, context):
         # Check this in render_to_response, which is late enough to access self.object *and* can return a response.

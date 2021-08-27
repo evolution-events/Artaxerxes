@@ -51,11 +51,7 @@
 
   {% if registration.options.all %}
     <h2>{% trans "Selected options" %}</h2>
-    <table class="table">
-      {% for value in registration.options.all %}
-      <tr><td>{{ value.field.title }}</td><td>{{ value.display_value }}</td></tr>
-      {% endfor %}
-    </table>
+    {% include 'registrations/snippets/registration_options.html' with registration=registration %}
   {% endif %}
 
   <h2>{% trans "Payments" %}</h2>

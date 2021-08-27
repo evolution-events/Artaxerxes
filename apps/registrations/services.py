@@ -49,6 +49,8 @@ class RegistrationStatusService:
         )
         all_fields = RegistrationField.objects.filter(
             event=registration.event_id,
+        ).exclude(
+            field_type=RegistrationField.types.SECTION,
         )
         required_fields = all_fields.filter(
             Q(depends=None) | Q(depends__in=selected_options),

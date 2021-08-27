@@ -64,29 +64,7 @@
 
   {% if registration and options %}
   <h3>{% trans 'Event options' %}</h3>
-  <table class="table registration-options">
-    {% for value in options %}
-    <tr>
-      <td>{{ value.field.title }}</td>
-      <td>
-        {{ value.display_value }}
-        {% if value.option.full %}
-        {% trans ' (FULL)' %}
-        {% endif %}
-      </td>
-      {% if value.price is not None %}
-      <td class="price">{{ value.price | moneyformat }}</td>
-      {% else %}
-      <td class="noprice"></td>
-      {% endif %}
-    </tr>
-    {% endfor %}
-    <tr class="total-price">
-      <td></td>
-      <td class="label">{% trans 'Total registration fee' %}</td>
-      <td class="price">{{ total_price | moneyformat }}</td>
-    </tr>
-  </table>
+  {% include 'registrations/snippets/registration_options.html' with registration=registration options=options show_full=True %}
   {% endif %}
 
   {% if any_is_full %}

@@ -1,11 +1,17 @@
 {% load i18n %}
 {% load coretags %}
 
+{% with options=options|default:registration.options.select_related_option_and_field %}
 <table class="table registration-options">
-  {% for value in registration.options.select_related_option_and_field %}
+  {% for value in options %}
   <tr>
     <td>{{ value.field.title }}</td>
-    <td>{{ value.display_value }}</td>
+    <td>
+      {{ value.display_value }}
+      {% if show_full and value.option.full %}
+      {% trans ' (FULL)' %}
+      {% endif %}
+    </td>
     {# Check for None and not 0, so prices are shown even when negative amounts make the total price 0 #}
     {% if registration.price is not None %}
       {% if value.price is not None %}
@@ -25,3 +31,4 @@
   </tr>
   {% endif %}
 </table>
+{% endwith %}

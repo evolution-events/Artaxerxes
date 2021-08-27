@@ -23,6 +23,22 @@ from .forms import (EmergencyContactFormSet, FinalCheckForm, MedicalDetailForm, 
 from .models import Registration, RegistrationFieldOption, RegistrationFieldValue
 from .services import RegistrationNotifyService, RegistrationStatusService
 
+REGISTRATION_STEPS = [
+    {
+        'view': 'registrations:step_registration_options',
+        'cancel_view': 'core:dashboard',
+    }, {
+        'view': 'registrations:step_personal_details',
+    }, {
+        'view': 'registrations:step_medical_details',
+    }, {
+        'view': 'registrations:step_emergency_contacts',
+    }, {
+        'view': 'registrations:step_final_check',
+        'success_view': 'registrations:registration_confirmation',
+    },
+]
+
 
 class RegistrationStart(LoginRequiredMixin, TemplateResponseMixin, View):
     template_name = 'registrations/registration_start.html'
@@ -66,8 +82,11 @@ class RegistrationStepMixinBase(ContextMixin):
         return qs
 
     def get_success_url(self):
-        # success_view is supplied by the subclass
-        return reverse(self.success_view, args=(self.registration.id,))
+        view = REGISTRATION_STEPS[self.step_num].get('success_view', None)
+        if view is None:
+            view = REGISTRATION_STEPS[self.step_num + 1].get('view')
+
+        return reverse(view, args=(self.registration.id,))
 
     @property
     def registration_id(self):
@@ -80,6 +99,13 @@ class RegistrationStepMixinBase(ContextMixin):
     @cached_property
     def event(self):
         return Event.objects.for_user(self.request.user).get(pk=self.registration.event_id)
+
+    @cached_property
+    def step_num(self):
+        for (step, info) in enumerate(REGISTRATION_STEPS):
+            if info['view'] == self.request.resolver_match.view_name:
+                return step
+        raise Exception("Current step not listed in REGISTRATION_STEPS")
 
     def check_request(self):
         """
@@ -104,9 +130,16 @@ class RegistrationStepMixinBase(ContextMixin):
         return response
 
     def get_context_data(self, **kwargs):
+        if self.step_num == 0:
+            back_url = reverse(REGISTRATION_STEPS[self.step_num]['cancel_view'])
+        else:
+            back_url = reverse(REGISTRATION_STEPS[self.step_num - 1]['view'], args=(self.registration.pk,))
+
         kwargs.update({
             'registration': self.registration,
             'event': self.event,
+            'step_num': self.step_num,
+            'back_url': back_url,
         })
         return super().get_context_data(**kwargs)
 
@@ -121,7 +154,6 @@ class RegistrationOptionsStep(RegistrationStepMixin, FormView):
     """ Step in registration process where user chooses options """
 
     template_name = 'registrations/step_registration_options.html'
-    success_view = 'registrations:step_personal_details'
     form_class = RegistrationOptionsForm
 
     def get_form_kwargs(self):
@@ -149,19 +181,11 @@ class RegistrationOptionsStep(RegistrationStepMixin, FormView):
             return redirect(self.get_success_url())
         return super().check_request()
 
-    def get_context_data(self, **kwargs):
-        kwargs.update({
-            'back_url': reverse('core:dashboard'),
-            'firststep': True,
-        })
-        return super().get_context_data(**kwargs)
-
 
 class PersonalDetailsStep(RegistrationStepMixin, FormView):
     """ Step in registration process where user fills in personal details """
 
     template_name = 'registrations/step_personal_details.html'
-    success_view = 'registrations:step_medical_details'
     form_class = PersonalDetailForm
 
     def get_form_kwargs(self):
@@ -188,18 +212,11 @@ class PersonalDetailsStep(RegistrationStepMixin, FormView):
 
         return super().form_valid(form)
 
-    def get_context_data(self, **kwargs):
-        kwargs.update({
-            'back_url': reverse('registrations:step_registration_options', args=(self.registration.pk,)),
-        })
-        return super().get_context_data(**kwargs)
-
 
 class MedicalDetailsStep(RegistrationStepMixin, FormView):
     """ Step in registration process where user fills in medical details """
 
     template_name = 'registrations/step_medical_details.html'
-    success_view = 'registrations:step_emergency_contacts'
     form_class = MedicalDetailForm
 
     def get_form_kwargs(self):
@@ -227,18 +244,11 @@ class MedicalDetailsStep(RegistrationStepMixin, FormView):
 
         return super().form_valid(form)
 
-    def get_context_data(self, **kwargs):
-        kwargs.update({
-            'back_url': reverse('registrations:step_personal_details', args=(self.registration.pk,)),
-        })
-        return super().get_context_data(**kwargs)
-
 
 class EmergencyContactsStep(RegistrationStepMixin, FormView):
     """ Step in registration process where user fills in emergency contacts """
 
     template_name = 'registrations/step_emergency_contacts.html'
-    success_view = 'registrations:step_final_check'
     form_class = EmergencyContactFormSet
 
     def get_form_kwargs(self):
@@ -268,10 +278,6 @@ class EmergencyContactsStep(RegistrationStepMixin, FormView):
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
-        kwargs.update({
-            # Broken?
-            'back_url': reverse('registrations:step_medical_details', args=(self.registration.pk,)),
-        })
         res = super().get_context_data(**kwargs)
         # FormView does not know we're using a formset, but it makes the template more readable like this
         res['formset'] = res['form']
@@ -282,11 +288,10 @@ class FinalCheck(RegistrationStepMixin, FormView):
     """ Step in registration process where user checks all information and agrees to conditions """
 
     template_name = 'registrations/step_final_check.html'
-    success_view = 'registrations:registration_confirmation'
     form_class = FinalCheckForm
 
     def get_modify_url(self):
-        return reverse('registrations:step_registration_options', args=(self.registration.pk,))
+        return reverse(REGISTRATION_STEPS[0]['view'], args=(self.registration.pk,))
 
     def form_valid(self, form):
         try:

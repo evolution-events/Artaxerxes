@@ -19,7 +19,7 @@
     {% endblock form %}
     {% block buttons %}
       <a class="btn btn-default" href="{{ back_url }}" role="button">
-        {% if firststep %}
+        {% if step_num == 0 %}
           {% trans 'Cancel' %}
         {% else %}
           {% trans 'Back' %}

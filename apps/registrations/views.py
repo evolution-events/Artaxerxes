@@ -382,8 +382,6 @@ class FinalCheck(RegistrationStepMixin, FormView):
 
         kwargs.update({
             'user': self.request.user,
-            'registration': self.registration,
-            'event': self.event,
             'pdetails': personal_details,
             'mdetails': medical_details,
             'emergency_contacts': emergency_contacts,

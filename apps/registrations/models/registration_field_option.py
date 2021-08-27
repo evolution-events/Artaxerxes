@@ -58,4 +58,4 @@ class RegistrationFieldOption(models.Model):
     class Meta:
         verbose_name = _('registration field option')
         verbose_name_plural = _('registration field options')
-        ordering = ('order', 'title')
+        ordering = ('order', 'id')

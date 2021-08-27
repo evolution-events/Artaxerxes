@@ -54,26 +54,8 @@
     {% endif %}
     </p>
 
-
     <h3>{% trans 'Options chosen for registration' %}</h3>
-    <table class="table registration-options">
-      {% for value in e.registration.options.all %}
-      <tr>
-        <td>{{ value.field.title }}</td>
-        <td>{{ value.display_value }}</td>
-        {% if value.price is not None %}
-        <td class="price">{{ value.price | moneyformat }}</td>
-        {% else %}
-        <td class="noprice"></td>
-        {% endif %}
-      </tr>
-      {% endfor %}
-      <tr class="total-price">
-        <td></td>
-        <td class="label">{% trans 'Total price' %}</td>
-        <td class="price">{{ e.registration.price | moneyformat }}</td>
-      </tr>
-    </table>
+    {% include 'registrations/snippets/registration_options.html' with registration=e.registration %}
 
     {# TODO betaalstatus nadat we het bijhouden daar van hebben geimplementeerd #}
 

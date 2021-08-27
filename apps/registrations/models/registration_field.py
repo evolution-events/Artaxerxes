@@ -21,6 +21,7 @@ class RegistrationField(models.Model):
     """ A field that should get a value during registration for a specific event.  """
 
     types = Constants(
+        Constant(SECTION='section', label=_('Section')),
         Constant(CHOICE='choice', label=_('Choice')),
         Constant(STRING='string', label=_('String')),
     )

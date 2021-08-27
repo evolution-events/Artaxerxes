@@ -2,7 +2,7 @@
 {% load coretags %}
 
 <table class="table registration-options">
-  {% for value in registration.options.all %}
+  {% for value in registration.options.select_related_option_and_field %}
   <tr>
     <td>{{ value.field.title }}</td>
     <td>{{ value.display_value }}</td>

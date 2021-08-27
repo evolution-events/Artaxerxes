@@ -112,6 +112,10 @@ class TestRegistration(TestCase):
         """ Check that a omitting an optional option does not prevent completing preparation """
         self.incomplete_registration_helper(options=[self.crew], exception=None)
 
+    def test_complete(self):
+        """ Check that a complete registration can be completed """
+        self.incomplete_registration_helper(exception=None)
+
     def test_register_until_option_full(self):
         """ Register until the option slots are taken and the next registration ends up on the waiting list. """
         e = self.event

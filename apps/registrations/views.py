@@ -377,7 +377,7 @@ class FinalCheck(RegistrationStepMixin, FormView):
         emergency_contacts = self.request.user.emergency_contacts.all()
 
         options = self.registration.options.all().select_related('option', 'field')
-        any_is_full = self.event.full or any(value.option.full for value in options)
+        any_is_full = self.event.full or any(value.option.full for value in options if value.option)
         total_price = sum(o.price for o in options if o.price is not None)
 
         kwargs.update({

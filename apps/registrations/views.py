@@ -151,7 +151,8 @@ class RegistrationOptionsStep(RegistrationStepMixin, FormView):
 
     def get_context_data(self, **kwargs):
         kwargs.update({
-            'cancel_url': reverse('core:dashboard'),
+            'back_url': reverse('core:dashboard'),
+            'firststep': True,
         })
         return super().get_context_data(**kwargs)
 

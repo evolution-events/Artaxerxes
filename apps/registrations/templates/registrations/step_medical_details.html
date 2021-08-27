@@ -1,14 +1,7 @@
-{% extends "base.html" %}
+{% extends "registrations/step_base.html" %}
 {% load i18n %}
 
-{% block pagetitle %}
-{% blocktrans %}Registering for {{event}}{% endblocktrans %}
-{% endblock pagetitle%}
-{% block content %}
-  {% if message %}
-    <p class="notification">{{ message }}</p>
-  {% endif %}
-
+{% block beforeform %}
   <h2>{% trans 'Safety information' %}</h2>
 
   {% url 'core:privacy_policy' as privacy_url %}
@@ -33,14 +26,4 @@
   See our <a href="{{ privacy_url }}">privacy policy</a> for details.
   {% endblocktrans %}
   </p>
-
-  <form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    <table class="table">
-    {{ form.as_table }}
-    {# TODO: Improve layout of consent checkbox #}
-    </table>
-    <a class="btn btn-default" href="{{ back_url }}" role="button">{% trans 'Back' %}</a>
-    <button class="btn btn-success" type="submit">{% trans 'Next step' %}</button>
-  </form>
-{% endblock content %}
+{% endblock beforeform %}

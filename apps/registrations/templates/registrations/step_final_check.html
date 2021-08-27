@@ -1,16 +1,8 @@
-{% extends "base.html" %}
+{% extends "registrations/step_base.html" %}
 {% load i18n %}
 {% load coretags %}
 
-{% block pagetitle %}
-{% blocktrans %}Registering for {{event}}{% endblocktrans %}
-{% endblock pagetitle%}
-
-{% block content %}
-  {% if message %}
-    <p class="notification">{{ message }}</p>
-  {% endif %}
-
+{% block beforeform %}
   {% if event.registration_is_open %}
     <h2>Ready to complete registration</h2>
     {% trans 'Please doublecheck below information and finalize your registration.' %}
@@ -129,14 +121,16 @@
   {% endif %}
 
   {% endif %}
+{% endblock beforeform %}
+
+{% block form %}
   {% if event.registration_is_open %}
-  <form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    <table class="table">
-    {{ form.as_table }}
-    </table>
+  {{ block.super }}
   {% endif %}
-    <a href="{{ modify_url }}" class="btn btn-info" role="button">{% trans 'Modify information' %}</a>
+{% endblock form %}
+
+{% block buttons %}
+  <a href="{{ modify_url }}" class="btn btn-info" role="button">{% trans 'Modify information' %}</a>
   {% if event.registration_is_open %}
     <button class="btn btn-success" type="submit">
     {% if any_is_full %}
@@ -145,6 +139,5 @@
       {% trans 'Register' %}
     {% endif %}
     </button>
-  </form>
   {% endif %}
-{% endblock content %}
+{% endblock buttons %}

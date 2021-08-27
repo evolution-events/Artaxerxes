@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block pagetitle %}
+{% blocktrans %}Registering for {{event}}{% endblocktrans %}
+{% endblock pagetitle%}
+
+{% block content %}
+  {% if message %}
+    <p class="notification">{{ message }}</p>
+  {% endif %}
+
+  {% block beforeform %}
+  {% endblock beforeform %}
+
+  {% block outerform %}
+    <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {% block form %}
+      <table class="table table-borderless table-sm">
+      {{ form.as_table }}
+      </table>
+    {% endblock form %}
+    {% block buttons %}
+      <a class="btn btn-default" href="{{ back_url }}" role="button">
+        {% if firststep %}
+          {% trans 'Cancel' %}
+        {% else %}
+          {% trans 'Back' %}
+        {% endif %}
+      </a>
+      <button class="btn btn-success" type="submit">{% trans 'Next step' %}</button>
+    {% endblock buttons %}
+    </form>
+  {% endblock outerform %}
+{% endblock content %}

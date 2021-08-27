@@ -38,9 +38,10 @@ class RegistrationFieldValue(models.Model):
         if self.field.field_type.CHOICE:
             if self.option:
                 return self.option.title
-            else:
-                return "<value unset>"
-        return self.string_value
+        elif self.field.field_type.STRING:
+            if self.string_value is not None:
+                return self.string_value
+        return "<value unset>"
     display_value.admin_order_field = Case(
         When(field__field_type=RegistrationField.types.CHOICE, then='option__title'),
         default_value = 'string_value',

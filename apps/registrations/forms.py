@@ -222,6 +222,8 @@ class RegistrationOptionsForm(forms.Form):
                 form_field = RegistrationOptionField(queryset=options, label=field.title, empty_label=None)
             elif field.field_type.STRING:
                 form_field = forms.CharField(label=field.title)
+
+            form_field.help_text = field.help_text
             self.fields[field.name] = form_field
 
     def add_error_by_code(self, field_name, code, **kwargs):

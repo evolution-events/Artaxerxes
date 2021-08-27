@@ -138,6 +138,7 @@ INSTALLED_APPS = [
     'hijack',
     'hijack_admin',
     'compat',
+    'crispy_forms',
 ]
 
 # Middlewares
@@ -252,6 +253,9 @@ HIJACK_REGISTER_ADMIN = False
 # Needed for hijack-admin. TODO: How about CSRF?
 HIJACK_ALLOW_GET_REQUESTS = True
 
+# ##### CRISPY FORMS ######################################
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
+CRISPY_FAIL_SILENTLY = False
 
 # finally grab the SECRET KEY
 try:

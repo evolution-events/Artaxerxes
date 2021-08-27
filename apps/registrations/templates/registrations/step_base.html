@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load crispy_forms_filters %}
 
 {% block pagetitle %}
 {% blocktrans %}Registering for {{event}}{% endblocktrans %}
@@ -13,9 +14,7 @@
     <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {% block form %}
-      <table class="table table-borderless table-sm">
-      {{ form.as_table }}
-      </table>
+      {{ form | crispy }}
     {% endblock form %}
     {% block buttons %}
       <a class="btn btn-default" href="{{ back_url }}" role="button">

@@ -1,5 +1,6 @@
 {% extends "registrations/step_base.html" %}
 {% load i18n %}
+{% load crispy_forms_filters %}
 
 {% block beforeform %}
   <h2>{% trans 'Emergency contacts' %}</h2>
@@ -34,8 +35,6 @@
     {{ formset.management_form }}
     {% for form in formset %}
     <h3>{% blocktrans with num=forloop.counter %}Contact #{{num}}{% endblocktrans %}</h3>
-    <table class="table table-borderless table-sm">
-    {{ form.as_table }}
-    </table>
+    {{ form | crispy }}
     {% endfor %}
 {% endblock form %}

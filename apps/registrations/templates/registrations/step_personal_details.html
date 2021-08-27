@@ -1,5 +1,6 @@
 {% extends "registrations/step_base.html" %}
 {% load i18n %}
+{% load crispy_forms_filters %}
 
 {% block beforeform %}
   <h2>{% trans 'Personal details' %}</h2>
@@ -29,8 +30,6 @@
 {% endblock beforeform %}
 
 {% block form %}
-  <table class="table">
-  {{ form.user_form.as_table }}
-  {{ form.address_form.as_table }}
-  </table>
+  {{ form.user_form | crispy }}
+  {{ form.address_form | crispy }}
 {% endblock form %}

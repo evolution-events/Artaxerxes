@@ -209,9 +209,17 @@ class RegistrationOptionsForm(forms.Form):
             values[option.field.name] = value
         return values
 
+    @property
+    def sections(self):
+        # Resolve field names to bound fields, since a template cannot do this
+        for (section, fields) in self._sections:
+            yield (section, [self[name] for name in fields])
+
     def add_fields(self):
         """ Add form fields based on the RegistrationFields in the database. """
         fields = self.event.registration_fields.filter(Q(invite_only=None) | Q(invite_only__user=self.user))
+        self._sections = []
+
         for field in fields:
             # TODO: Handle depends
             # TODO: Handle allow_change_until
@@ -222,9 +230,17 @@ class RegistrationOptionsForm(forms.Form):
                 form_field = RegistrationOptionField(queryset=options, label=field.title, empty_label=None)
             elif field.field_type.STRING:
                 form_field = forms.CharField(label=field.title)
+            elif field.field_type.SECTION:
+                form_field = None
+                self._sections.append((field, []))
 
-            form_field.help_text = field.help_text
-            self.fields[field.name] = form_field
+            if form_field:
+                form_field.help_text = field.help_text
+                if not self._sections:
+                    self._sections.append((None, []))
+                self._sections[-1][1].append(field.name)
+
+                self.fields[field.name] = form_field
 
     def add_error_by_code(self, field_name, code, **kwargs):
         # Add an error for the given field, reusing the predefined error messages for that field.
@@ -238,6 +254,7 @@ class RegistrationOptionsForm(forms.Form):
         d = self.cleaned_data
 
         fields = self.event.registration_fields.filter(Q(invite_only=None) | Q(invite_only__user=self.user))
+        fields = fields.exclude(field_type=RegistrationField.types.SECTION)
         for field in fields:
             # If the dependencies for this option are not satisfied, ignore it
             if field.depends and d.get(field.depends.field.name, None) != field.depends:
@@ -256,6 +273,7 @@ class RegistrationOptionsForm(forms.Form):
         d = self.cleaned_data
 
         fields = self.event.registration_fields.filter(Q(invite_only=None) | Q(invite_only__user=self.user))
+        fields = fields.exclude(field_type=RegistrationField.types.SECTION)
         for field in fields:
             # If the dependencies for this option are not satisfied, delete any values for it that might be present
             if field.depends and d.get(field.depends.field.name, None) != field.depends:

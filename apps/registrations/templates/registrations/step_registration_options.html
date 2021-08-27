@@ -1,5 +1,6 @@
 {% extends "registrations/step_base.html" %}
 {% load i18n %}
+{% load crispy_forms_filters %}
 
 {% block beforeform %}
   <h2>{% trans 'Registration options' %}</h2>
@@ -20,3 +21,19 @@
   {% endblocktrans %}
   </p>
 {% endblock beforeform %}
+
+{% block form %}
+  {% for section, fields in form.sections %}
+    <fieldset>
+      {% if section %}
+        <legend class="section">{{section.title}}</legend>
+        {% if section.help_text %}
+        <p class="sectionhelp">{{ section.help_text }}</p>
+        {% endif %}
+      {% endif %}
+      {% for field in fields %}
+        {{ field | as_crispy_field }}
+      {% endfor %}
+    </fieldset>
+  {% endfor %}
+{% endblock form %}

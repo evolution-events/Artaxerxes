@@ -10,9 +10,6 @@
 {% endblock pagetitle%}
 
 {% block content %}
-  {% if message %}
-    <p class="notification">{{ message }}</p>
-  {% endif %}
   {% if not event.registration_is_open %}
   <p>{% blocktrans %}
 	Registration for {{event}} is not yet open. However, you can already

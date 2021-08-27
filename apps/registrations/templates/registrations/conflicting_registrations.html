@@ -7,10 +7,6 @@
 {% endblock pagetitle%}
 
 {% block content %}
-  {% if message %}
-    <p class="notification">{{ message }}</p>
-  {% endif %}
-
     <p><b>
       {% blocktrans with registration.event as event %}
       You cannot register for {{event}}, because you have already registered for {{ conflicting_event }}.

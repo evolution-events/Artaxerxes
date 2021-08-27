@@ -59,6 +59,8 @@ class RegistrationFieldValue(models.Model):
     class Meta:
         verbose_name = _('registration field value')
         verbose_name_plural = _('registration field values')
+        # Ensure that custom manager / queryset methods are also available on related managers
+        base_manager_name = 'objects'
 
         constraints = [
             models.UniqueConstraint(fields=['registration', 'field'], name='one_value_per_field_per_registration'),

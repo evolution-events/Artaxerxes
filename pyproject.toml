@@ -18,6 +18,7 @@ poetry = {version = "^1.0.7", optional = true}
 mysqlclient = {version = "^1.4.6", optional = true}
 django-hijack = "^2.1.10"
 django-hijack-admin = "^2.1.10"
+django-with-asserts = "^0.0.1"
 
 [tool.poetry.dev-dependencies]
 flake8 = "*"

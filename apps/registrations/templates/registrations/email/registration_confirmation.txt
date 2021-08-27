@@ -42,8 +42,16 @@ For details, see our house rules at: {{ house_rules_url }}.
 {% if options %}
 {% trans "Selected options" %}
 ====
-{% for value in options %}
-  {{ value.field.title }}: {{ value.display_value }}
+{% for section, values in options.group_by_section %}
+{% if section %}
+{% if forloop.counter0 > 0 %}
+.
+{% endif %}
+{{ section.title }}
+{% endif %}
+{% for value in values %}
+{% if section %}  {% endif %}{{ value.field.title }}: {{ value.display_value }}
+{% endfor %}
 {% endfor %}
 {% endif %}
 .

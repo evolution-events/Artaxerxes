@@ -3,24 +3,29 @@
 
 {% with options=options|default:registration.options.select_related_option_and_field %}
 <table class="table registration-options">
-  {% for value in options %}
-  <tr>
-    <td>{{ value.field.title }}</td>
-    <td>
-      {{ value.display_value }}
-      {% if show_full and value.option.full %}
-      {% trans ' (FULL)' %}
-      {% endif %}
-    </td>
-    {# Check for None and not 0, so prices are shown even when negative amounts make the total price 0 #}
-    {% if registration.price is not None %}
-      {% if value.price is not None %}
-      <td class="price">{{ value.price | moneyformat }}</td>
-      {% else %}
-      <td class="noprice"></td>
-      {% endif %}
+  {% for section, values in options.group_by_section %}
+    {% if section %}
+      <tr><td colspan="2"><h3>{{ section.title }}</h3></td></tr>
     {% endif %}
-  </tr>
+    {% for value in values %}
+      <tr>
+        <td>{{ value.field.title }}</td>
+        <td>
+          {{ value.display_value }}
+          {% if show_full and value.option.full %}
+          {% trans ' (FULL)' %}
+          {% endif %}
+        </td>
+        {# Check for None and not 0, so prices are shown even when negative amounts make the total price 0 #}
+        {% if registration.price is not None %}
+          {% if value.price is not None %}
+          <td class="price">{{ value.price | moneyformat }}</td>
+          {% else %}
+          <td class="noprice"></td>
+          {% endif %}
+        {% endif %}
+      </tr>
+    {% endfor %}
   {% endfor %}
 
   {% if registration.price is not None %}

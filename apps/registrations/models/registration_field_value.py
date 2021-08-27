@@ -9,7 +9,9 @@ from . import RegistrationField
 
 
 class RegistrationFieldValueQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
-    pass
+    def select_related_option_and_field(self):
+        """ Wrapper for select_related, to be used from templates """
+        return self.select_related('option', 'field')
 
 
 class RegistrationFieldValueManager(models.Manager.from_queryset(RegistrationFieldValueQuerySet)):

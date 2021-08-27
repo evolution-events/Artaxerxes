@@ -27,7 +27,7 @@ from apps.events.tests.factories import EventFactory
 from apps.people.models import Address, ArtaUser, EmergencyContact, MedicalDetails
 from apps.people.tests.factories import AddressFactory, ArtaUserFactory, EmergencyContactFactory, MedicalDetailsFactory
 
-from ..models import Registration, RegistrationFieldValue
+from ..models import Registration, RegistrationField, RegistrationFieldValue
 from ..services import RegistrationStatusService
 from ..views import FinalCheck
 from .factories import RegistrationFactory, RegistrationFieldFactory, RegistrationFieldOptionFactory
@@ -41,6 +41,10 @@ class TestRegistration(TestCase):
         cls.type = RegistrationFieldFactory(event=cls.event, name="type")
         cls.player = RegistrationFieldOptionFactory(field=cls.type, title="Player")
         cls.crew = RegistrationFieldOptionFactory(field=cls.type, title="Crew")
+
+        cls.section = RegistrationFieldFactory(
+            event=cls.event, name="section", depends=cls.player, field_type=RegistrationField.types.SECTION,
+        )
 
         cls.gender = RegistrationFieldFactory(event=cls.event, name="gender", depends=cls.player)
         cls.option_m = RegistrationFieldOptionFactory(field=cls.gender, title="M", slots=2)

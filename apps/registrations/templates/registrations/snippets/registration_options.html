@@ -6,16 +6,22 @@
   <tr>
     <td>{{ value.field.title }}</td>
     <td>{{ value.display_value }}</td>
-    {% if value.price is not None %}
-    <td class="price">{{ value.price | moneyformat }}</td>
-    {% else %}
-    <td class="noprice"></td>
+    {# Check for None and not 0, so prices are shown even when negative amounts make the total price 0 #}
+    {% if registration.price is not None %}
+      {% if value.price is not None %}
+      <td class="price">{{ value.price | moneyformat }}</td>
+      {% else %}
+      <td class="noprice"></td>
+      {% endif %}
     {% endif %}
   </tr>
   {% endfor %}
+
+  {% if registration.price is not None %}
   <tr class="total-price">
     <td></td>
     <td class="label">{% trans 'Total price' %}</td>
     <td class="price">{{ registration.price | moneyformat }}</td>
   </tr>
+  {% endif %}
 </table>

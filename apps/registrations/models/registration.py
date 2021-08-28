@@ -35,7 +35,7 @@ class RegistrationQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
 
         return self.prefetch_related(Prefetch(
             'options',
-            queryset=RegistrationFieldValue.objects.select_related('field', 'option')
+            queryset=RegistrationFieldValue.objects.select_related('field', 'option'),
         ))
 
     def current_for(self, event, user):

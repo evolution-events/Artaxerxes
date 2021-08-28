@@ -1,6 +1,6 @@
 import reversion
 from django.db import models
-from django.db.models import Case, Q, When
+from django.db.models import Case, When
 from django.utils.translation import ugettext_lazy as _
 
 from arta.common.db import UpdatedAtQuerySetMixin
@@ -85,7 +85,7 @@ class RegistrationFieldValue(models.Model):
         return "<value unset>"
     display_value.admin_order_field = Case(
         When(field__field_type=RegistrationField.types.CHOICE, then='option__title'),
-        default_value = 'string_value',
+        default_value='string_value',
     )
 
     def price(self):

@@ -2,9 +2,9 @@ from django.contrib import admin
 from django.db.models.functions import Concat
 from django.http import HttpResponse
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy
-from django.utils.safestring import mark_safe
 from django.utils.html import format_html_join
+from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext_lazy
 from hijack_admin.admin import HijackRelatedAdminMixin
 from reversion.admin import VersionAdmin
 
@@ -76,12 +76,12 @@ class CustomRelatedFieldListFilter(admin.filters.RelatedFieldListFilter):
 @admin.register(Registration)
 class RegistrationAdmin(HijackRelatedAdminMixin, VersionAdmin):
     list_display = (
-        'event_display_name', 'user_name', 'status', 'registered_at_milliseconds', 'selected_options', 'hijack_field'
+        'event_display_name', 'user_name', 'status', 'registered_at_milliseconds', 'selected_options', 'hijack_field',
     )
     # add a search field to quickly search by name and title
     search_fields = [
         'user__first_name', 'user__last_name', 'event__title', 'event__series__name', 'options__string_value',
-        'options__option__title'
+        'options__option__title',
     ]
     list_select_related = ['user', 'event__series']
     list_filter = ['status', 'event', ('user__groups', CustomRelatedFieldListFilter)]

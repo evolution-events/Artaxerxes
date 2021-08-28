@@ -42,8 +42,10 @@ REGISTRATION_STEPS = [
         'statuses': Registration.statuses.DRAFT,
     }, {
         'view': 'registrations:step_final_check',
-        'success_view': 'registrations:registration_confirmation',
         'statuses': [Registration.statuses.PREPARATION_COMPLETE],
+    }, {
+        'view': 'registrations:registration_confirmation',
+        'statuses': Registration.statuses.ACTIVE,
     },
 ]
 
@@ -56,9 +58,7 @@ class RegistrationStepMixinBase(ContextMixin):
         return qs
 
     def get_success_url(self):
-        view = REGISTRATION_STEPS[self.step_num].get('success_view', None)
-        if view is None:
-            view = REGISTRATION_STEPS[self.step_num + 1].get('view')
+        view = REGISTRATION_STEPS[self.step_num + 1].get('view')
 
         return reverse(view, args=(self.registration.id,))
 
@@ -407,14 +407,14 @@ class FinalCheck(RegistrationStepMixin, FormView):
         return super().get_context_data(**kwargs)
 
 
-class RegistrationConfirmation(LoginRequiredMixin, DetailView):
+class RegistrationConfirmation(RegistrationStepMixin, DetailView):
     """ View confirmation after registration. """
 
     context_object_name = 'registration'
     template_name = 'registrations/registration_confirmation.html'
 
     def get_queryset(self):
-        return Registration.objects.filter(user=self.request.user).with_price()
+        return super().get_queryset().with_price()
 
     def render_to_response(self, context):
         # Check this in render_to_response, which is late enough to access self.object *and* can return a response.

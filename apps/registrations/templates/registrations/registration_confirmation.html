@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "registrations/step_base.html" %}
 {% load i18n %}
 {% load coretags %}
 
@@ -14,7 +14,7 @@
   {% endif %}
 {% endblock pagetitle%}
 
-{% block content %}
+{% block beforeform %}
   {% if registration.status.REGISTERED %}
     <p>
     {% blocktrans with event=registration.event eventurl=registration.event.display_url|urlize %}
@@ -70,4 +70,7 @@
   to make some changes yourself by logging in to Artaxerxes.
   {% endblocktrans %}
 
-{% endblock %}
+{% endblock beforeform %}
+
+{% block buttons %}
+{% endblock buttons %}

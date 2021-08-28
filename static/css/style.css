@@ -9,6 +9,16 @@ body {
     color:var(--light);
 }
 
+.form-control, .form-control:focus {
+    background-color:var(--dark-gray);
+    color:var(--light);
+    max-width: 40em;
+}
+
+textarea.form-control {
+    height: 8em;
+}
+
 .table, .btn {
     color:var(--light);
 }

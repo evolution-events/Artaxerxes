@@ -7,21 +7,42 @@
 {% endblock pagetitle%}
 
 {% block content %}
-  {% block beforeform %}
-  {% endblock beforeform %}
+  <div class="row">
+    <div class="registration_steps col-auto">
+      {% block steps %}
+          <ul>
+          {% for step in steps %}
+            <li {% if forloop.counter0 == step_num %}class="current"{%endif%}>
+            {% if step.url %}
+              <a href="{{ step.url }}">
+            {% else %}
+              <span>
+            {% endif %}
+            {{ step.title }}
+            {% if step.url %}</a>{% else %}</span>{% endif %}
+            </li>
+          {% endfor %}
+          </ul>
+      {% endblock steps %}
+    </div>
+    <div class="registration_main col">
+      {% block beforeform %}
+      {% endblock beforeform %}
 
-  {% block outerform %}
-    <form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {% block form %}
-      {{ form | crispy }}
-    {% endblock form %}
-    {% block buttons %}
-      {% if back_url %}
-      <a class="btn btn-default" href="{{ back_url }}" role="button">{{ back_text }}</a>
-      {% endif %}
-      <button class="btn btn-success" type="submit">{% trans 'Next step' %}</button>
-    {% endblock buttons %}
-    </form>
-  {% endblock outerform %}
+      {% block outerform %}
+        <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% block form %}
+          {{ form | crispy }}
+        {% endblock form %}
+        {% block buttons %}
+          {% if back_url %}
+          <a class="btn btn-default" href="{{ back_url }}" role="button">{{ back_text }}</a>
+          {% endif %}
+          <button class="btn btn-success" type="submit">{% trans 'Next step' %}</button>
+        {% endblock buttons %}
+        </form>
+      {% endblock outerform %}
+    </div>
+  </div>
 {% endblock content %}

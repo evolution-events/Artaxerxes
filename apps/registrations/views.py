@@ -9,7 +9,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 from django.views.generic import DetailView
 from django.views.generic.base import ContextMixin, TemplateView
 from django.views.generic.edit import FormView
@@ -25,25 +25,32 @@ from .services import RegistrationNotifyService, RegistrationStatusService
 
 REGISTRATION_STEPS = [
     {
+        'title': _('Start'),
         'view': 'registrations:registration_start',
         'statuses': [],
     }, {
+        'title': _('Event options'),
         'view': 'registrations:step_registration_options',
         'cancel_view': 'core:dashboard',
         'statuses': Registration.statuses.DRAFT,
     }, {
+        'title': _('Personal details'),
         'view': 'registrations:step_personal_details',
         'statuses': Registration.statuses.DRAFT,
     }, {
+        'title': _('Safety information'),
         'view': 'registrations:step_medical_details',
         'statuses': Registration.statuses.DRAFT,
     }, {
+        'title': _('Emergency contacts'),
         'view': 'registrations:step_emergency_contacts',
         'statuses': Registration.statuses.DRAFT,
     }, {
+        'title': _('Final check'),
         'view': 'registrations:step_final_check',
         'statuses': [Registration.statuses.PREPARATION_COMPLETE],
     }, {
+        'title': _('Registered'),
         'view': 'registrations:registration_confirmation',
         'statuses': Registration.statuses.ACTIVE,
     },
@@ -123,10 +130,22 @@ class RegistrationStepMixinBase(ContextMixin):
                 'back_text': _('Back'),
             })
 
+        steps = [
+            {
+                'url':
+                    reverse(step['view'], args=(self.registration.pk,))
+                    if self.registration and self.registration.status in step['statuses']
+                    else None,
+                'title': step['title'],
+            }
+            for step in REGISTRATION_STEPS
+        ]
+
         kwargs.update({
             'registration': self.registration,
             'event': self.event,
             'step_num': self.step_num,
+            'steps': steps,
         })
         return super().get_context_data(**kwargs)
 

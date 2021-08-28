@@ -127,3 +127,92 @@ a.details-link:after { content: '       \0394'} /* Arrow up */
 tr.total-price td.label {
     text-align: right;
 }
+
+/*** Registration procedure - steps ***/
+.registration_steps ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: 1.2rem;
+    margin-bottom: var(--arrow-h);
+
+    --bar-w: 2rem;
+    --bar-h: 2rem;
+    --arrow-h: 1rem;
+    --bar-bg: var(--secondary);
+    --bar-fg: var(--primary);
+}
+
+.registration_steps li {
+    height: var(--bar-w);
+    position: relative;
+}
+
+/* Draw a (part of) a bar before each item */
+.registration_steps li::before {
+    content: "";
+
+    background-color: var(--bar-fg);
+    width: var(--bar-w);
+    height: var(--bar-w);
+    box-sizing: border-box;
+    display: inline-block;
+    vertical-align: middle;
+    text-align: center;
+}
+
+/* Give the bar the bg color after the current item */
+.registration_steps li.current ~ li::before {
+    background-color: var(--secondary);
+}
+
+/* Fade out the text after the current item */
+.registration_steps li.current ~ li {
+    color: var(--gray);
+}
+
+/* For the current step, draw an arrow *over* the bottom half of our
+ * piece of the boar, using the bg color for the corners to fake the
+ * underlying bar showing through */
+.registration_steps li.current::after {
+    content: "";
+
+    /* Arrow down built from borders */
+    border-top: solid var(--arrow-h) var(--bar-fg);
+    border-left: solid calc(var(--bar-w)/2) var(--bar-bg);
+    border-right: solid calc(var(--bar-w)/2) var(--bar-bg);
+
+    position: absolute;
+    top: calc(var(--bar-h) - var(--arrow-h));
+    left: 0;
+    z-index: 1;
+}
+
+/* Show an additional arrow below the last piece of the bar */
+.registration_steps li:last-child::after {
+    content: "";
+
+    /* Arrow down built from borders */
+    border-top: solid var(--arrow-h) var(--secondary);
+    border-left: solid calc(var(--bar-w)/2) transparent;
+    border-right: solid calc(var(--bar-w)/2) transparent;
+
+    position: absolute;
+    top: var(--bar-h);
+    left: 0;
+    z-index: 1;
+}
+
+/* And make the additional arrow fg when the last step is current */
+.registration_steps li.current:last-child::after {
+    border-top-color: var(--bar-fg);
+}
+
+.registration_steps a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.registration_steps li.current {
+    font-weight: bold;
+}

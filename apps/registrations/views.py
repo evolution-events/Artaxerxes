@@ -27,15 +27,20 @@ REGISTRATION_STEPS = [
     {
         'view': 'registrations:step_registration_options',
         'cancel_view': 'core:dashboard',
+        'statuses': Registration.statuses.DRAFT,
     }, {
         'view': 'registrations:step_personal_details',
+        'statuses': Registration.statuses.DRAFT,
     }, {
         'view': 'registrations:step_medical_details',
+        'statuses': Registration.statuses.DRAFT,
     }, {
         'view': 'registrations:step_emergency_contacts',
+        'statuses': Registration.statuses.DRAFT,
     }, {
         'view': 'registrations:step_final_check',
         'success_view': 'registrations:registration_confirmation',
+        'statuses': [Registration.statuses.PREPARATION_COMPLETE],
     },
 ]
 
@@ -118,9 +123,17 @@ class RegistrationStepMixinBase(ContextMixin):
         """
         if self.registration.has_conflicting_registrations:
             return redirect('registrations:conflicting_registrations', self.registration.id)
-        if not self.registration.status.PREPARATION_IN_PROGRESS and not self.registration.status.PREPARATION_COMPLETE:
-            # Let finalcheck sort out where to go
-            return redirect('registrations:step_final_check', self.registration.id)
+
+        if self.registration.status not in REGISTRATION_STEPS[self.step_num]['statuses']:
+            if self.registration.status.PREPARATION_IN_PROGRESS:
+                view = 'registrations:step_registration_options'
+            elif self.registration.status.PREPARATION_COMPLETE:
+                view = 'registrations:step_final_check'
+            elif self.registration.status.ACTIVE:
+                view = 'registrations:registration_confirmation'
+            else:
+                raise Http404("Registration in invalid state")
+            return redirect(view, self.registration.id)
         return None
 
     def dispatch(self, *args, **kwargs):
@@ -353,16 +366,6 @@ class FinalCheck(RegistrationStepMixin, FormView):
             ),
             default=F('updated_at'),
         ))
-
-    def check_request(self):
-        if self.registration.status.ACTIVE:
-            return redirect(self.get_success_url())
-        elif self.registration.status.PREPARATION_IN_PROGRESS:
-            return redirect(self.get_modify_url())
-        elif not self.registration.status.PREPARATION_COMPLETE:
-            raise Http404("Registration in invalid state")
-
-        return super().check_request()
 
     def get_context_data(self, **kwargs):
         # This would be more logical to check in check_request, but putting it here ensures this code does not run for

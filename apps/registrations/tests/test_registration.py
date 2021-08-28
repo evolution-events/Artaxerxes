@@ -587,10 +587,10 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         self.assertEqual(Registration.objects.all().count(), 1)
         self.assertEqual(reg.status, Registration.statuses.PREPARATION_COMPLETE)
 
-        # And posting again should still redirect to the first step, without creating a new Registration or modifying
-        # the status.
+        # And posting again should now redirect to final_check, without creating a new Registration or modifying the
+        # status.
         response = self.client.post(start_url)
-        self.assertRedirects(response, first_step_url)
+        self.assertRedirects(response, final_check_url)
         self.assertEqual(Registration.objects.all().count(), 1)
         self.assertEqual(reg.status, Registration.statuses.PREPARATION_COMPLETE)
 

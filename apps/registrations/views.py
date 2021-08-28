@@ -10,8 +10,8 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import gettext as _
-from django.views.generic import DetailView, View
-from django.views.generic.base import ContextMixin, TemplateResponseMixin
+from django.views.generic import DetailView
+from django.views.generic.base import ContextMixin, TemplateView
 from django.views.generic.edit import FormView
 
 from apps.events.models import Event
@@ -25,6 +25,9 @@ from .services import RegistrationNotifyService, RegistrationStatusService
 
 REGISTRATION_STEPS = [
     {
+        'view': 'registrations:registration_start',
+        'statuses': [],
+    }, {
         'view': 'registrations:step_registration_options',
         'cancel_view': 'core:dashboard',
         'statuses': Registration.statuses.DRAFT,
@@ -134,34 +137,37 @@ class RegistrationStepMixin(LoginRequiredMixin, CacheUsingTimestampsMixin, Regis
     pass
 
 
-class RegistrationStart(LoginRequiredMixin, TemplateResponseMixin, View):
+class RegistrationStart(RegistrationStepMixin, TemplateView):
     template_name = 'registrations/registration_start.html'
 
-    def get(self, request, eventid):
-        event = get_object_or_404(Event.objects.for_user(request.user), pk=eventid)
+    @cached_property
+    def registration(self):
         try:
-            registration = Registration.objects.get(
-                event=event,
-                user=request.user,
+            return self.get_queryset().get(
+                event=self.event,
+                user=self.request.user,
                 is_current=True,
             )
-            if registration.status.PREPARATION_IN_PROGRESS:
-                return redirect('registrations:step_registration_options', registration.id)
-            else:
-                return redirect('registrations:step_final_check', registration.id)
         except Registration.DoesNotExist:
-            return self.render_to_response({
-                'event': event,
-            })
+            return None
+
+    @cached_property
+    def event(self):
+        return get_object_or_404(Event.objects.for_user(self.request.user), pk=self.kwargs['eventid'])
+
+    def check_request(self):
+        if self.registration:
+            # If a registration already exists, let our parent figure out where to redirect
+            return super().check_request()
+        return None
 
     def post(self, request, eventid):
-        event = get_object_or_404(Event.objects.for_user(request.user), pk=eventid)
         with reversion.create_revision():
             reversion.set_user(self.request.user)
             reversion.set_comment(_("Registration started via frontend."))
 
             registration, created = Registration.objects.filter(is_current=True).get_or_create(
-                event=event,
+                event=self.event,
                 user=request.user,
                 defaults={'status': Registration.statuses.PREPARATION_IN_PROGRESS},
             )

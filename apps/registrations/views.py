@@ -45,40 +45,6 @@ REGISTRATION_STEPS = [
 ]
 
 
-class RegistrationStart(LoginRequiredMixin, TemplateResponseMixin, View):
-    template_name = 'registrations/registration_start.html'
-
-    def get(self, request, eventid):
-        event = get_object_or_404(Event.objects.for_user(request.user), pk=eventid)
-        try:
-            registration = Registration.objects.get(
-                event=event,
-                user=request.user,
-                is_current=True,
-            )
-            if registration.status.PREPARATION_IN_PROGRESS:
-                return redirect('registrations:step_registration_options', registration.id)
-            else:
-                return redirect('registrations:step_final_check', registration.id)
-        except Registration.DoesNotExist:
-            return self.render_to_response({
-                'event': event,
-            })
-
-    def post(self, request, eventid):
-        event = get_object_or_404(Event.objects.for_user(request.user), pk=eventid)
-        with reversion.create_revision():
-            reversion.set_user(self.request.user)
-            reversion.set_comment(_("Registration started via frontend."))
-
-            registration, created = Registration.objects.filter(is_current=True).get_or_create(
-                event=event,
-                user=request.user,
-                defaults={'status': Registration.statuses.PREPARATION_IN_PROGRESS},
-            )
-        return redirect('registrations:step_registration_options', registration.id)
-
-
 class RegistrationStepMixinBase(ContextMixin):
     def get_queryset(self):
         # Only allow editing your own registrations
@@ -161,6 +127,40 @@ class RegistrationStepMixin(LoginRequiredMixin, CacheUsingTimestampsMixin, Regis
     """ This class ensures that LoginRequiredMixin runs its checks in dispatch before RegistrationStepMixinBase. """
 
     pass
+
+
+class RegistrationStart(LoginRequiredMixin, TemplateResponseMixin, View):
+    template_name = 'registrations/registration_start.html'
+
+    def get(self, request, eventid):
+        event = get_object_or_404(Event.objects.for_user(request.user), pk=eventid)
+        try:
+            registration = Registration.objects.get(
+                event=event,
+                user=request.user,
+                is_current=True,
+            )
+            if registration.status.PREPARATION_IN_PROGRESS:
+                return redirect('registrations:step_registration_options', registration.id)
+            else:
+                return redirect('registrations:step_final_check', registration.id)
+        except Registration.DoesNotExist:
+            return self.render_to_response({
+                'event': event,
+            })
+
+    def post(self, request, eventid):
+        event = get_object_or_404(Event.objects.for_user(request.user), pk=eventid)
+        with reversion.create_revision():
+            reversion.set_user(self.request.user)
+            reversion.set_comment(_("Registration started via frontend."))
+
+            registration, created = Registration.objects.filter(is_current=True).get_or_create(
+                event=event,
+                user=request.user,
+                defaults={'status': Registration.statuses.PREPARATION_IN_PROGRESS},
+            )
+        return redirect('registrations:step_registration_options', registration.id)
 
 
 class RegistrationOptionsStep(RegistrationStepMixin, FormView):

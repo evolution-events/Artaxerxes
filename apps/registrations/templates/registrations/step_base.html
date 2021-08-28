@@ -17,13 +17,9 @@
       {{ form | crispy }}
     {% endblock form %}
     {% block buttons %}
-      <a class="btn btn-default" href="{{ back_url }}" role="button">
-        {% if step_num == 0 %}
-          {% trans 'Cancel' %}
-        {% else %}
-          {% trans 'Back' %}
-        {% endif %}
-      </a>
+      {% if back_url %}
+      <a class="btn btn-default" href="{{ back_url }}" role="button">{{ back_text }}</a>
+      {% endif %}
       <button class="btn btn-success" type="submit">{% trans 'Next step' %}</button>
     {% endblock buttons %}
     </form>

@@ -109,16 +109,21 @@ class RegistrationStepMixinBase(ContextMixin):
         return response
 
     def get_context_data(self, **kwargs):
-        if self.step_num == 0:
-            back_url = reverse(REGISTRATION_STEPS[self.step_num]['cancel_view'])
-        else:
-            back_url = reverse(REGISTRATION_STEPS[self.step_num - 1]['view'], args=(self.registration.pk,))
+        if 'cancel_view' in REGISTRATION_STEPS[self.step_num]:
+            kwargs.update({
+                'back_url': reverse(REGISTRATION_STEPS[self.step_num]['cancel_view']),
+                'back_text': _('Cancel'),
+            })
+        elif self.step_num > 0:
+            kwargs.update({
+                'back_url': reverse(REGISTRATION_STEPS[self.step_num - 1]['view'], args=(self.registration.pk,)),
+                'back_text': _('Back'),
+            })
 
         kwargs.update({
             'registration': self.registration,
             'event': self.event,
             'step_num': self.step_num,
-            'back_url': back_url,
         })
         return super().get_context_data(**kwargs)
 

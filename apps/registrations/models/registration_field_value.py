@@ -71,6 +71,14 @@ class RegistrationFieldValue(models.Model):
         if self.field.field_type.CHOICE:
             if self.option:
                 return self.option.title
+        elif self.field.field_type.CHECKBOX:
+            if self.string_value is not None:
+                if self.string_value == '1':
+                    return str(_('Yes'))
+                elif self.string_value == '0':
+                    return str(_('No'))
+                else:
+                    return "<invalid>"
         elif self.field.field_type.STRING:
             if self.string_value is not None:
                 return self.string_value

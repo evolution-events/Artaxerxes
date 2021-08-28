@@ -24,6 +24,7 @@ class RegistrationField(models.Model):
         Constant(SECTION='section', label=_('Section')),
         Constant(CHOICE='choice', label=_('Choice')),
         Constant(STRING='string', label=_('String')),
+        Constant(CHECKBOX='checkbox', label=_('Checkbox')),
     )
 
     event = models.ForeignKey('events.Event', related_name='registration_fields', on_delete=models.CASCADE)

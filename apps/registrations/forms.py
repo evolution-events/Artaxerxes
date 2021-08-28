@@ -199,6 +199,11 @@ class RegistrationOptionsForm(forms.Form):
         self.add_fields()
 
     def values_for_registration(self, registration):
+        # TODO: The has_changed for this form returns False when only checkboxes (and maybe strings) are present (or
+        # added since the form was saved before) and are left at their default, since a missing initial value is
+        # treated as False/"" by the Django form fields. Maybe the form should be considered changed always when not
+        # all fields have a value?
+
         values = {}
         for option in registration.options.all():
             if option.field.field_type.CHOICE:
@@ -230,6 +235,8 @@ class RegistrationOptionsForm(forms.Form):
                 form_field = RegistrationOptionField(queryset=options, label=field.title, empty_label=None)
             elif field.field_type.STRING:
                 form_field = forms.CharField(label=field.title)
+            elif field.field_type.CHECKBOX:
+                form_field = forms.BooleanField(label=field.title, required=False)
             elif field.field_type.SECTION:
                 form_field = None
                 self._sections.append((field, []))
@@ -283,6 +290,8 @@ class RegistrationOptionsForm(forms.Form):
             (value, created) = RegistrationFieldValue.objects.get_or_create(registration=registration, field=field)
             if field.field_type.CHOICE:
                 value.option = d[field.name]
+            elif field.field_type.CHECKBOX:
+                value.string_value = '1' if d[field.name] else '0'
             else:
                 value.string_value = d[field.name]
             value.save()

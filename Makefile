@@ -61,7 +61,7 @@ check: flake8 django_check test
 
 # Fix import sorting
 sort:
-	isort -y
+	isort .
 
 # runs flake8 to check for PEP8 compliance
 flake8: ensure_virtual_env

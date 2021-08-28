@@ -22,9 +22,8 @@ django-with-asserts = "^0.0.1"
 django-crispy-forms = "^1.12.0"
 
 [tool.poetry.dev-dependencies]
-flake8 = "*"
+flake8 = "^3.7"
 coverage = "*"
-flake8-per-file-ignores = "*"
 flake8-bugbear = "*"
 flake8-comprehensions = "*"
 flake8-mutable = "*"

@@ -219,7 +219,7 @@ class RegistrationOptionsForm(forms.Form):
     def sections(self):
         # Resolve field names to bound fields, since a template cannot do this
         for (section, fields) in self._sections:
-            yield (section, [self[name] for name in fields])
+            yield (section, [(field, self[field.name]) for field in fields])
 
     def add_fields(self):
         """ Add form fields based on the RegistrationFields in the database. """
@@ -247,7 +247,7 @@ class RegistrationOptionsForm(forms.Form):
                 form_field.label = conditional_escape(field.title)
                 if not self._sections:
                     self._sections.append((None, []))
-                self._sections[-1][1].append(field.name)
+                self._sections[-1][1].append(field)
 
                 self.fields[field.name] = form_field
 

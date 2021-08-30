@@ -31,8 +31,10 @@
         <p class="sectionhelp">{{ section.help_text }}</p>
         {% endif %}
       {% endif %}
-      {% for field in fields %}
-        {{ field | as_crispy_field }}
+      {% for field, form_field in fields %}
+        <div class="field-type-{{ field.field_type }}">
+        {{ form_field | as_crispy_field }}
+        </div>
       {% endfor %}
     </fieldset>
   {% endfor %}

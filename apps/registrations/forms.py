@@ -2,6 +2,7 @@ from django import forms
 from django.db import transaction
 from django.db.models import Q
 from django.forms.formsets import DELETION_FIELD_NAME
+from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
@@ -232,17 +233,18 @@ class RegistrationOptionsForm(forms.Form):
             if field.field_type.CHOICE:
                 # TODO: Handle depends
                 options = field.options.filter(Q(invite_only=None) | Q(invite_only__user=self.user))
-                form_field = RegistrationOptionField(queryset=options, label=field.title, empty_label=None)
+                form_field = RegistrationOptionField(queryset=options, empty_label=None)
             elif field.field_type.STRING:
-                form_field = forms.CharField(label=field.title)
+                form_field = forms.CharField()
             elif field.field_type.CHECKBOX:
-                form_field = forms.BooleanField(label=field.title, required=False)
+                form_field = forms.BooleanField(required=False)
             elif field.field_type.SECTION:
                 form_field = None
                 self._sections.append((field, []))
 
             if form_field:
                 form_field.help_text = field.help_text
+                form_field.label = conditional_escape(field.title)
                 if not self._sections:
                     self._sections.append((None, []))
                 self._sections[-1][1].append(field.name)

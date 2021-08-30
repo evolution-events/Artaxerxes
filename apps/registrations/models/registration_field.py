@@ -23,6 +23,7 @@ class RegistrationField(models.Model):
     types = Constants(
         Constant(SECTION='section', label=_('Section')),
         Constant(CHOICE='choice', label=_('Choice')),
+        Constant(RATING5='rating5', label=_('Rating (1-5)')),
         Constant(STRING='string', label=_('String')),
         Constant(CHECKBOX='checkbox', label=_('Checkbox')),
     )

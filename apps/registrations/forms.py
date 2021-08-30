@@ -234,6 +234,9 @@ class RegistrationOptionsForm(forms.Form):
                 # TODO: Handle depends
                 options = field.options.filter(Q(invite_only=None) | Q(invite_only__user=self.user))
                 form_field = RegistrationOptionField(queryset=options, empty_label=None)
+            elif field.field_type.RATING5:
+                choices = ((str(n), str(n)) for n in range(1, 6))
+                form_field = forms.ChoiceField(choices=choices, widget=forms.RadioSelect)
             elif field.field_type.STRING:
                 form_field = forms.CharField()
             elif field.field_type.CHECKBOX:

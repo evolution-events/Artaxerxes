@@ -133,6 +133,12 @@ a.details-link:after { content: '       \0394'} /* Arrow up */
     border-radius:0 0 2em 2em;
 }
 
+/*** Registration procedure - option form ***/
+.field-type-rating5 .form-check {
+    display: inline;
+    margin-right: 2rem;
+}
+
 /*** Registration procedure - finalcheck ***/
 tr.total-price td.label {
     text-align: right;

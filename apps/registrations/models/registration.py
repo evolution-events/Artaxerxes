@@ -1,7 +1,7 @@
 import reversion
 from django.conf import settings
 from django.db import models
-from django.db.models import Exists, ExpressionWrapper, Prefetch, Q, Sum
+from django.db.models import Exists, ExpressionWrapper, Prefetch, Q, Sum, Value
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from konst import Constant, ConstantGroup, Constants
@@ -22,7 +22,10 @@ class RegistrationQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
     def with_has_conflicting_registrations(self):
         """ Annotates with whether any conflicting registrations exists. """
         return self.annotate(
-            has_conflicting_registrations=Exists(Registration.objects.conflicting_registrations_for(FromOuterRef())),
+            # Disabled until this can be made more configurable (and replaced with literal False to work around
+            # https://code.djangoproject.com/ticket/33073).
+            # has_conflicting_registrations=Exists(Registration.objects.conflicting_registrations_for(FromOuterRef())),
+            has_conflicting_registrations=ExpressionWrapper(Value(False), output_field=models.BooleanField()),
         )
 
     def conflicting_registrations_for(self, registration):

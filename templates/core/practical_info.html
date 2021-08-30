@@ -1,24 +1,53 @@
 {% extends "base.html" %}
 {% load i18n %}
 
+{% url 'core:house_rules' as house_rules %}
+{% url 'core:privacy_policy' as privacy_policy %}
+
 {% block pagetitle %}{% trans "Practical information" %}{% endblock pagetitle%}
 
 {% block content %}
-<h2>{% trans "Anything you want to know about Evolution Events" %}</h2>
 <p>
-  <a href="https://www.evolution-events.nl">{% trans "Visit the Evolution Events website" %}</a><br/>
-  {% trans "Or e-mail to algemeenbestuur@evolution-events.nl"|urlize %}
+{% blocktrans trimmed %}
+  Need more info? Check out <a href="https://www.evolution-events.nl">
+  the Evolution Events website</a>.
+{% endblocktrans %}
 </p>
 
-<h2>{% trans "Address" %}</h2>
+<h2>{% trans "Contact info" %}</h2>
 <p>
+{% blocktrans trimmed %}
+For questions regarding specific events or your registration, you can
+always contact the team for that event directly. See the "Event details"
+section on your dashboard for the event for the e-mail address.
+{% endblocktrans %}
+</p>
+
+<p>
+{% blocktrans trimmed with mail="registrations@evolution-events.nl" %}
+Alternatively, you can also send your question to the general
+<a href="mailto:{{ mail }}">{{ mail }}</a>
+address, or (in urgent situations only) call one of us at +31634764539.
+{% endblocktrans %}
+</p>
+
+<h3>{% trans "Evolution Events" %}</h3>
+<p>
+{% blocktrans trimmed with boardmail="algemeenbestuur@evolution-events.nl" %}
+Evolution Events is a Dutch foundation ("Stichting"), ran by a group of
+volunteer organizers. You can reach the board at
+<a href="mailto:{{ boardmail }}">{{ boardmail }}</a>.
+Our official postal address is:
+{% endblocktrans %}
+</p>
+<p>
+{% blocktrans trimmed %}
   Stichting Evolution Events<br/>
   Bevinlaan 203<br/>
   3527 ED Utrecht<br/>
   The Netherlands<br/>
-</p>
-<p>
   KvK 24385140
+{% endblocktrans %}
 </p>
 
 <h2>{% trans "Payments" %}</h2>
@@ -33,12 +62,38 @@ confirmation e-mail) in the payment description.
 <p>
 {% trans "Payment at the gate is only possible in exceptional cases. Always contact the treasurer well in advance for this at penningmeester@evolution-events.nl."|urlize %}
 </p>
+<h3>{% trans "Event pricing" %}</h3>
+<p>
+{% blocktrans trimmed %}
+The pricing for events typically depends on the options you select
+during registration. To see the pricing for an event, start a
+registration (without obligation), the first step will show all options
+with their pricing.
+{% endblocktrans %}
+</p>
+<p>
+{% blocktrans trimmed %}
+All pricing on our website is free of VAT (BTW). Evolution Events falls
+under the "Kleine-Ondernemers-Regeling" and therefore does not charge
+VAT.
+{% endblocktrans %}
+</p>
 
+<h3>{% trans "Cancellations and refunds" %}</h3>
+<p>
+{% blocktrans trimmed with mail="registrations@evolution-events.nl" %}
+If you need to cancel your registration, contact the event organisation
+directly, or send your cancellation to <a href="{{ mail }}">{{ mail }}</a>.
+Depending on the moment of cancellation, your registration fee will be
+fully, partially or not refunded, see <a href="{{ house_rules }}">our house rules</a>
+for details.
+{% endblocktrans %}
+</p>
 
 <h2>{% trans "Rules and policies" %}</h2>
 <p>
-  <a href="https://www.evolution-events.nl/algemeen/?pg=huisregels">{% trans "Our house rules" %}</a><br/>
-  <a href="https://www.evolution-events.nl/algemeen/?pg=privacy">{% trans "Privacy policy" %}</a><br/>
+  <a href="{{ house_rules }}">{% trans "Our house rules" %}</a><br/>
+  <a href="{{ privacy_policy }}">{% trans "Privacy policy" %}</a><br/>
   {% trans "Please note that for some events additional rules and policies may apply. If so you can find them on the event specific website." %}
 </p>
 {% endblock content%}

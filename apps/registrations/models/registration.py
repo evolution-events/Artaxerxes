@@ -1,14 +1,14 @@
 import reversion
 from django.conf import settings
 from django.db import models
-from django.db.models import Exists, ExpressionWrapper, Prefetch, Q, Sum, Value
+from django.db.models import ExpressionWrapper, Prefetch, Q, Sum, Value
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from konst import Constant, ConstantGroup, Constants
 from konst.models.fields import ConstantChoiceField
 
 from apps.core.fields import MonetaryField
-from arta.common.db import FromOuterRef, QExpr, UpdatedAtQuerySetMixin
+from arta.common.db import QExpr, UpdatedAtQuerySetMixin
 
 
 class RegistrationQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):

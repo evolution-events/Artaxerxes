@@ -90,7 +90,7 @@ class TestRegistration(TestCase):
 
     def test_missing_last_name(self):
         """ Check that a missing last name prevents completing preparation """
-        self.incomplete_registration_helper(empty_field='first_name')
+        self.incomplete_registration_helper(empty_field='last_name')
 
     def test_missing_address(self):
         """ Check that a missing address prevents completing preparation """

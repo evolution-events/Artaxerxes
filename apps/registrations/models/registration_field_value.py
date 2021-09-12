@@ -64,6 +64,12 @@ class RegistrationFieldValue(models.Model):
 
     objects = RegistrationFieldValueManager()
 
+    # string_values used to encode checkbox values
+    CHECKBOX_VALUES = {
+        False: '0',
+        True: '1',
+    }
+
     def __str__(self):
         return self.display_value()
 
@@ -73,9 +79,9 @@ class RegistrationFieldValue(models.Model):
                 return self.option.title
         elif self.field.field_type.CHECKBOX:
             if self.string_value is not None:
-                if self.string_value == '1':
+                if self.string_value == self.CHECKBOX_VALUES[True]:
                     return str(_('Yes'))
-                elif self.string_value == '0':
+                elif self.string_value == self.CHECKBOX_VALUES[False]:
                     return str(_('No'))
                 else:
                     return "<invalid>"

@@ -294,7 +294,7 @@ class RegistrationOptionsForm(forms.Form):
             if field.field_type.CHOICE:
                 value.option = d[field.name]
             elif field.field_type.CHECKBOX:
-                value.string_value = '1' if d[field.name] else '0'
+                value.string_value = RegistrationFieldValue.CHECKBOX_VALUES[d[field.name]]
             else:
                 value.string_value = d[field.name]
             value.save()

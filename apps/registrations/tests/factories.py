@@ -39,7 +39,11 @@ class RegistrationFactory(factory.django.DjangoModelFactory):
             # Cannot add options when only building, since we will not have an id yet
             assert(create)
             for option in options:
-                RegistrationFieldValueFactory.create(registration=obj, field=option.field, option=option)
+                if isinstance(option, RegistrationFieldOption):
+                    RegistrationFieldValueFactory.create(registration=obj, field=option.field, option=option)
+                else:
+                    (field, value) = option
+                    RegistrationFieldValueFactory.create(registration=obj, field=field, value=value)
 
 
 class RegistrationFieldFactory(factory.django.DjangoModelFactory):
@@ -59,3 +63,11 @@ class RegistrationFieldOptionFactory(factory.django.DjangoModelFactory):
 class RegistrationFieldValueFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = RegistrationFieldValue
+
+    @factory.post_generation
+    def value(obj, create, value, **kwargs):
+        if value:
+            if obj.field.field_type.CHOICE and isinstance(value, RegistrationFieldOption):
+                obj.option = value
+            else:
+                obj.string_value = value

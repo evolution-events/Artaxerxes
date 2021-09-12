@@ -108,13 +108,128 @@ class TestRegistration(TestCase):
         """ Check that incomplete options prevent completing preparation """
         self.incomplete_registration_helper(options=[self.player])
 
-    def test_optional_options(self):
-        """ Check that a omitting an optional option does not prevent completing preparation """
+    def test_unsatisfied_dependency_options(self):
+        """ Check that a omitting an option with missing dependency does not prevent completing preparation """
         self.incomplete_registration_helper(options=[self.crew], exception=None)
 
     def test_complete(self):
         """ Check that a complete registration can be completed """
         self.incomplete_registration_helper(exception=None)
+
+    def test_required_value(self):
+        """ Check accepted values for a required field. """
+
+        CHECKED = RegistrationFieldValue.CHECKBOX_VALUES[True]
+        UNCHECKED = RegistrationFieldValue.CHECKBOX_VALUES[False]
+
+        for field_type in RegistrationField.types.constants:
+            if field_type == RegistrationField.types.SECTION:
+                continue
+
+            with self.subTest(field_type=field_type):
+                field = RegistrationFieldFactory(event=self.event, name="extra_field", field_type=field_type)
+
+                with self.subTest("Missing value is not ok"):
+                    self.incomplete_registration_helper(
+                        options=[self.player, self.option_m, self.option_nl],
+                    )
+
+                with self.subTest("Empty is not ok"):
+                    self.incomplete_registration_helper(
+                        options=[self.player, self.option_m, self.option_nl, (field, "")],
+                    )
+
+                if field.field_type.CHECKBOX:
+                    with self.subTest("Arbitrary non-zero value is not ok"):
+                        self.incomplete_registration_helper(
+                            options=[self.player, self.option_m, self.option_nl, (field, "123")],
+                        )
+
+                    with self.subTest("Unchecked is not ok"):
+                        self.incomplete_registration_helper(
+                            options=[self.player, self.option_m, self.option_nl, (field, UNCHECKED)],
+                        )
+
+                    with self.subTest("Checked is ok"):
+                        self.incomplete_registration_helper(
+                            options=[self.player, self.option_m, self.option_nl, (field, CHECKED)],
+                            exception=None,
+                        )
+                elif field.field_type.CHOICE:
+                    option = RegistrationFieldOptionFactory(field=field, title="Foo")
+                    with self.subTest("Option is ok"):
+                        self.incomplete_registration_helper(
+                            options=[self.player, self.option_m, self.option_nl, option],
+                            exception=None,
+                        )
+                else:
+                    with self.subTest("Arbitrary non-empty value is ok"):
+                        self.incomplete_registration_helper(
+                            options=[self.player, self.option_m, self.option_nl, (field, "123")],
+                            exception=None,
+                        )
+
+                field.delete()
+
+    def test_optional_value(self):
+        """ Check accepted values for a non-required field. """
+
+        CHECKED = RegistrationFieldValue.CHECKBOX_VALUES[True]
+        UNCHECKED = RegistrationFieldValue.CHECKBOX_VALUES[False]
+
+        for field_type in RegistrationField.types.constants:
+            if field_type == RegistrationField.types.SECTION:
+                continue
+
+            with self.subTest(field_type=field_type):
+                field = RegistrationFieldFactory(
+                    event=self.event, name="extra_field", field_type=field_type, required=False,
+                )
+
+                with self.subTest("Missing value is not ok"):
+                    self.incomplete_registration_helper(
+                        options=[self.player, self.option_m, self.option_nl],
+                    )
+
+                if field.field_type.CHECKBOX:
+                    with self.subTest("Arbitrary non-zero value is not ok"):
+                        self.incomplete_registration_helper(
+                            options=[self.player, self.option_m, self.option_nl, (field, "123")],
+                        )
+
+                    with self.subTest("Unchecked is ok"):
+                        self.incomplete_registration_helper(
+                            options=[self.player, self.option_m, self.option_nl, (field, UNCHECKED)],
+                            exception=None,
+                        )
+
+                    with self.subTest("Checked is ok"):
+                        self.incomplete_registration_helper(
+                            options=[self.player, self.option_m, self.option_nl, (field, CHECKED)],
+                            exception=None,
+                        )
+                else:
+                    with self.subTest("Empty is ok"):
+                        self.incomplete_registration_helper(
+                            options=[self.player, self.option_m, self.option_nl, (field, "")],
+                            exception=None,
+                        )
+
+                    if field.field_type.CHOICE:
+                        option = RegistrationFieldOptionFactory(field=field, title="Foo")
+                        with self.subTest("Option is ok"):
+                            self.incomplete_registration_helper(
+                                options=[self.player, self.option_m, self.option_nl, option],
+                                exception=None,
+                            )
+                    else:
+                        with self.subTest("Arbitrary non-empty value is ok"):
+                            self.incomplete_registration_helper(
+                                options=[self.player, self.option_m, self.option_nl, (field, "123")],
+                                exception=None,
+                            )
+
+                field.delete()
 
     def test_register_until_option_full(self):
         """ Register until the option slots are taken and the next registration ends up on the waiting list. """
@@ -340,6 +455,10 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         cls.option_nl = RegistrationFieldOptionFactory(field=cls.origin, title="NL", slots=2)
         cls.option_intl = RegistrationFieldOptionFactory(field=cls.origin, title="INTL", slots=2)
 
+        cls.optional_choice = RegistrationFieldFactory(
+            event=cls.event, name="optional_choice", field_type=RegistrationField.types.CHOICE, required=False,
+        )
+        cls.optional_choice_option = RegistrationFieldOptionFactory(field=cls.optional_choice, title="oco")
         cls.required_choice = RegistrationFieldFactory(
             event=cls.event, name="required_choice", field_type=RegistrationField.types.CHOICE,
         )
@@ -349,6 +468,9 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         )
         cls.depends_choice_option = RegistrationFieldOptionFactory(field=cls.depends_choice, title="dco")
 
+        cls.optional_string = RegistrationFieldFactory(
+            event=cls.event, name="optional_string", field_type=RegistrationField.types.STRING, required=False,
+        )
         cls.required_string = RegistrationFieldFactory(
             event=cls.event, name="required_string", field_type=RegistrationField.types.STRING,
         )
@@ -356,6 +478,9 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
             event=cls.event, name="depends_string", field_type=RegistrationField.types.STRING, depends=cls.crew,
         )
 
+        cls.optional_checkbox = RegistrationFieldFactory(
+            event=cls.event, name="optional_checkbox", field_type=RegistrationField.types.CHECKBOX, required=False,
+        )
         cls.required_checkbox = RegistrationFieldFactory(
             event=cls.event, name="required_checkbox", field_type=RegistrationField.types.CHECKBOX,
         )
@@ -363,6 +488,9 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
             event=cls.event, name="depends_checkbox", field_type=RegistrationField.types.CHECKBOX, depends=cls.crew,
         )
 
+        cls.optional_rating5 = RegistrationFieldFactory(
+            event=cls.event, name="optional_rating5", field_type=RegistrationField.types.RATING5, required=False,
+        )
         cls.required_rating5 = RegistrationFieldFactory(
             event=cls.event, name="required_rating5", field_type=RegistrationField.types.RATING5,
         )
@@ -429,6 +557,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
 
         (
             gender,
+            optional_checkbox, optional_choice, optional_rating5, optional_string,
             origin,
             required_checkbox, required_choice, required_rating5, required_string,
             reg_type,
@@ -443,6 +572,10 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         check_value(reg_type, self.type, option=self.player)
         check_value(gender, self.gender, option=self.option_m)
         check_value(origin, self.origin, option=self.option_nl)
+        check_value(optional_checkbox, self.optional_checkbox, string_value="0")
+        check_value(optional_choice, self.optional_choice)
+        check_value(optional_rating5, self.optional_rating5)
+        check_value(optional_string, self.optional_string)
         check_value(required_checkbox, self.required_checkbox, string_value="1")
         check_value(required_choice, self.required_choice, option=self.required_choice_option)
         check_value(required_rating5, self.required_rating5, string_value=data[self.required_rating5.name])
@@ -559,10 +692,6 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
 
         for field_name in data:
             incomplete_data = data.copy()
-
-            if field_name == 'required_checkbox':
-                # For a checkbox, no value means unchecked
-                continue
 
             with self.subTest("Empty data for field should fail validation", field=field_name):
                 incomplete_data[field_name] = ''

@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from django.conf import settings
 from django.core.mail import EmailMessage
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Exists, OuterRef, Q
 from django.forms import ValidationError
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -13,7 +13,7 @@ from django.utils.translation import gettext as _
 from apps.events.models import Event
 from apps.people.models import ArtaUser, EmergencyContact
 
-from .models import Registration, RegistrationField, RegistrationFieldOption
+from .models import Registration, RegistrationField, RegistrationFieldOption, RegistrationFieldValue
 
 
 class RegistrationStatusService:
@@ -55,9 +55,14 @@ class RegistrationStatusService:
         required_fields = all_fields.filter(
             Q(depends=None) | Q(depends__in=selected_options),
         )
-        missing_fields = required_fields.exclude(
-            registrationfieldvalue__registration=registration,
-        )
+        # TODO: In Django 3.0, the annotation can be removed and you can pass Exists directly to exclude
+        missing_fields = required_fields.annotate(
+            value_exists=Exists(RegistrationFieldValue.objects.with_satisfies_required().filter(
+                registration=registration,
+                field=OuterRef('pk'),
+                satisfies_required=True,
+            )),
+        ).exclude(value_exists=True)
         if missing_fields.exists():
             raise ValidationError(_("Missing registration options"))
 

@@ -1,14 +1,34 @@
 import reversion
 from django.db import models
-from django.db.models import Case, When
+from django.db.models import Case, Q, When
 from django.utils.translation import ugettext_lazy as _
 
-from arta.common.db import UpdatedAtQuerySetMixin
+from arta.common.db import QExpr, UpdatedAtQuerySetMixin
 
 from . import RegistrationField
 
 
 class RegistrationFieldValueQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
+    def with_satisfies_required(self):
+        """
+        Add satisfies_required annotation.
+
+        This indicates whether this value is sufficient to satisfy the requirements of its field (based on type and its
+        required attribute).
+        """
+        CHECKED = RegistrationFieldValue.CHECKBOX_VALUES[True]
+        UNCHECKED = RegistrationFieldValue.CHECKBOX_VALUES[False]
+
+        return self.annotate(satisfies_required=QExpr(
+            Q(field__field_type=RegistrationField.types.CHOICE) & (Q(field__required=False) | ~Q(option=None))
+            | Q(field__field_type=RegistrationField.types.STRING) & (Q(field__required=False) | ~Q(string_value=""))
+            | Q(field__field_type=RegistrationField.types.RATING5) & (Q(field__required=False) | ~Q(string_value=""))
+            # Checkbox is slightly different, it must be checked when required, or any (non-empty) value otherwise
+            | Q(field__field_type=RegistrationField.types.CHECKBOX) & (
+                Q(field__required=False) & Q(string_value=UNCHECKED) | Q(string_value=CHECKED)
+            ),
+        ))
+
     def select_related_option_and_field(self):
         """ Wrapper for select_related, to be used from templates """
         return self.select_related('option', 'field')

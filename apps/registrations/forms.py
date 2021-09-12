@@ -233,14 +233,15 @@ class RegistrationOptionsForm(forms.Form):
             if field.field_type.CHOICE:
                 # TODO: Handle depends
                 options = field.options.filter(Q(invite_only=None) | Q(invite_only__user=self.user))
-                form_field = RegistrationOptionField(queryset=options, empty_label=None)
+                empty_label = None if field.required else '-'
+                form_field = RegistrationOptionField(queryset=options, empty_label=empty_label)
             elif field.field_type.RATING5:
                 choices = ((str(n), str(n)) for n in range(1, 6))
                 form_field = forms.ChoiceField(choices=choices, widget=forms.RadioSelect)
             elif field.field_type.STRING:
                 form_field = forms.CharField()
             elif field.field_type.CHECKBOX:
-                form_field = forms.BooleanField(required=False)
+                form_field = forms.BooleanField()
             elif field.field_type.SECTION:
                 form_field = None
                 self._sections.append((field, []))
@@ -248,6 +249,7 @@ class RegistrationOptionsForm(forms.Form):
             if form_field:
                 form_field.help_text = field.help_text
                 form_field.label = conditional_escape(field.title)
+                form_field.required = field.required
                 if not self._sections:
                     self._sections.append((None, []))
                 self._sections[-1][1].append(field)

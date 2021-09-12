@@ -335,6 +335,23 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         cls.option_nl = RegistrationFieldOptionFactory(field=cls.origin, title="NL", slots=2)
         cls.option_intl = RegistrationFieldOptionFactory(field=cls.origin, title="INTL", slots=2)
 
+        cls.required_choice = RegistrationFieldFactory(
+            event=cls.event, name="required_choice", field_type=RegistrationField.types.CHOICE,
+        )
+        cls.required_choice_option = RegistrationFieldOptionFactory(field=cls.required_choice, title="rco")
+
+        cls.required_string = RegistrationFieldFactory(
+            event=cls.event, name="required_string", field_type=RegistrationField.types.STRING,
+        )
+
+        cls.required_checkbox = RegistrationFieldFactory(
+            event=cls.event, name="required_checkbox", field_type=RegistrationField.types.CHECKBOX,
+        )
+
+        cls.required_rating5 = RegistrationFieldFactory(
+            event=cls.event, name="required_rating5", field_type=RegistrationField.types.RATING5,
+        )
+
     def setUp(self):
         self.user = ArtaUserFactory()
         self.client.force_login(self.user)
@@ -379,6 +396,10 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         data = {
             self.gender.name: self.option_m.pk,
             self.origin.name: self.option_nl.pk,
+            self.required_checkbox.name: "on",
+            self.required_choice.name: self.required_choice_option.pk,
+            self.required_rating5.name: "3",
+            self.required_string.name: "abc",
         }
         response = self.client.post(next_url, data)
         next_url = reverse('registrations:step_personal_details', args=(reg.pk,))
@@ -386,13 +407,25 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
 
         reg = Registration.objects.get()
         self.assertEqual(reg.status, Registration.statuses.PREPARATION_IN_PROGRESS)
-        gender, origin = RegistrationFieldValue.objects.all().order_by('field__name')
-        self.assertEqual(gender.registration, reg)
-        self.assertEqual(gender.field, self.gender)
-        self.assertEqual(gender.option, self.option_m)
-        self.assertEqual(origin.registration, reg)
-        self.assertEqual(origin.field, self.origin)
-        self.assertEqual(origin.option, self.option_nl)
+
+        (
+            gender,
+            origin,
+            required_checkbox, required_choice, required_rating5, required_string,
+        ) = RegistrationFieldValue.objects.all().order_by('field__name')
+
+        def check_value(value, field, option=None, string_value=None):
+            self.assertEqual(value.field, field)
+            self.assertEqual(value.registration, reg)
+            self.assertEqual(value.option, option)
+            self.assertEqual(value.string_value, string_value)
+
+        check_value(gender, self.gender, option=self.option_m)
+        check_value(origin, self.origin, option=self.option_nl)
+        check_value(required_checkbox, self.required_checkbox, string_value="1")
+        check_value(required_choice, self.required_choice, option=self.required_choice_option)
+        check_value(required_rating5, self.required_rating5, string_value=data[self.required_rating5.name])
+        check_value(required_string, self.required_string, string_value=data[self.required_string.name])
 
         # Personal details step, should create Address and update user detail
         with self.assertTemplateUsed('registrations/step_personal_details.html'):
@@ -486,6 +519,42 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
 
         reg = Registration.objects.get()
         self.assertEqual(reg.status, Registration.statuses.REGISTERED)
+
+    def test_missing_options(self):
+        """ """
+        e = self.event
+        reg = RegistrationFactory(event=e, user=self.user, preparation_in_progress=True)
+
+        data = {
+            self.gender.name: self.option_m.pk,
+            self.origin.name: self.option_nl.pk,
+            self.required_checkbox.name: "on",
+            self.required_choice.name: self.required_choice_option.pk,
+            self.required_rating5.name: "3",
+            self.required_string.name: "abc",
+        }
+        next_url = reverse('registrations:step_registration_options', args=(reg.pk,))
+
+        for field_name in data:
+            incomplete_data = data.copy()
+
+            if field_name == 'required_checkbox':
+                # For a checkbox, no value means unchecked
+                continue
+
+            with self.subTest("Empty data for field should fail validation", field=field_name):
+                incomplete_data[field_name] = ''
+                response = self.client.post(next_url, incomplete_data)
+                self.assertEqual(response.status_code, 200)
+                self.assertFalse(response.context['form'].is_valid())
+                self.assertIn(field_name, response.context['form'].errors)
+
+            with self.subTest("Omitted data for field should fail validation", field=field_name):
+                incomplete_data.pop(field_name)
+                response = self.client.post(next_url, incomplete_data)
+                self.assertEqual(response.status_code, 200)
+                self.assertFalse(response.context['form'].is_valid())
+                self.assertIn(field_name, response.context['form'].errors)
 
     def test_registration_sends_email(self):
         """ Register until the option slots are taken and the next registration ends up on the waiting list. """

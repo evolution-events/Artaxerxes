@@ -28,7 +28,7 @@
       {% if section %}
         <legend class="section">{{section.title}}</legend>
         {% if section.help_text %}
-        <p class="sectionhelp">{{ section.help_text | safe }}</p>
+        <p class="sectionhelp">{{ section.help_text | safe | linebreaks }}</p>
         {% endif %}
       {% endif %}
       {% for field, form_field in fields %}

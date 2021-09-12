@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load coretags %}
+{% autoescape off %}
 {% if registration.status.WAITINGLIST %}
   {% blocktrans with event=registration.event %}
   Waitinglist registration for {{event}}
@@ -9,3 +10,4 @@
   Registration for {{event}}
   {% endblocktrans %}
 {% endif %}
+{% endautoescape %}

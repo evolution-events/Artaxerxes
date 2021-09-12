@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load coretags %}
+{% autoescape off %}
 Dear {{user.full_name}},
 .
 {% if registration.status.PENDING %}
@@ -78,3 +79,4 @@ make some changes yourself by logging in to Artaxerxes.
 Greetings,
 .
 Evolution Events
+{% endautoescape %}

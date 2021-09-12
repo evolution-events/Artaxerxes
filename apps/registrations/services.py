@@ -63,8 +63,11 @@ class RegistrationStatusService:
                 satisfies_required=True,
             )),
         ).exclude(value_exists=True)
-        if missing_fields.exists():
-            raise ValidationError(_("Missing registration options"))
+
+        missing_names = [name for (name, ) in missing_fields.values_list('name')]
+
+        if missing_names:
+            raise ValidationError(_("Missing registration options: {}".format(", ".join(missing_names))))
 
         registration.status = Registration.statuses.PREPARATION_COMPLETE
         registration.save()

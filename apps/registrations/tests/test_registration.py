@@ -347,6 +347,13 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         self.assertNotHTML(response, 'input[name="agree"]')
         self.assertNotHTML(response, 'input[type="submit"]')
 
+    def assertFormRedirects(self, response, next_url):
+        """ Check that a response from posting a form is succesful and redirects to the given url. """
+        # 200 should not happen, but this improves the failure output when validation fails
+        if response.status_code == 200:
+            self.assertFalse(response.context['form'].errors)
+        self.assertRedirects(response, next_url)
+
     def test_full_registration(self):
         """ Run through an entire registration flow. """
         e = self.event
@@ -359,7 +366,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         response = self.client.post(start_url)
         reg = Registration.objects.get()
         next_url = reverse('registrations:step_registration_options', args=(reg.pk,))
-        self.assertRedirects(response, next_url)
+        self.assertFormRedirects(response, next_url)
 
         self.assertEqual(reg.status, Registration.statuses.PREPARATION_IN_PROGRESS)
         self.assertEqual(reg.event, e)
@@ -375,7 +382,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         }
         response = self.client.post(next_url, data)
         next_url = reverse('registrations:step_personal_details', args=(reg.pk,))
-        self.assertRedirects(response, next_url)
+        self.assertFormRedirects(response, next_url)
 
         reg = Registration.objects.get()
         self.assertEqual(reg.status, Registration.statuses.PREPARATION_IN_PROGRESS)
@@ -402,7 +409,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         }
         response = self.client.post(next_url, data)
         next_url = reverse('registrations:step_medical_details', args=(reg.pk,))
-        self.assertRedirects(response, next_url)
+        self.assertFormRedirects(response, next_url)
 
         reg = Registration.objects.get()
         self.assertEqual(reg.status, Registration.statuses.PREPARATION_IN_PROGRESS)
@@ -427,7 +434,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         }
         response = self.client.post(next_url, data)
         next_url = reverse('registrations:step_emergency_contacts', args=(reg.pk,))
-        self.assertRedirects(response, next_url)
+        self.assertFormRedirects(response, next_url)
 
         reg = Registration.objects.get()
         self.assertEqual(reg.status, Registration.statuses.PREPARATION_IN_PROGRESS)
@@ -453,7 +460,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         }
         response = self.client.post(next_url, data)
         next_url = reverse('registrations:step_final_check', args=(reg.pk,))
-        self.assertRedirects(response, next_url)
+        self.assertFormRedirects(response, next_url)
 
         reg = Registration.objects.get()
         self.assertEqual(reg.status, Registration.statuses.PREPARATION_COMPLETE)
@@ -475,7 +482,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
 
         response = self.client.post(next_url, {'agree': 1})
         next_url = reverse('registrations:registration_confirmation', args=(reg.pk,))
-        self.assertRedirects(response, next_url)
+        self.assertFormRedirects(response, next_url)
 
         reg = Registration.objects.get()
         self.assertEqual(reg.status, Registration.statuses.REGISTERED)
@@ -489,7 +496,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         check_url = reverse('registrations:step_final_check', args=(reg.pk,))
         confirm_url = reverse('registrations:registration_confirmation', args=(reg.pk,))
         response = self.client.post(check_url, {'agree': 1})
-        self.assertRedirects(response, confirm_url)
+        self.assertFormRedirects(response, confirm_url)
 
         reg.refresh_from_db()
         self.assertEqual(reg.status, Registration.statuses.REGISTERED)
@@ -514,7 +521,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         check_url = reverse('registrations:step_final_check', args=(reg.pk,))
         confirm_url = reverse('registrations:registration_confirmation', args=(reg.pk,))
         response = self.client.post(check_url, {'agree': 1})
-        self.assertRedirects(response, confirm_url)
+        self.assertFormRedirects(response, confirm_url)
 
         reg.refresh_from_db()
         self.assertEqual(reg.status, Registration.statuses.WAITINGLIST)
@@ -538,7 +545,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         check_url = reverse('registrations:step_final_check', args=(reg.pk,))
         confirm_url = reverse('registrations:registration_confirmation', args=(reg.pk,))
         response = self.client.post(check_url, {'agree': 1})
-        self.assertRedirects(response, confirm_url)
+        self.assertFormRedirects(response, confirm_url)
 
         reg.refresh_from_db()
         self.assertEqual(reg.status, Registration.statuses.PENDING)
@@ -694,7 +701,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
             self.assertTrue(response.context['event'].registration_is_open)
 
             response = self.client.post(final_check_url, {'agree': 1})
-            self.assertRedirects(response, confirm_url)
+            self.assertFormRedirects(response, confirm_url)
             reg.refresh_from_db()
             self.assertTrue(reg.status.REGISTERED)
 
@@ -712,7 +719,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
             self.assertTrue(response.context['event'].registration_is_open)
 
             response = self.client.post(final_check_url, {'agree': 1})
-            self.assertRedirects(response, confirm_url)
+            self.assertFormRedirects(response, confirm_url)
             reg.refresh_from_db()
             self.assertTrue(reg.status.REGISTERED)
 

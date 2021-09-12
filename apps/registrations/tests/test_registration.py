@@ -434,7 +434,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
             reg_type,
         ) = RegistrationFieldValue.objects.all().order_by('field__name')
 
-        def check_value(value, field, option=None, string_value=None):
+        def check_value(value, field, option=None, string_value=""):
             self.assertEqual(value.field, field)
             self.assertEqual(value.registration, reg)
             self.assertEqual(value.option, option)

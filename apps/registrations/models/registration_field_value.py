@@ -57,7 +57,7 @@ class RegistrationFieldValue(models.Model):
     field = models.ForeignKey('registrations.RegistrationField', on_delete=models.CASCADE)
     option = models.ForeignKey('registrations.RegistrationFieldOption', null=True, blank=True,
                                on_delete=models.CASCADE)
-    string_value = models.CharField(max_length=255, null=True, blank=True)
+    string_value = models.TextField(blank=True)
 
     created_at = models.DateTimeField(verbose_name=_('Creation timestamp'), auto_now_add=True)
     updated_at = models.DateTimeField(verbose_name=_('Last update timestamp'), auto_now=True)

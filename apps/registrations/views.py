@@ -334,7 +334,9 @@ class FinalCheck(RegistrationStepMixin, FormView):
     form_class = FinalCheckForm
 
     def get_modify_url(self):
-        return reverse(REGISTRATION_STEPS[0]['view'], args=(self.registration.pk,))
+        # TODO: This hardcodes skipping the first "start" step, but
+        # maybe we can do this more elegantly?
+        return reverse(REGISTRATION_STEPS[1]['view'], args=(self.registration.pk,))
 
     def form_valid(self, form):
         try:

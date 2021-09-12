@@ -46,53 +46,57 @@ class Command(BaseCommand):
         seen_fields = []
 
         for i, row in enumerate(reader):
-            if not any(row.values()):
-                continue
+            try:
+                if not any(row.values()):
+                    continue
 
-            (field, created) = RegistrationField.objects.get_or_create(event=event, name=row['name'])
-            field.order = i
-            field.field_type = field.types.by_id[row['type'].upper()]
-            field.title = row['title']
-            field.help_text = row['help_text']
-            field.required = True if row['required'].lower() in ['yes', 'true'] else False
-            if row['depends']:
-                (name, value) = row['depends'].split('=')
-                try:
-                    field.depends = RegistrationFieldOption.objects.get(field__name=name, title=value)
-                except RegistrationFieldOption.DoesNotExist:
-                    self.stderr.write("{}: Dependency {} not found\n".format(row['name'], row['depends']))
-                    raise SystemExit()
+                (field, created) = RegistrationField.objects.get_or_create(event=event, name=row['name'])
+                field.order = i
+                field.field_type = field.types.by_id[row['type'].upper()]
+                field.title = row['title']
+                field.help_text = row['help_text']
+                field.required = True if row['required'].lower() in ['yes', 'true'] else False
+                if row['depends']:
+                    (name, value) = row['depends'].split('=')
+                    try:
+                        field.depends = RegistrationFieldOption.objects.get(field__name=name, title=value)
+                    except RegistrationFieldOption.DoesNotExist:
+                        self.stderr.write("{}: Dependency {} not found\n".format(row['name'], row['depends']))
+                        raise SystemExit()
 
-            field.save()
-            seen_fields.append(field.pk)
+                field.save()
+                seen_fields.append(field.pk)
 
-            seen_options = []
+                seen_options = []
 
-            if row['choices'].strip():
-                if not field.field_type.CHOICE:
-                    self.stderr.write("{}: Choices only allowed for CHOICE fields\n".format(row['name']))
-                    raise SystemExit()
+                if row['choices'].strip():
+                    if not field.field_type.CHOICE:
+                        self.stderr.write("{}: Choices only allowed for CHOICE fields\n".format(row['name']))
+                        raise SystemExit()
 
-                for i, choice in enumerate(row['choices'].split(';')):
-                    title = choice.strip()
-                    (option, created) = RegistrationFieldOption.objects.get_or_create(field=field, title=title)
-                    option.order = i
-                    option.save()
+                    for i, choice in enumerate(row['choices'].split(';')):
+                        title = choice.strip()
+                        (option, created) = RegistrationFieldOption.objects.get_or_create(field=field, title=title)
+                        option.order = i
+                        option.save()
 
-                    seen_options.append(option.pk)
+                        seen_options.append(option.pk)
 
-            extra_options = RegistrationFieldOption.objects.filter(field=field).exclude(pk__in=seen_options)
-            if delete_extra_options:
-                if extra_options:
-                    self.stdout.write("{}: Deleted extra choices: {}\n".format(
-                        field.name, ", ".join(o.title for o in extra_options),
-                    ))
-                    extra_options.delete()
-            else:
-                if extra_options:
-                    self.stdout.write("{}: Leaving extra choices untouched: {}\n".format(
-                        field.name, ", ".join(o.title for o in extra_options),
-                    ))
+                extra_options = RegistrationFieldOption.objects.filter(field=field).exclude(pk__in=seen_options)
+                if delete_extra_options:
+                    if extra_options:
+                        self.stdout.write("{}: Deleted extra choices: {}\n".format(
+                            field.name, ", ".join(o.title for o in extra_options),
+                        ))
+                        extra_options.delete()
+                else:
+                    if extra_options:
+                        self.stdout.write("{}: Leaving extra choices untouched: {}\n".format(
+                            field.name, ", ".join(o.title for o in extra_options),
+                        ))
+            except Exception as e:
+                self.stderr.write("{}: Failed to import: {}\n".format(row['name'], e))
+                raise SystemExit()
 
         extra_fields = RegistrationField.objects.filter(event=event).exclude(pk__in=seen_fields)
         if delete_extra_fields:

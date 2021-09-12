@@ -273,13 +273,11 @@ class RegistrationOptionsForm(forms.Form):
                 continue
 
             if field.field_type.CHOICE:
-                try:
-                    option = d[field.name]
-                except KeyError:
-                    self.add_error_by_code(field.name, 'required')
-                else:
-                    if option.depends and d.get(option.depends.field.name, None) != option.depends:
-                        self.add_error_by_code(field.name, 'invalid_choice', value=option.title)
+                # For CHOICE fields, also check depends on the selected option. A missing value here means validation
+                # already failed in our super, so we can ignore those fields
+                option = d.get(field.name, None)
+                if option and option.depends and d.get(option.depends.field.name, None) != option.depends:
+                    self.add_error_by_code(field.name, 'invalid_choice', value=option.title)
 
     def save(self, registration):
         d = self.cleaned_data

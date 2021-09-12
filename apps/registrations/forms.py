@@ -247,6 +247,8 @@ class RegistrationOptionsForm(forms.Form):
             elif field.field_type.SECTION:
                 form_field = None
                 self._sections.append((field, []))
+            else:
+                raise ValueError("Unsupported field type")
 
             if form_field:
                 form_field.help_text = field.help_text

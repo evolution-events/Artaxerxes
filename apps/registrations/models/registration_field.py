@@ -30,7 +30,7 @@ class RegistrationField(models.Model):
 
     event = models.ForeignKey('events.Event', related_name='registration_fields', on_delete=models.CASCADE)
     order = models.IntegerField(default=1)
-    title = models.CharField(max_length=100)
+    title = models.CharField(max_length=200)
     help_text = models.TextField(blank=True, help_text=_("Can contain HTML"))
     name = models.CharField(max_length=20)
     field_type = ConstantChoiceCharField(max_length=10, constants=types)

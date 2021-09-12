@@ -55,6 +55,15 @@ class TestSatisfiesRequiredAnnotation(TestCase):
             {'field_type': types.CHECKBOX, 'required': False, 'value': "1", 'satisfies': True},
             {'field_type': types.CHECKBOX, 'required': False, 'value': "abc", 'satisfies': False},
             {'field_type': types.CHECKBOX, 'required': False, 'value': "0", 'satisfies': True},
+
+            {'field_type': types.IMAGE, 'required': True, 'value': "", 'satisfies': False},
+            {'field_type': types.IMAGE, 'required': True, 'value': "abc.gif", 'satisfies': True},
+            {'field_type': types.IMAGE, 'required': True, 'value': "xyz", 'satisfies': True},
+            {'field_type': types.IMAGE, 'required': True, 'value': "0", 'satisfies': True},
+            {'field_type': types.IMAGE, 'required': False, 'value': "", 'satisfies': True},
+            {'field_type': types.IMAGE, 'required': False, 'value': "abc.gif", 'satisfies': True},
+            {'field_type': types.IMAGE, 'required': False, 'value': "xyz", 'satisfies': True},
+            {'field_type': types.IMAGE, 'required': False, 'value': "0", 'satisfies': True},
         ]
 
         for d in values:

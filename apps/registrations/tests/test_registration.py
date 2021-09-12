@@ -1,3 +1,4 @@
+import io
 import itertools
 import re
 import time
@@ -498,6 +499,21 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
             event=cls.event, name="depends_rating5", field_type=RegistrationField.types.RATING5, depends=cls.crew,
         )
 
+        cls.optional_image = RegistrationFieldFactory(
+            event=cls.event, name="optional_image", field_type=RegistrationField.types.IMAGE, required=False,
+        )
+        cls.required_image = RegistrationFieldFactory(
+            event=cls.event, name="required_image", field_type=RegistrationField.types.IMAGE,
+        )
+        cls.depends_image = RegistrationFieldFactory(
+            event=cls.event, name="depends_image", field_type=RegistrationField.types.IMAGE, depends=cls.crew,
+        )
+
+        # Minimal 1-pixel gif, from https://cloudinary.com/blog/one_pixel_is_worth_three_thousand_words
+        cls.test_image = io.BytesIO(b'\x47\x49\x46\x38\x37\x61\x01\x00\x01\x00\x80\x01\x00\x00\x00\x00'
+                                    + b'\xff\xff\xff\x2c\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02\x4c\x01\x00\x3b')
+        cls.test_image.name = 'foo.gif'
+
     def setUp(self):
         self.user = ArtaUserFactory()
         self.client.force_login(self.user)
@@ -539,12 +555,14 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         with self.assertTemplateUsed('registrations/step_registration_options.html'):
             self.client.get(next_url)
 
+        self.test_image.seek(0)
         data = {
             self.type.name: self.player.pk,
             self.gender.name: self.option_m.pk,
             self.origin.name: self.option_nl.pk,
             self.required_checkbox.name: "on",
             self.required_choice.name: self.required_choice_option.pk,
+            self.required_image.name: self.test_image,
             self.required_rating5.name: "3",
             self.required_string.name: "abc",
         }
@@ -557,29 +575,35 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
 
         (
             gender,
-            optional_checkbox, optional_choice, optional_rating5, optional_string,
+            optional_checkbox, optional_choice, optional_image, optional_rating5, optional_string,
             origin,
-            required_checkbox, required_choice, required_rating5, required_string,
+            required_checkbox, required_choice, required_image, required_rating5, required_string,
             reg_type,
         ) = RegistrationFieldValue.objects.all().order_by('field__name')
 
-        def check_value(value, field, option=None, string_value=""):
+        def check_value(value, field, option=None, string_value="", file_value=""):
             self.assertEqual(value.field, field)
             self.assertEqual(value.registration, reg)
             self.assertEqual(value.option, option)
             self.assertEqual(value.string_value, string_value)
+            self.assertEqual(value.file_value, file_value)
 
         check_value(reg_type, self.type, option=self.player)
         check_value(gender, self.gender, option=self.option_m)
         check_value(origin, self.origin, option=self.option_nl)
         check_value(optional_checkbox, self.optional_checkbox, string_value="0")
         check_value(optional_choice, self.optional_choice)
+        check_value(optional_image, self.optional_image)
         check_value(optional_rating5, self.optional_rating5)
         check_value(optional_string, self.optional_string)
         check_value(required_checkbox, self.required_checkbox, string_value="1")
         check_value(required_choice, self.required_choice, option=self.required_choice_option)
+        check_value(required_image, self.required_image, file_value=required_image.file_value)
         check_value(required_rating5, self.required_rating5, string_value=data[self.required_rating5.name])
         check_value(required_string, self.required_string, string_value=data[self.required_string.name])
+
+        self.test_image.seek(0)
+        self.assertEqual(required_image.file_value.read(), self.test_image.read())
 
         # Personal details step, should create Address and update user detail
         with self.assertTemplateUsed('registrations/step_personal_details.html'):
@@ -685,6 +709,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
             self.origin.name: self.option_nl.pk,
             self.required_checkbox.name: "on",
             self.required_choice.name: self.required_choice_option.pk,
+            self.required_image.name: self.test_image,
             self.required_rating5.name: "3",
             self.required_string.name: "abc",
         }
@@ -695,6 +720,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
 
             with self.subTest("Empty data for field should fail validation", field=field_name):
                 incomplete_data[field_name] = ''
+                self.test_image.seek(0)
                 response = self.client.post(next_url, incomplete_data)
                 self.assertEqual(response.status_code, 200)
                 self.assertFalse(response.context['form'].is_valid())
@@ -702,6 +728,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
 
             with self.subTest("Omitted data for field should fail validation", field=field_name):
                 incomplete_data.pop(field_name)
+                self.test_image.seek(0)
                 response = self.client.post(next_url, incomplete_data)
                 self.assertEqual(response.status_code, 200)
                 self.assertFalse(response.context['form'].is_valid())

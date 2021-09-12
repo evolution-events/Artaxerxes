@@ -25,6 +25,7 @@ class RegistrationField(models.Model):
         Constant(CHOICE='choice', label=_('Choice')),
         Constant(RATING5='rating5', label=_('Rating (1-5)')),
         Constant(STRING='string', label=_('String')),
+        Constant(IMAGE='image', label=_('Image')),
         Constant(CHECKBOX='checkbox', label=_('Checkbox')),
     )
 

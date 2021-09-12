@@ -69,5 +69,7 @@ class RegistrationFieldValueFactory(factory.django.DjangoModelFactory):
         if value:
             if obj.field.field_type.CHOICE and isinstance(value, RegistrationFieldOption):
                 obj.option = value
+            elif obj.field.field_type.IMAGE:
+                obj.file_value = value
             else:
                 obj.string_value = value

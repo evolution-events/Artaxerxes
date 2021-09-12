@@ -242,6 +242,8 @@ class RegistrationOptionsForm(forms.Form):
                 form_field = forms.CharField()
             elif field.field_type.CHECKBOX:
                 form_field = forms.BooleanField()
+            elif field.field_type.IMAGE:
+                form_field = forms.ImageField()
             elif field.field_type.SECTION:
                 form_field = None
                 self._sections.append((field, []))
@@ -297,6 +299,8 @@ class RegistrationOptionsForm(forms.Form):
             (value, created) = RegistrationFieldValue.objects.get_or_create(registration=registration, field=field)
             if field.field_type.CHOICE:
                 value.option = d[field.name]
+            elif field.field_type.IMAGE:
+                value.file_value = d[field.name]
             elif field.field_type.CHECKBOX:
                 value.string_value = RegistrationFieldValue.CHECKBOX_VALUES[d[field.name]]
             else:

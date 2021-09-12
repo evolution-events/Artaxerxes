@@ -21,6 +21,7 @@ class RegistrationFieldValueQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
 
         return self.annotate(satisfies_required=QExpr(
             Q(field__field_type=RegistrationField.types.CHOICE) & (Q(field__required=False) | ~Q(option=None))
+            | Q(field__field_type=RegistrationField.types.IMAGE) & (Q(field__required=False) | ~Q(file_value=""))
             | Q(field__field_type=RegistrationField.types.STRING) & (Q(field__required=False) | ~Q(string_value=""))
             | Q(field__field_type=RegistrationField.types.RATING5) & (Q(field__required=False) | ~Q(string_value=""))
             # Checkbox is slightly different, it must be checked when required, or any (non-empty) value otherwise
@@ -69,6 +70,11 @@ class RegistrationFieldValueManager(models.Manager.from_queryset(RegistrationFie
     pass
 
 
+def file_value_path(obj, filename):
+    """ Generate the filename of an uploaded file """
+    return 'registration_fields/event_{0}/field_{1}/{2}'.format(obj.registration.event.id, obj.id, filename)
+
+
 @reversion.register(follow=('registration',))
 class RegistrationFieldValue(models.Model):
     """ The actual value for a given field on a given registration. """
@@ -78,6 +84,10 @@ class RegistrationFieldValue(models.Model):
     option = models.ForeignKey('registrations.RegistrationFieldOption', null=True, blank=True,
                                on_delete=models.CASCADE)
     string_value = models.TextField(blank=True)
+    # TODO: Delete unused files, see https://stackoverflow.com/questions/16041232/django-delete-filefield
+    # TODO: When used with arbitrary files, instead of images (verified by forms.ImageField), additionaly measures are
+    # needed to prevent security issues.
+    file_value = models.FileField(blank=True, upload_to=file_value_path)
 
     created_at = models.DateTimeField(verbose_name=_('Creation timestamp'), auto_now_add=True)
     updated_at = models.DateTimeField(verbose_name=_('Last update timestamp'), auto_now=True)

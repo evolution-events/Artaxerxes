@@ -209,6 +209,8 @@ class RegistrationOptionsForm(forms.Form):
         for option in registration.options.all():
             if option.field.field_type.CHOICE:
                 value = option.option
+            elif option.field.field_type.IMAGE:
+                value = option.file_value
             else:
                 value = option.string_value
 

@@ -55,6 +55,7 @@ For details, see our house rules at: {{ house_rules_url }}.
 {% endfor %}
 {% endif %}
 .
+{% if not registration.status.PENDING %}
 {% trans "Payments" %}
 ====
 {% blocktrans trimmed with registration.id as regnum %}
@@ -64,6 +65,7 @@ your name, the event name and the registration number ({{regnum}}) in
 the payment description.
 {% endblocktrans %}
 .
+{% endif %}
 {% trans "Changes to your registration" %}
 ====
 {% blocktrans trimmed with registration.event.display_email as mail %}

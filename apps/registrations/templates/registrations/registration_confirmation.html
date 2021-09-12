@@ -64,13 +64,15 @@
     {% include 'registrations/snippets/registration_options.html' with registration=registration %}
   {% endif %}
 
-  <h2>{% trans "Payments" %}</h2>
-  {% blocktrans trimmed with registration.id as regnum %}
-  Payments can be made to IBAN account NL52INGB0001297429, held by
-  "Stichting Evolution Events" in Capelle aan den IJssel, NL. Please note
-  your name, the event name and the registration number
-  ({{regnum}}) in the payment description.
-  {% endblocktrans %}
+  {% if not registration.status.PENDING %}
+    <h2>{% trans "Payments" %}</h2>
+    {% blocktrans trimmed with registration.id as regnum %}
+    Payments can be made to IBAN account NL52INGB0001297429, held by
+    "Stichting Evolution Events" in Capelle aan den IJssel, NL. Please note
+    your name, the event name and the registration number
+    ({{regnum}}) in the payment description.
+    {% endblocktrans %}
+  {% endif %}
 
   <h2>{% trans "Changes to your registration" %}</h2>
   {% blocktrans trimmed with registration.event.display_email|urlize as mail %}

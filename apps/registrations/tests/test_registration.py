@@ -327,6 +327,11 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
     @classmethod
     def setUpTestData(cls):
         cls.event = EventFactory(registration_opens_in_days=-1, public=True)
+
+        cls.type = RegistrationFieldFactory(event=cls.event, name="type")
+        cls.player = RegistrationFieldOptionFactory(field=cls.type, title="Player")
+        cls.crew = RegistrationFieldOptionFactory(field=cls.type, title="Crew")
+
         cls.gender = RegistrationFieldFactory(event=cls.event, name="gender")
         cls.option_m = RegistrationFieldOptionFactory(field=cls.gender, title="M", slots=2)
         cls.option_f = RegistrationFieldOptionFactory(field=cls.gender, title="F", slots=2)
@@ -339,17 +344,30 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
             event=cls.event, name="required_choice", field_type=RegistrationField.types.CHOICE,
         )
         cls.required_choice_option = RegistrationFieldOptionFactory(field=cls.required_choice, title="rco")
+        cls.depends_choice = RegistrationFieldFactory(
+            event=cls.event, name="depends_choice", field_type=RegistrationField.types.CHOICE, depends=cls.crew,
+        )
+        cls.depends_choice_option = RegistrationFieldOptionFactory(field=cls.depends_choice, title="dco")
 
         cls.required_string = RegistrationFieldFactory(
             event=cls.event, name="required_string", field_type=RegistrationField.types.STRING,
+        )
+        cls.depends_string = RegistrationFieldFactory(
+            event=cls.event, name="depends_string", field_type=RegistrationField.types.STRING, depends=cls.crew,
         )
 
         cls.required_checkbox = RegistrationFieldFactory(
             event=cls.event, name="required_checkbox", field_type=RegistrationField.types.CHECKBOX,
         )
+        cls.depends_checkbox = RegistrationFieldFactory(
+            event=cls.event, name="depends_checkbox", field_type=RegistrationField.types.CHECKBOX, depends=cls.crew,
+        )
 
         cls.required_rating5 = RegistrationFieldFactory(
             event=cls.event, name="required_rating5", field_type=RegistrationField.types.RATING5,
+        )
+        cls.depends_rating5 = RegistrationFieldFactory(
+            event=cls.event, name="depends_rating5", field_type=RegistrationField.types.RATING5, depends=cls.crew,
         )
 
     def setUp(self):
@@ -394,6 +412,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
             self.client.get(next_url)
 
         data = {
+            self.type.name: self.player.pk,
             self.gender.name: self.option_m.pk,
             self.origin.name: self.option_nl.pk,
             self.required_checkbox.name: "on",
@@ -412,6 +431,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
             gender,
             origin,
             required_checkbox, required_choice, required_rating5, required_string,
+            reg_type,
         ) = RegistrationFieldValue.objects.all().order_by('field__name')
 
         def check_value(value, field, option=None, string_value=None):
@@ -420,6 +440,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
             self.assertEqual(value.option, option)
             self.assertEqual(value.string_value, string_value)
 
+        check_value(reg_type, self.type, option=self.player)
         check_value(gender, self.gender, option=self.option_m)
         check_value(origin, self.origin, option=self.option_nl)
         check_value(required_checkbox, self.required_checkbox, string_value="1")
@@ -526,6 +547,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         reg = RegistrationFactory(event=e, user=self.user, preparation_in_progress=True)
 
         data = {
+            self.type.name: self.player.pk,
             self.gender.name: self.option_m.pk,
             self.origin.name: self.option_nl.pk,
             self.required_checkbox.name: "on",

@@ -268,8 +268,10 @@ class RegistrationOptionsForm(forms.Form):
         fields = self.event.registration_fields.filter(Q(invite_only=None) | Q(invite_only__user=self.user))
         fields = fields.exclude(field_type=RegistrationField.types.SECTION)
         for field in fields:
-            # If the dependencies for this option are not satisfied, ignore it
+            # If the dependencies for this option are not satisfied, ignore it and remove any previous (e.g.
+            # 'required') errors generated for it.
             if field.depends and d.get(field.depends.field.name, None) != field.depends:
+                self.errors.pop(field.name, None)
                 continue
 
             if field.field_type.CHOICE:

@@ -143,6 +143,10 @@ class Event(models.Model):
         verbose_name=_('Mail text for pending registrations'), blank=True,
         help_text=_('Text to include in the registration confirmation e-mail for pending (e.g. lottery) '
                     'registrations, explaining how admission works.'))
+    extra_conditions = models.TextField(
+        verbose_name=_('Extra registration conditions'), blank=True,
+        help_text=_('These are shown in the list of conditions when finalizing a registration. Rendered inside the '
+                    'existing &lt;ul&gt; tag, so should contain &lt;li&gt; tags, but no &lt;ul&gt;.'))
 
     slots = models.IntegerField(
         null=True, blank=True,

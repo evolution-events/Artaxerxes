@@ -83,6 +83,7 @@
       <li>We will process the data you supply according to our <a href="{% url 'core:privacy_policy' %}">privacy policy</a>.</li>
       <li>Registration for this event creates an obligation to pay the registration fee. On cancellation, costs may
       still be due (as specified in our <a href="{% url 'core:house_rules' %}">house rules</a>).</li>
+      {{ event.extra_conditions|safe }}
   </ul>
 
   {% if not event.registration_is_open %}

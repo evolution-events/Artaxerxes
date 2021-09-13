@@ -237,14 +237,13 @@ class RegistrationOptionsForm(forms.Form):
             # than a queryset with pre-cached results, which will not work with
         ))
 
+        fields = fields.select_related('depends__field')
         self._sections = []
 
         for field in fields:
-            # TODO: Handle depends
             # TODO: Handle allow_change_until
 
             if field.field_type.CHOICE:
-                # TODO: Handle depends
                 # TODO: This wraps the prefetched list into something that looks enough like a queryset to satisfy
                 # ModelChoiceField. It would be better if a prefetch with to_attr would produce a queryset (with
                 # prefetched results) rather than a list, but should be reported as a feature request for Django (as

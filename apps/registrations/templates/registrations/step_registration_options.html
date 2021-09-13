@@ -23,19 +23,33 @@
 {% endblock beforeform %}
 
 {% block form %}
+  <div class="registration-options-form">
   {% for section, fields in form.sections %}
     <fieldset>
       {% if section %}
-        <legend class="section">{{section.title}}</legend>
-        {% if section.help_text %}
-        <p class="sectionhelp">{{ section.help_text | safe | linebreaks }}</p>
+        <div class="section"
+          {% if section.depends %}
+          data-depends-name="{{ section.depends.field.name }}"
+          data-depends-value="{{ section.depends.pk }}"
+          {% endif %}
+        >
+          <legend class="section">{{section.title}}</legend>
+          {% if section.help_text %}
+          <p class="sectionhelp">{{ section.help_text | safe | linebreaks }}</p>
+        </div>
         {% endif %}
       {% endif %}
       {% for field, form_field in fields %}
-        <div class="field-type-{{ field.field_type }}">
-        {{ form_field | as_crispy_field }}
+        <div class="field-type-{{ field.field_type }}"
+          {% if field.depends %}
+          data-depends-name="{{ field.depends.field.name }}"
+          data-depends-value="{{ field.depends.pk }}"
+          {% endif %}
+        >
+          {{ form_field | as_crispy_field }}
         </div>
       {% endfor %}
     </fieldset>
   {% endfor %}
+  </div>
 {% endblock form %}

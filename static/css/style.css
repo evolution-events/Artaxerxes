@@ -1,18 +1,31 @@
 :root {
     --dark-gray: #1B1D1F;
+    /* This is --light but 0x444 darker, which is easier to read and
+     * allows using --light to make e.g. headings stand out a bit. */
+    --default: #b8b9ba;
     --link-color: #c998ea;
     --link-hover-color:#936da3;
 }
 
 body {
     background-color:var(--dark);
-    color:var(--light);
+    color:var(--default);
 }
 
 .form-control, .form-control:focus {
     background-color:var(--dark-gray);
-    color:var(--light);
+    color:var(--default);
     max-width: 40em;
+}
+
+.text-muted {
+    /* The bootstrap builtin muted color is too dark for our dark theme,
+     * so this is --default but 0x222 darker */
+    color:#98999a !important;
+}
+
+h1, h2, h3, h4, h5, h6, legend, .bigname {
+    color: var(--light);
 }
 
 textarea.form-control {
@@ -20,7 +33,7 @@ textarea.form-control {
 }
 
 .table, .btn {
-    color:var(--light);
+    color:var(--default);
 }
 
 .navbar {
@@ -30,6 +43,14 @@ textarea.form-control {
 h1 {
     margin-bottom: 0.5em;
     border-bottom: 1px solid var(--gray);
+}
+
+h2 {
+    margin-bottom: 0;
+}
+
+legend {
+    margin-bottom: 0;
 }
 
 ul.event-list {
@@ -56,6 +77,15 @@ ul.messages li.succes {
 .errorlist {
     background-color: var(--danger);
     color: var(--light);
+}
+
+label {
+    font-weight: bold;
+    color: var(--light);
+}
+
+input[type="radio"] ~ label {
+    color: inherit;
 }
 
 input[name="consent_announcements"] {
@@ -139,6 +169,7 @@ a.details-link:after { content: '       \0394'} /* Arrow up */
     margin-right: 2rem;
 }
 
+
 /*** Registration procedure - finalcheck ***/
 tr.total-price td.label {
     text-align: right;
@@ -162,6 +193,7 @@ tr.total-price td.label {
 .registration_steps li {
     height: var(--bar-w);
     position: relative;
+    color: var(--light);
 }
 
 /* Draw a (part of) a bar before each item */

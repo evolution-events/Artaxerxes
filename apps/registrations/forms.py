@@ -1,6 +1,6 @@
 from django import forms
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Prefetch, Q
 from django.forms.formsets import DELETION_FIELD_NAME
 from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
@@ -9,7 +9,7 @@ from django.utils.translation import gettext as _
 from apps.core.models import ConsentLog
 from apps.core.templatetags.coretags import moneyformat
 from apps.people.models import Address, ArtaUser, EmergencyContact, MedicalDetails
-from apps.registrations.models import RegistrationField, RegistrationFieldValue
+from apps.registrations.models import RegistrationField, RegistrationFieldOption, RegistrationFieldValue
 
 # from apps.events.models import EventOptions
 
@@ -206,7 +206,8 @@ class RegistrationOptionsForm(forms.Form):
         # all fields have a value?
 
         values = {}
-        for option in registration.options.all():
+        options = registration.options.select_related('field')
+        for option in options:
             if option.field.field_type.CHOICE:
                 value = option.option
             elif option.field.field_type.IMAGE:
@@ -226,6 +227,16 @@ class RegistrationOptionsForm(forms.Form):
     def add_fields(self):
         """ Add form fields based on the RegistrationFields in the database. """
         fields = self.event.registration_fields.filter(Q(invite_only=None) | Q(invite_only__user=self.user))
+        # For each field, also prefetch
+        fields = fields.prefetch_related(Prefetch(
+            'options',
+            queryset=RegistrationFieldOption.objects.filter(Q(invite_only=None) | Q(invite_only__user=self.user)),
+            to_attr='available_options',
+            # TODO: This modifies the default field.options manager to return a subset, which is not ideal. Better to
+            # use to_attr='available_options', but that produces a list object in field.available_options rather
+            # than a queryset with pre-cached results, which will not work with
+        ))
+
         self._sections = []
 
         for field in fields:
@@ -234,7 +245,27 @@ class RegistrationOptionsForm(forms.Form):
 
             if field.field_type.CHOICE:
                 # TODO: Handle depends
-                options = field.options.filter(Q(invite_only=None) | Q(invite_only__user=self.user))
+                # TODO: This wraps the prefetched list into something that looks enough like a queryset to satisfy
+                # ModelChoiceField. It would be better if a prefetch with to_attr would produce a queryset (with
+                # prefetched results) rather than a list, but should be reported as a feature request for Django (as
+                # suggested here: https://code.djangoproject.com/ticket/26676#comment:1)
+                class FakeQueryset(list):
+                    def __init__(self, values, model):
+                        super().__init__(values)
+                        self._prefetch_related_lookups = True
+                        self.model = model
+
+                    def all(self):
+                        return self
+
+                    def get(self, pk):
+                        for v in self:
+                            if v.pk == int(pk):
+                                return v
+                        raise self.model.DoesNotExist()
+
+                options = FakeQueryset(field.available_options, RegistrationFieldOption)
+
                 empty_label = None if field.required else '-'
                 form_field = RegistrationOptionField(queryset=options, empty_label=empty_label)
             elif field.field_type.RATING5:

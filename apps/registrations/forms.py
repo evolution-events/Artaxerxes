@@ -272,6 +272,8 @@ class RegistrationOptionsForm(forms.Form):
                 form_field = forms.ChoiceField(choices=choices, widget=forms.RadioSelect)
             elif field.field_type.STRING:
                 form_field = forms.CharField()
+            elif field.field_type.TEXT:
+                form_field = forms.CharField(widget=forms.widgets.Textarea)
             elif field.field_type.CHECKBOX:
                 form_field = forms.BooleanField()
             elif field.field_type.UNCHECKBOX:

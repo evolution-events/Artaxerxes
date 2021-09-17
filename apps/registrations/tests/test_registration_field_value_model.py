@@ -38,6 +38,15 @@ class TestSatisfiesRequiredAnnotation(TestCase):
             {'field_type': types.STRING, 'required': False, 'value': "123", 'satisfies': True},
             {'field_type': types.STRING, 'required': False, 'value': "0", 'satisfies': True},
 
+            {'field_type': types.TEXT, 'required': True, 'value': "", 'satisfies': False},
+            {'field_type': types.TEXT, 'required': True, 'value': "abc", 'satisfies': True},
+            {'field_type': types.TEXT, 'required': True, 'value': "123", 'satisfies': True},
+            {'field_type': types.TEXT, 'required': True, 'value': "0", 'satisfies': True},
+            {'field_type': types.TEXT, 'required': False, 'value': "", 'satisfies': True},
+            {'field_type': types.TEXT, 'required': False, 'value': "abc", 'satisfies': True},
+            {'field_type': types.TEXT, 'required': False, 'value': "123", 'satisfies': True},
+            {'field_type': types.TEXT, 'required': False, 'value': "0", 'satisfies': True},
+
             {'field_type': types.RATING5, 'required': True, 'value': "", 'satisfies': False},
             {'field_type': types.RATING5, 'required': True, 'value': "1", 'satisfies': True},
             {'field_type': types.RATING5, 'required': True, 'value': "5", 'satisfies': True},

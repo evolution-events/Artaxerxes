@@ -24,6 +24,7 @@ class RegistrationFieldValueQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
             Q(field__field_type=types.CHOICE) & (Q(field__required=False) | ~Q(option=None))
             | Q(field__field_type=types.IMAGE) & (Q(field__required=False) | ~Q(file_value=""))
             | Q(field__field_type=types.STRING) & (Q(field__required=False) | ~Q(string_value=""))
+            | Q(field__field_type=types.TEXT) & (Q(field__required=False) | ~Q(string_value=""))
             | Q(field__field_type=types.RATING5) & (Q(field__required=False) | ~Q(string_value=""))
             # Checkbox is slightly different, it must be checked when required, or any (non-empty) value otherwise
             | (Q(field__field_type=types.CHECKBOX) | Q(field__field_type=types.UNCHECKBOX)) & (

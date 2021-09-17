@@ -479,6 +479,16 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
             event=cls.event, name="depends_string", field_type=RegistrationField.types.STRING, depends=cls.crew,
         )
 
+        cls.optional_text = RegistrationFieldFactory(
+            event=cls.event, name="optional_text", field_type=RegistrationField.types.STRING, required=False,
+        )
+        cls.required_text = RegistrationFieldFactory(
+            event=cls.event, name="required_text", field_type=RegistrationField.types.STRING,
+        )
+        cls.depends_text = RegistrationFieldFactory(
+            event=cls.event, name="depends_text", field_type=RegistrationField.types.STRING, depends=cls.crew,
+        )
+
         cls.optional_checkbox = RegistrationFieldFactory(
             event=cls.event, name="optional_checkbox", field_type=RegistrationField.types.CHECKBOX, required=False,
         )
@@ -577,6 +587,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
             self.required_image.name: self.test_image,
             self.required_rating5.name: "3",
             self.required_string.name: "abc",
+            self.required_text.name: "xyz",
         }
         response = self.client.post(next_url, data)
         next_url = reverse('registrations:step_personal_details', args=(reg.pk,))
@@ -587,9 +598,11 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
 
         (
             gender,
-            optional_checkbox, optional_choice, optional_image, optional_rating5, optional_string, optional_uncheckbox,
+            optional_checkbox, optional_choice, optional_image, optional_rating5, optional_string, optional_text,
+            optional_uncheckbox,
             origin,
-            required_checkbox, required_choice, required_image, required_rating5, required_string, required_uncheckbox,
+            required_checkbox, required_choice, required_image, required_rating5, required_string, required_text,
+            required_uncheckbox,
             reg_type,
         ) = RegistrationFieldValue.objects.all().order_by('field__name')
 
@@ -609,12 +622,14 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         check_value(optional_image, self.optional_image)
         check_value(optional_rating5, self.optional_rating5)
         check_value(optional_string, self.optional_string)
+        check_value(optional_text, self.optional_text)
         check_value(required_checkbox, self.required_checkbox, string_value="1")
         check_value(required_uncheckbox, self.required_uncheckbox, string_value="1")
         check_value(required_choice, self.required_choice, option=self.required_choice_option)
         check_value(required_image, self.required_image, file_value=required_image.file_value)
         check_value(required_rating5, self.required_rating5, string_value=data[self.required_rating5.name])
         check_value(required_string, self.required_string, string_value=data[self.required_string.name])
+        check_value(required_text, self.required_text, string_value=data[self.required_text.name])
 
         self.test_image.seek(0)
         self.assertEqual(required_image.file_value.read(), self.test_image.read())
@@ -727,6 +742,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
             self.required_image.name: self.test_image,
             self.required_rating5.name: "3",
             self.required_string.name: "abc",
+            self.required_text.name: "xyz",
         }
         next_url = reverse('registrations:step_registration_options', args=(reg.pk,))
 

@@ -19,13 +19,14 @@ class RegistrationFieldValueQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
         CHECKED = RegistrationFieldValue.CHECKBOX_VALUES[True]
         UNCHECKED = RegistrationFieldValue.CHECKBOX_VALUES[False]
 
+        types = RegistrationField.types
         return self.annotate(satisfies_required=QExpr(
-            Q(field__field_type=RegistrationField.types.CHOICE) & (Q(field__required=False) | ~Q(option=None))
-            | Q(field__field_type=RegistrationField.types.IMAGE) & (Q(field__required=False) | ~Q(file_value=""))
-            | Q(field__field_type=RegistrationField.types.STRING) & (Q(field__required=False) | ~Q(string_value=""))
-            | Q(field__field_type=RegistrationField.types.RATING5) & (Q(field__required=False) | ~Q(string_value=""))
+            Q(field__field_type=types.CHOICE) & (Q(field__required=False) | ~Q(option=None))
+            | Q(field__field_type=types.IMAGE) & (Q(field__required=False) | ~Q(file_value=""))
+            | Q(field__field_type=types.STRING) & (Q(field__required=False) | ~Q(string_value=""))
+            | Q(field__field_type=types.RATING5) & (Q(field__required=False) | ~Q(string_value=""))
             # Checkbox is slightly different, it must be checked when required, or any (non-empty) value otherwise
-            | Q(field__field_type=RegistrationField.types.CHECKBOX) & (
+            | Q(field__field_type=types.CHECKBOX) & (
                 Q(field__required=False) & Q(string_value=UNCHECKED) | Q(string_value=CHECKED)
             ),
         ))

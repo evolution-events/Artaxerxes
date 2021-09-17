@@ -46,6 +46,7 @@ class EventQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
             preregistration_is_open=QExpr(
                 Q(is_visible=True)
                 & Q(registration_is_open=False)
+                & Q(admit_immediately=True)
                 & Q(start_date__gt=now),
             ),
         )

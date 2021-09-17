@@ -31,6 +31,15 @@ class TestOpenedAnnotations(TestCase):
         EventFactory(title='future_public_open_now', starts_in_days=7, public=True,
                      registration_opens_in_days=-1)
 
+        # Public, admit_immediately=False, no open date yet
+        EventFactory(title='future_pending_public_closed', starts_in_days=7, public=True, admit_immediately=False)
+        # Public, admit_immediately=False, open date scheduled
+        EventFactory(title='future_pending_public_opens_soon', starts_in_days=7, public=True, admit_immediately=False,
+                     registration_opens_in_days=1)
+        # Public, admit_immediately=False, open date reached
+        EventFactory(title='future_pending_public_open_now', starts_in_days=7, public=True, admit_immediately=False,
+                     registration_opens_in_days=-1)
+
         # These are corner cases, past events should usually not be hidden, and have an opens at in the past
         EventFactory(title='past_hidden_closed', starts_in_days=-7, public=False)
         EventFactory(title='past_hidden_opens_soon', starts_in_days=-7, public=False,
@@ -62,6 +71,9 @@ class TestOpenedAnnotations(TestCase):
             'future_public_closed',
             'future_public_open_now',
             'future_public_opens_soon',
+            'future_pending_public_closed',
+            'future_pending_public_open_now',
+            'future_pending_public_opens_soon',
             'past_public_closed',
             'past_public_opens_soon',
             'past_public_open_now',
@@ -73,6 +85,7 @@ class TestOpenedAnnotations(TestCase):
         is_open = set(annotated.filter(registration_is_open=True))
         self.assertEventsWithTitles(is_open, {
             'future_public_open_now',
+            'future_pending_public_open_now',
         })
 
     def test_preregistration_is_open(self):

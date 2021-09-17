@@ -38,10 +38,15 @@ class Command(BaseCommand):
 
         # TODO: Convert to use logging on more recent django versions (see https://code.djangoproject.com/ticket/21429)
         if (expected_fieldnames - found_fieldnames):
-            self.stderr.write("Missing field(s) in CSV input: {}".format(expected_fieldnames - found_fieldnames))
+            self.stderr.write("Error: Missing field(s) in CSV input: {}".format(
+                expected_fieldnames - found_fieldnames,
+            ))
+            return
 
         if (found_fieldnames - expected_fieldnames):
-            self.stderr.write("Extra field(s) in CSV input: {}".format(found_fieldnames - expected_fieldnames))
+            self.stderr.write("Warning: extra field(s) in CSV input: {}".format(
+                found_fieldnames - expected_fieldnames,
+            ))
 
         seen_fields = []
 

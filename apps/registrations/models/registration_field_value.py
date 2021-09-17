@@ -26,7 +26,7 @@ class RegistrationFieldValueQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
             | Q(field__field_type=types.STRING) & (Q(field__required=False) | ~Q(string_value=""))
             | Q(field__field_type=types.RATING5) & (Q(field__required=False) | ~Q(string_value=""))
             # Checkbox is slightly different, it must be checked when required, or any (non-empty) value otherwise
-            | Q(field__field_type=types.CHECKBOX) & (
+            | (Q(field__field_type=types.CHECKBOX) | Q(field__field_type=types.UNCHECKBOX)) & (
                 Q(field__required=False) & Q(string_value=UNCHECKED) | Q(string_value=CHECKED)
             ),
         ))
@@ -108,7 +108,7 @@ class RegistrationFieldValue(models.Model):
         if self.field.field_type.CHOICE:
             if self.option:
                 return self.option.title
-        elif self.field.field_type.CHECKBOX:
+        elif self.field.field_type.CHECKBOX or self.field.field_type.UNCHECKBOX:
             if self.string_value is not None:
                 if self.string_value == self.CHECKBOX_VALUES[True]:
                     return str(_('Yes'))

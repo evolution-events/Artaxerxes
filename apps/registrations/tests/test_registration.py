@@ -140,7 +140,7 @@ class TestRegistration(TestCase):
                         options=[self.player, self.option_m, self.option_nl, (field, "")],
                     )
 
-                if field.field_type.CHECKBOX:
+                if field.field_type.CHECKBOX or field.field_type.UNCHECKBOX:
                     with self.subTest("Arbitrary non-zero value is not ok"):
                         self.incomplete_registration_helper(
                             options=[self.player, self.option_m, self.option_nl, (field, "123")],
@@ -192,7 +192,7 @@ class TestRegistration(TestCase):
                         options=[self.player, self.option_m, self.option_nl],
                     )
 
-                if field.field_type.CHECKBOX:
+                if field.field_type.CHECKBOX or field.field_type.UNCHECKBOX:
                     with self.subTest("Arbitrary non-zero value is not ok"):
                         self.incomplete_registration_helper(
                             options=[self.player, self.option_m, self.option_nl, (field, "123")],
@@ -489,6 +489,17 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
             event=cls.event, name="depends_checkbox", field_type=RegistrationField.types.CHECKBOX, depends=cls.crew,
         )
 
+        cls.optional_uncheckbox = RegistrationFieldFactory(
+            event=cls.event, name="optional_uncheckbox", field_type=RegistrationField.types.UNCHECKBOX, required=False,
+        )
+        cls.required_uncheckbox = RegistrationFieldFactory(
+            event=cls.event, name="required_uncheckbox", field_type=RegistrationField.types.UNCHECKBOX,
+        )
+        cls.depends_uncheckbox = RegistrationFieldFactory(
+            event=cls.event, name="depends_uncheckbox", field_type=RegistrationField.types.UNCHECKBOX,
+            depends=cls.crew,
+        )
+
         cls.optional_rating5 = RegistrationFieldFactory(
             event=cls.event, name="optional_rating5", field_type=RegistrationField.types.RATING5, required=False,
         )
@@ -561,6 +572,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
             self.gender.name: self.option_m.pk,
             self.origin.name: self.option_nl.pk,
             self.required_checkbox.name: "on",
+            self.required_uncheckbox.name: "on",
             self.required_choice.name: self.required_choice_option.pk,
             self.required_image.name: self.test_image,
             self.required_rating5.name: "3",
@@ -575,9 +587,9 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
 
         (
             gender,
-            optional_checkbox, optional_choice, optional_image, optional_rating5, optional_string,
+            optional_checkbox, optional_choice, optional_image, optional_rating5, optional_string, optional_uncheckbox,
             origin,
-            required_checkbox, required_choice, required_image, required_rating5, required_string,
+            required_checkbox, required_choice, required_image, required_rating5, required_string, required_uncheckbox,
             reg_type,
         ) = RegistrationFieldValue.objects.all().order_by('field__name')
 
@@ -592,11 +604,13 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         check_value(gender, self.gender, option=self.option_m)
         check_value(origin, self.origin, option=self.option_nl)
         check_value(optional_checkbox, self.optional_checkbox, string_value="0")
+        check_value(optional_uncheckbox, self.optional_uncheckbox, string_value="0")
         check_value(optional_choice, self.optional_choice)
         check_value(optional_image, self.optional_image)
         check_value(optional_rating5, self.optional_rating5)
         check_value(optional_string, self.optional_string)
         check_value(required_checkbox, self.required_checkbox, string_value="1")
+        check_value(required_uncheckbox, self.required_uncheckbox, string_value="1")
         check_value(required_choice, self.required_choice, option=self.required_choice_option)
         check_value(required_image, self.required_image, file_value=required_image.file_value)
         check_value(required_rating5, self.required_rating5, string_value=data[self.required_rating5.name])
@@ -708,6 +722,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
             self.gender.name: self.option_m.pk,
             self.origin.name: self.option_nl.pk,
             self.required_checkbox.name: "on",
+            self.required_uncheckbox.name: "on",
             self.required_choice.name: self.required_choice_option.pk,
             self.required_image.name: self.test_image,
             self.required_rating5.name: "3",

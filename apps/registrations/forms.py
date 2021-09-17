@@ -274,6 +274,8 @@ class RegistrationOptionsForm(forms.Form):
                 form_field = forms.CharField()
             elif field.field_type.CHECKBOX:
                 form_field = forms.BooleanField()
+            elif field.field_type.UNCHECKBOX:
+                form_field = forms.BooleanField(initial=True)
             elif field.field_type.IMAGE:
                 form_field = forms.ImageField()
             elif field.field_type.SECTION:
@@ -335,7 +337,7 @@ class RegistrationOptionsForm(forms.Form):
                 value.option = d[field.name]
             elif field.field_type.IMAGE:
                 value.file_value = d[field.name]
-            elif field.field_type.CHECKBOX:
+            elif field.field_type.CHECKBOX or field.field_type.UNCHECKBOX:
                 value.string_value = RegistrationFieldValue.CHECKBOX_VALUES[d[field.name]]
             else:
                 value.string_value = d[field.name]

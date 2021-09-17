@@ -12,9 +12,15 @@
       <div class="event-top-right">
         {# Registration is not open yet but time of opening is known, show that #}
         {% if e.registration_opens_at and not e.registration_is_open %}
-          {% blocktrans with at=e.registration_opens_at %}
-          Registration opens at {{ at }}.
-          {% endblocktrans %}
+          {% if e.registration_opens_at|time:"His" == "000000" %}
+            {% blocktrans with on=e.registration_opens_at.date %}
+            Registration opens on {{ on }}.
+            {% endblocktrans %}
+          {% else %}
+            {% blocktrans with at=e.registration_opens_at %}
+            Registration opens at {{ at }}.
+            {% endblocktrans %}
+          {% endif %}
           <br/>
         {% endif %}
         {# Show preregistration button if it is open #}

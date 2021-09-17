@@ -31,8 +31,10 @@ class Dashboard(LoginRequiredMixin, View):
         def group(e):
             if e.registration and e.registration.status.ACTIVE:
                 return 'active'
+            elif e.registration_is_open or e.preregistration_is_open:
+                return 'open'
             else:
-                return 'future'
+                return 'upcoming'
 
         grouped = collections.defaultdict(list)
         for e in events:

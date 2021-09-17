@@ -28,9 +28,10 @@
 
     <h3>{% trans "Cancel?" %}</h3>
     <p>
-      {% blocktrans trimmed with '<a href="https://www.evolution-events.nl/algemeen/?pg=huisregels">'|safe as link_start and '</a>' as link_end %}
+      {% url 'core:house_rules' as house_rules %}
+      {% blocktrans trimmed %}
       If you want or have to cancel your registration, please contact us via e-mail (see above)
-      and make sure you have read {{ link_start }}the house rules{{ link_end }} concerning cancellation because a fee may be
+      and make sure you have read <a href="{{house_rules}}">the house rules</a> concerning cancellation because a fee may be
       due, depending on the time left till the event.
       {% endblocktrans %}
     </p>

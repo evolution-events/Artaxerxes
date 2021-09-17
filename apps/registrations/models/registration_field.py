@@ -27,7 +27,7 @@ class RegistrationField(models.Model):
         Constant(STRING='string', label=_('String')),
         Constant(IMAGE='image', label=_('Image')),
         Constant(CHECKBOX='checkbox', label=_('Checkbox')),
-        Constant(UNCHECKBOX='checkedbox', label=_('Checkbox (checked by default)')),
+        Constant(UNCHECKBOX='uncheckbox', label=_('Checkbox (checked by default)')),
     )
 
     event = models.ForeignKey('events.Event', related_name='registration_fields', on_delete=models.CASCADE)

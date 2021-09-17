@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='registrationfield',
             name='field_type',
-            field=konst.models.fields.ConstantChoiceCharField(choices=[('section', 'Section'), ('choice', 'Choice'), ('rating5', 'Rating (1-5)'), ('string', 'String'), ('image', 'Image'), ('checkbox', 'Checkbox'), ('checkedbox', 'Checkbox (checked by default)')], max_length=10),
+            field=konst.models.fields.ConstantChoiceCharField(choices=[('section', 'Section'), ('choice', 'Choice'), ('rating5', 'Rating (1-5)'), ('string', 'String'), ('image', 'Image'), ('checkbox', 'Checkbox'), ('uncheckbox', 'Checkbox (checked by default)')], max_length=10),
         ),
     ]

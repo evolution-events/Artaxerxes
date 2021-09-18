@@ -28,7 +28,7 @@ from apps.events.tests.factories import EventFactory
 from apps.people.models import Address, ArtaUser, EmergencyContact, MedicalDetails
 from apps.people.tests.factories import AddressFactory, ArtaUserFactory, EmergencyContactFactory, MedicalDetailsFactory
 
-from ..models import Registration, RegistrationField, RegistrationFieldValue
+from ..models import Registration, RegistrationField, RegistrationFieldOption, RegistrationFieldValue
 from ..services import RegistrationStatusService
 from ..views import FinalCheck
 from .factories import RegistrationFactory, RegistrationFieldFactory, RegistrationFieldOptionFactory
@@ -592,49 +592,12 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
             self.required_string.name: "abc",
             self.required_text.name: "xyz",
         }
-        response = self.client.post(next_url, data)
+        response = self.options_form_helper(reg, data)
         next_url = reverse('registrations:step_personal_details', args=(reg.pk,))
         self.assertFormRedirects(response, next_url)
 
         reg = Registration.objects.get()
         self.assertEqual(reg.status, Registration.statuses.PREPARATION_IN_PROGRESS)
-
-        (
-            gender,
-            optional_checkbox, optional_choice, optional_image, optional_rating5, optional_string, optional_text,
-            optional_uncheckbox,
-            origin,
-            required_checkbox, required_choice, required_image, required_rating5, required_string, required_text,
-            required_uncheckbox,
-            reg_type,
-        ) = RegistrationFieldValue.objects.all().order_by('field__name')
-
-        def check_value(value, field, option=None, string_value="", file_value=""):
-            self.assertEqual(value.field, field)
-            self.assertEqual(value.registration, reg)
-            self.assertEqual(value.option, option)
-            self.assertEqual(value.string_value, string_value)
-            self.assertEqual(value.file_value, file_value)
-
-        check_value(reg_type, self.type, option=self.player)
-        check_value(gender, self.gender, option=self.option_m)
-        check_value(origin, self.origin, option=self.option_nl)
-        check_value(optional_checkbox, self.optional_checkbox, string_value="0")
-        check_value(optional_uncheckbox, self.optional_uncheckbox, string_value="0")
-        check_value(optional_choice, self.optional_choice)
-        check_value(optional_image, self.optional_image)
-        check_value(optional_rating5, self.optional_rating5)
-        check_value(optional_string, self.optional_string)
-        check_value(optional_text, self.optional_text)
-        check_value(required_checkbox, self.required_checkbox, string_value="1")
-        check_value(required_uncheckbox, self.required_uncheckbox, string_value="1")
-        check_value(required_choice, self.required_choice, option=self.required_choice_option)
-        check_value(required_image, self.required_image, file_value=required_image.file_value)
-        check_value(required_rating5, self.required_rating5, string_value=data[self.required_rating5.name])
-        check_value(required_string, self.required_string, string_value=data[self.required_string.name])
-        check_value(required_text, self.required_text, string_value=data[self.required_text.name])
-
-        self.assertEqual(required_image.file_value.read(), self.test_image.read())
 
         # Personal details step, should create Address and update user detail
         with self.assertTemplateUsed('registrations/step_personal_details.html'):
@@ -728,6 +691,78 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
 
         reg = Registration.objects.get()
         self.assertEqual(reg.status, Registration.statuses.REGISTERED)
+
+    def check_field_saved_helper(self, reg, value, field, data):
+        """ Check that the given value is saved for the given registration and field, and value from the form data. """
+        self.assertEqual(value.field, field)
+        self.assertEqual(value.registration, reg)
+
+        submitted = data.get(field.name, "")
+        string_value = ""
+        file_value = None
+        option = None
+
+        # Check the saved value matches the submitted value
+        if field.field_type.CHOICE:
+            if submitted:
+                option = RegistrationFieldOption.objects.get(pk=submitted)
+        elif field.field_type.IMAGE:
+            if submitted:
+                file_value = submitted
+        elif field.field_type.CHECKBOX or field.field_type.UNCHECKBOX:
+            if submitted == "on":
+                string_value = RegistrationFieldValue.CHECKBOX_VALUES[True]
+            else:
+                string_value = RegistrationFieldValue.CHECKBOX_VALUES[False]
+        else:
+            string_value = submitted
+
+        self.assertEqual(value.string_value, string_value)
+        self.assertEqual(value.option, option)
+        if file_value:
+            file_value.seek(0)
+            self.assertEqual(value.file_value.read(), file_value.read())
+        else:
+            self.assertEqual(value.file_value.name, "")
+
+    def options_form_helper(self, reg, data):
+        """ Submits the given data to the options form, and checks that it is saved correctly. """
+        form_url = reverse('registrations:step_registration_options', args=(reg.pk,))
+        response = self.client.post(form_url, data)
+
+        next_url = reverse('registrations:step_personal_details', args=(reg.pk,))
+        self.assertFormRedirects(response, next_url)
+
+        values = list(RegistrationFieldValue.objects.all().order_by('field__name'))
+        (
+            gender,
+            optional_checkbox, optional_choice, optional_image, optional_rating5, optional_string, optional_text,
+            optional_uncheckbox,
+            origin,
+            required_checkbox, required_choice, required_image, required_rating5, required_string, required_text,
+            required_uncheckbox,
+            reg_type,
+        ) = values
+
+        self.check_field_saved_helper(reg, reg_type, self.type, data)
+        self.check_field_saved_helper(reg, gender, self.gender, data)
+        self.check_field_saved_helper(reg, origin, self.origin, data)
+        self.check_field_saved_helper(reg, optional_checkbox, self.optional_checkbox, data)
+        self.check_field_saved_helper(reg, optional_uncheckbox, self.optional_uncheckbox, data)
+        self.check_field_saved_helper(reg, optional_choice, self.optional_choice, data)
+        self.check_field_saved_helper(reg, optional_image, self.optional_image, data)
+        self.check_field_saved_helper(reg, optional_rating5, self.optional_rating5, data)
+        self.check_field_saved_helper(reg, optional_string, self.optional_string, data)
+        self.check_field_saved_helper(reg, optional_text, self.optional_text, data)
+        self.check_field_saved_helper(reg, required_checkbox, self.required_checkbox, data)
+        self.check_field_saved_helper(reg, required_uncheckbox, self.required_uncheckbox, data)
+        self.check_field_saved_helper(reg, required_choice, self.required_choice, data)
+        self.check_field_saved_helper(reg, required_image, self.required_image, data)
+        self.check_field_saved_helper(reg, required_rating5, self.required_rating5, data)
+        self.check_field_saved_helper(reg, required_string, self.required_string, data)
+        self.check_field_saved_helper(reg, required_text, self.required_text, data)
+
+        return response
 
     def test_missing_options(self):
         """ """

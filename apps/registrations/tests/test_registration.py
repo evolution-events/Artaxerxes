@@ -530,10 +530,14 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
             event=cls.event, name="depends_image", field_type=RegistrationField.types.IMAGE, depends=cls.crew,
         )
 
-        # Minimal 1-pixel gif, from https://cloudinary.com/blog/one_pixel_is_worth_three_thousand_words
-        cls.test_image = io.BytesIO(b'\x47\x49\x46\x38\x37\x61\x01\x00\x01\x00\x80\x01\x00\x00\x00\x00'
-                                    + b'\xff\xff\xff\x2c\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02\x4c\x01\x00\x3b')
-        cls.test_image.name = 'foo.gif'
+    @property
+    def test_image(self):
+        # Minimal 1-pixel white gif, from https://cloudinary.com/blog/one_pixel_is_worth_three_thousand_words
+        image = io.BytesIO(b'\x47\x49\x46\x38\x37\x61\x01\x00\x01\x00\x80\x01\x00\x00\x00\x00'
+                           + b'\xff\xff\xff\x2c\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02\x4c\x01\x00\x3b')
+        image.name = 'white.gif'
+        return image
+
 
     def setUp(self):
         self.user = ArtaUserFactory()
@@ -576,7 +580,6 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         with self.assertTemplateUsed('registrations/step_registration_options.html'):
             self.client.get(next_url)
 
-        self.test_image.seek(0)
         data = {
             self.type.name: self.player.pk,
             self.gender.name: self.option_m.pk,
@@ -631,7 +634,6 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         check_value(required_string, self.required_string, string_value=data[self.required_string.name])
         check_value(required_text, self.required_text, string_value=data[self.required_text.name])
 
-        self.test_image.seek(0)
         self.assertEqual(required_image.file_value.read(), self.test_image.read())
 
         # Personal details step, should create Address and update user detail
@@ -751,7 +753,6 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
 
             with self.subTest("Empty data for field should fail validation", field=field_name):
                 incomplete_data[field_name] = ''
-                self.test_image.seek(0)
                 response = self.client.post(next_url, incomplete_data)
                 self.assertEqual(response.status_code, 200)
                 self.assertFalse(response.context['form'].is_valid())
@@ -759,7 +760,6 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
 
             with self.subTest("Omitted data for field should fail validation", field=field_name):
                 incomplete_data.pop(field_name)
-                self.test_image.seek(0)
                 response = self.client.post(next_url, incomplete_data)
                 self.assertEqual(response.status_code, 200)
                 self.assertFalse(response.context['form'].is_valid())

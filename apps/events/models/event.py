@@ -1,13 +1,13 @@
 import reversion
 from django.conf import settings
 from django.db import models
-from django.db.models import Case, Count, F, Q, When
+from django.db.models import Case, Count, Exists, F, OuterRef, Q, When
 from django.db.models.functions import Concat
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
-from apps.registrations.models import Registration
+from apps.registrations.models import Registration, RegistrationField
 from arta.common.db import QExpr, UpdatedAtQuerySetMixin
 
 from .series import Series
@@ -49,7 +49,34 @@ class EventQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
                 & Q(admit_immediately=True)
                 & Q(start_date__gt=now),
             ),
+        ).annotate(
+            # TODO: Ideally we would skip this annotation and do F('full') | Exists(...) directly, but django does not
+            # support logical or on expression (only on Q objects). Adding this extra annotation here works, but ends
+            # up duplicating the generated subquery (but hopefully the database driver realizes this...).
+            any_option_full=Exists(
+                RegistrationField.objects.filter(
+                    event=OuterRef('pk'),
+                    field_type=RegistrationField.types.CHOICE,
+                ).annotate(
+                    num_nonfull=Count(
+                        'options',
+                        # TODO: This should ideally also consider as full options that depend on invite_only options,
+                        # or depend on full options, to really properly predict event fullness. This is recursive,
+                        # which means it cannot be generally solved in SQL, but maybe we can limit to one or two levels
+                        # deep?
+                        filter=(
+                            (Q(options__invite_only=None) | Q(options__invite_only__user=user))
+                            & Q(options__full=False)
+                        ),
+                    ),
+                ).filter(
+                    num_nonfull=0,
+                ),
+            ),
+        ).annotate(
+            is_full=QExpr(Q(full=True) | Q(any_option_full=True)),
         )
+
         if with_registration:
             # This looks for all related registrations, and picks the current one (should be at most one), or if there
             # is not, the most recent cancelled one.

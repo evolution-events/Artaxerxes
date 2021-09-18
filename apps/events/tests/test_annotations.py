@@ -2,9 +2,10 @@ from datetime import datetime, timedelta, timezone
 
 from django.test import TestCase
 
-from apps.people.tests.factories import ArtaUserFactory
+from apps.people.tests.factories import ArtaUserFactory, GroupFactory
 from apps.registrations.models import Registration
-from apps.registrations.tests.factories import RegistrationFactory
+from apps.registrations.tests.factories import (RegistrationFactory, RegistrationFieldFactory,
+                                                RegistrationFieldOptionFactory)
 
 from ..models import Event
 from .factories import EventFactory
@@ -106,6 +107,76 @@ class TestOpenedAnnotations(TestCase):
         ))
 
         self.assertEqual(registration_and_preregistration, set())
+
+
+class TestIsFullAnnotation(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = ArtaUserFactory()
+        cls.event = EventFactory(full=False)
+        cls.field = RegistrationFieldFactory(event=cls.event)
+        cls.ingroup = GroupFactory(name='ingroup', users=[cls.user])
+        cls.outgroup = GroupFactory(name='outgroup', users=[])
+
+    def setUp(self):
+        # Ensure any changes to the event are undone in the object as well.
+        self.event.refresh_from_db()
+
+    def check_is_full(self, is_full):
+        """ Helper that checks whether is_full returns the right value. """
+        annotated = Event.objects.for_user(self.user).get(pk=self.event.pk)
+        self.assertEqual(annotated.is_full, is_full)
+
+    def test_event_full(self):
+        """ Test that an event with full=True is full. """
+        self.event.full = True
+        self.event.save()
+        self.check_is_full(True)
+
+    def test_event_full_option_available(self):
+        """ Test that an event with full=True is full, even when a non-full option exists. """
+        self.event.full = True
+        self.event.save()
+        RegistrationFieldOptionFactory(field=self.field)
+
+        self.check_is_full(True)
+
+    def test_one_option_full(self):
+        """ Test that one full option does not make the event full. """
+        RegistrationFieldOptionFactory(field=self.field, full=False)
+        RegistrationFieldOptionFactory(field=self.field, full=True)
+
+        self.check_is_full(False)
+
+    def test_all_options_full(self):
+        """ Test that all full options makes the event full. """
+        RegistrationFieldOptionFactory(field=self.field, full=True)
+        RegistrationFieldOptionFactory(field=self.field, full=True)
+
+        self.check_is_full(True)
+
+    def test_all_options_full_and_non_full_field(self):
+        """ Test that all full options makes the event full, even if another field has non-full options. """
+        RegistrationFieldOptionFactory(field=self.field, full=True)
+        RegistrationFieldOptionFactory(field=self.field, full=True)
+        field2 = RegistrationFieldFactory(event=self.event)
+        RegistrationFieldOptionFactory(field=field2, full=False)
+
+        self.check_is_full(True)
+
+    def test_nonfull_not_invited_option(self):
+        """ Test that when your are not invited to the only non-full option, the event is full. """
+        RegistrationFieldOptionFactory(field=self.field, full=True)
+        RegistrationFieldOptionFactory(field=self.field, full=False, invite_only=self.outgroup)
+
+        self.check_is_full(True)
+
+    def test_nonfull_invited_option(self):
+        """ Test that when your are invited to the only non-full option, the event is not full. """
+        RegistrationFieldOptionFactory(field=self.field, full=True)
+        RegistrationFieldOptionFactory(field=self.field, full=False, invite_only=self.ingroup)
+
+        self.check_is_full(False)
 
 
 class TestRegistrationAnnotation(TestCase):

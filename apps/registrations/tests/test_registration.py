@@ -460,14 +460,17 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
             event=cls.event, name="optional_choice", field_type=RegistrationField.types.CHOICE, required=False,
         )
         cls.optional_choice_option = RegistrationFieldOptionFactory(field=cls.optional_choice, title="oco")
+        cls.optional_choice_option2 = RegistrationFieldOptionFactory(field=cls.optional_choice, title="oco2")
         cls.required_choice = RegistrationFieldFactory(
             event=cls.event, name="required_choice", field_type=RegistrationField.types.CHOICE,
         )
         cls.required_choice_option = RegistrationFieldOptionFactory(field=cls.required_choice, title="rco")
+        cls.required_choice_option2 = RegistrationFieldOptionFactory(field=cls.required_choice, title="rco2")
         cls.depends_choice = RegistrationFieldFactory(
             event=cls.event, name="depends_choice", field_type=RegistrationField.types.CHOICE, depends=cls.crew,
         )
         cls.depends_choice_option = RegistrationFieldOptionFactory(field=cls.depends_choice, title="dco")
+        cls.depends_choice_option2 = RegistrationFieldOptionFactory(field=cls.depends_choice, title="dco2")
 
         cls.optional_string = RegistrationFieldFactory(
             event=cls.event, name="optional_string", field_type=RegistrationField.types.STRING, required=False,
@@ -538,6 +541,14 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         image.name = 'white.gif'
         return image
 
+    @property
+    def test_image2(self):
+        # Minimal 1-pixel transparent gif, from https://cloudinary.com/blog/one_pixel_is_worth_three_thousand_words
+        image = io.BytesIO(b'\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x01\x00\x00\x00\x00'
+                           + b'\xff\xff\xff\x21\xf9\x04\x01\x0a\x00\x01\x00\x2c\x00\x00\x00\x00\x01\x00\x01'
+                           + b'\x00\x00\x02\x02\x4c\x01\x00\x3b')
+        image.name = 'transparent.gif'
+        return image
 
     def setUp(self):
         self.user = ArtaUserFactory()
@@ -691,6 +702,66 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
 
         reg = Registration.objects.get()
         self.assertEqual(reg.status, Registration.statuses.REGISTERED)
+
+    def test_change_options(self):
+        """ Test that you can set options and then change them to different values, including empty. """
+        reg = RegistrationFactory(event=self.event, user=self.user, preparation_in_progress=True)
+
+        # Set initial values for all fields
+        self.options_form_helper(reg, {
+            self.type.name: self.player.pk,
+            self.gender.name: self.option_m.pk,
+            self.origin.name: self.option_nl.pk,
+            self.required_checkbox.name: "on",
+            self.required_uncheckbox.name: "on",
+            self.required_choice.name: self.required_choice_option.pk,
+            self.required_image.name: self.test_image,
+            self.required_rating5.name: "3",
+            self.required_string.name: "abc",
+            self.required_text.name: "xyz",
+            self.optional_checkbox.name: "on",
+            self.optional_choice.name: self.optional_choice_option.pk,
+            self.optional_image.name: self.test_image2,
+            self.optional_rating5.name: "2",
+            self.optional_string.name: "def",
+            self.optional_text.name: "ghi",
+        })
+
+        # Then change all values (except for required checkboxes that have only one valid value, and the player option
+        # that is needed for the other options to exist at all).
+        self.options_form_helper(reg, {
+            self.type.name: self.player.pk,
+            self.gender.name: self.option_f.pk,
+            self.origin.name: self.option_intl.pk,
+            self.required_checkbox.name: "on",
+            self.required_uncheckbox.name: "on",
+            self.required_choice.name: self.required_choice_option.pk,
+            self.required_image.name: self.test_image2,
+            self.required_rating5.name: "1",
+            self.required_string.name: "ABC",
+            self.required_text.name: "XYZ",
+            self.optional_uncheckbox.name: "on",
+            self.optional_choice.name: self.optional_choice_option.pk,
+            self.optional_image.name: self.test_image2,
+            self.optional_rating5.name: "5",
+            self.optional_string.name: "DEF",
+            self.optional_text.name: "GHI",
+        })
+
+        # Finally, remove all optional values
+        self.options_form_helper(reg, {
+            self.type.name: self.player.pk,
+            self.gender.name: self.option_f.pk,
+            self.origin.name: self.option_intl.pk,
+            self.required_checkbox.name: "on",
+            self.required_uncheckbox.name: "on",
+            self.required_choice.name: self.required_choice_option.pk,
+            self.required_image.name: self.test_image2,
+            self.required_rating5.name: "1",
+            self.required_string.name: "ABC",
+            self.required_text.name: "XYZ",
+            self.optional_image.name + "-clear": "on",
+        })
 
     def check_field_saved_helper(self, reg, value, field, data):
         """ Check that the given value is saved for the given registration and field, and value from the form data. """

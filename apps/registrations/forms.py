@@ -242,6 +242,11 @@ class RegistrationOptionsForm(forms.Form):
 
         for field in fields:
             # TODO: Handle allow_change_until
+            kwargs = {
+                'help_text': field.help_text,
+                'label': conditional_escape(field.title),
+                'required': field.required,
+            }
 
             if field.field_type.CHOICE:
                 # TODO: This wraps the prefetched list into something that looks enough like a queryset to satisfy
@@ -266,20 +271,20 @@ class RegistrationOptionsForm(forms.Form):
                 options = FakeQueryset(field.available_options, RegistrationFieldOption)
 
                 empty_label = None if field.required else '-'
-                form_field = RegistrationOptionField(queryset=options, empty_label=empty_label)
+                form_field = RegistrationOptionField(queryset=options, empty_label=empty_label, **kwargs)
             elif field.field_type.RATING5:
                 choices = ((str(n), str(n)) for n in range(1, 6))
-                form_field = forms.ChoiceField(choices=choices, widget=forms.RadioSelect)
+                form_field = forms.ChoiceField(choices=choices, widget=forms.RadioSelect, **kwargs)
             elif field.field_type.STRING:
-                form_field = forms.CharField()
+                form_field = forms.CharField(**kwargs)
             elif field.field_type.TEXT:
-                form_field = forms.CharField(widget=forms.widgets.Textarea)
+                form_field = forms.CharField(widget=forms.widgets.Textarea, **kwargs)
             elif field.field_type.CHECKBOX:
-                form_field = forms.BooleanField()
+                form_field = forms.BooleanField(**kwargs)
             elif field.field_type.UNCHECKBOX:
-                form_field = forms.BooleanField(initial=True)
+                form_field = forms.BooleanField(initial=True, **kwargs)
             elif field.field_type.IMAGE:
-                form_field = forms.ImageField()
+                form_field = forms.ImageField(**kwargs)
             elif field.field_type.SECTION:
                 form_field = None
                 self._sections.append((field, []))
@@ -287,9 +292,6 @@ class RegistrationOptionsForm(forms.Form):
                 raise ValueError("Unsupported field type")
 
             if form_field:
-                form_field.help_text = field.help_text
-                form_field.label = conditional_escape(field.title)
-                form_field.required = field.required
                 if not self._sections:
                     self._sections.append((None, []))
                 self._sections[-1][1].append(field)
@@ -338,7 +340,10 @@ class RegistrationOptionsForm(forms.Form):
             if field.field_type.CHOICE:
                 value.option = d[field.name]
             elif field.field_type.IMAGE:
-                value.file_value = d[field.name]
+                if d[field.name]:
+                    value.file_value = d[field.name]
+                else:
+                    value.file_value = ""
             elif field.field_type.CHECKBOX or field.field_type.UNCHECKBOX:
                 value.string_value = RegistrationFieldValue.CHECKBOX_VALUES[d[field.name]]
             else:

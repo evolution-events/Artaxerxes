@@ -212,6 +212,8 @@ class RegistrationOptionsForm(forms.Form):
                 value = option.option
             elif option.field.field_type.IMAGE:
                 value = option.file_value
+            elif option.field.field_type.CHECKBOX or option.field.field_type.UNCHECKBOX:
+                value = (option.string_value == RegistrationFieldValue.CHECKBOX_VALUES[True])
             else:
                 value = option.string_value
 

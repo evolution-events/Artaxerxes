@@ -18,6 +18,7 @@ from django.test import TestCase, skipUnlessDBFeature
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.translation import ugettext as _
 from parameterized import parameterized, parameterized_class
 from reversion.models import Revision
 from with_asserts.mixin import AssertHTMLMixin
@@ -796,6 +797,50 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         else:
             self.assertEqual(value.file_value.name, "")
 
+    def check_field_rendered_helper(self, response, value):
+        """ Check that the field for the given value is rendered in the form with the given value shown. """
+        field = value.field
+        if field.field_type.CHOICE:
+            option = value.option
+            if not value.option and field.required:
+                option = field.options[0]
+            if value.option:
+                with self.assertHTML(response, 'select[name="{}"] option'.format(field.name)) as elems:
+                    for elem in elems:
+                        if option and elem.get('value') == str(value.option.pk):
+                            self.assertIsNotNone(elem.get('selected'))
+                        else:
+                            self.assertIsNone(elem.get('selected'))
+        elif field.field_type.IMAGE:
+            if value.file_value:
+                self.assertHTML(response, 'input[type="checkbox"][name="{}-clear"]'.format(field.name))
+                with self.assertHTML(response, '#div_id_{}'.format(field.name)) as (elem,):
+                    self.assertIn(_('Currently'), elem.text_content())
+                    self.assertIn(value.file_value.name, elem.text_content())
+            else:
+                self.assertNotHTML(response, 'input[type="checkbox"][name="{}-clear"]'.format(field.name))
+        elif field.field_type.CHECKBOX or field.field_type.UNCHECKBOX:
+            if value.string_value == RegistrationFieldValue.CHECKBOX_VALUES[True]:
+                with self.assertHTML(response, 'input[type="checkbox"][name="{}"]'.format(field.name)) as (elem,):
+                    self.assertIsNotNone(elem.get('checked'))
+            else:
+                with self.assertHTML(response, 'input[type="checkbox"][name="{}"]'.format(field.name)) as (elem,):
+                    self.assertIsNone(elem.get('checked'))
+        else:
+            if field.field_type.STRING:
+                with self.assertHTML(response, 'input[type="text"][name="{}"]'.format(field.name)) as (elem,):
+                    self.assertEqual(elem.get('value', ''), value.string_value)
+            elif field.field_type.TEXT:
+                with self.assertHTML(response, 'textarea[name="{}"]'.format(field.name)) as (elem,):
+                    self.assertEqual(elem.text, value.string_value)
+            elif field.field_type.RATING5:
+                with self.assertHTML(response, 'input[type="radio"][name="{}"]'.format(field.name)) as elems:
+                    for elem in elems:
+                        if elem.get('value') == value.string_value:
+                            self.assertIsNotNone(elem.get('checked'))
+                        else:
+                            self.assertIsNone(elem.get('checked'))
+
     def options_form_helper(self, reg, data):
         """ Submits the given data to the options form, and checks that it is saved correctly. """
         form_url = reverse('registrations:step_registration_options', args=(reg.pk,))
@@ -832,6 +877,10 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         self.check_field_saved_helper(reg, required_rating5, self.required_rating5, data)
         self.check_field_saved_helper(reg, required_string, self.required_string, data)
         self.check_field_saved_helper(reg, required_text, self.required_text, data)
+
+        form_response = self.client.get(form_url, data)
+        for value in values:
+            self.check_field_rendered_helper(form_response, value)
 
         return response
 

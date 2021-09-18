@@ -1,4 +1,5 @@
 import factory
+from django.contrib.auth.models import Group
 
 from ..models import Address, ArtaUser, EmergencyContact, MedicalDetails
 
@@ -43,3 +44,17 @@ class AddressFactory(factory.django.DjangoModelFactory):
             city='',
             country='',
         )
+
+
+class GroupFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Group
+
+    name = factory.Faker('name')
+
+    @factory.post_generation
+    def users(self, create, value, **kwargs):
+        assert(create)  # Need id
+
+        for user in value:
+            self.user_set.add(user)

@@ -1,11 +1,17 @@
 import collections
 from datetime import date
 
+import reversion
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import SuspiciousOperation
 from django.shortcuts import render
-from django.views.generic import RedirectView, TemplateView, View
+from django.urls import reverse_lazy
+from django.utils.translation import gettext_lazy as _
+from django.views.generic import RedirectView, TemplateView, UpdateView, View
 
 from apps.events.models import Event
+
+from .forms import EmailPreferencesForm
 
 
 class PrivacyPolicy(RedirectView):
@@ -54,3 +60,23 @@ class PracticalInfo(LoginRequiredMixin, TemplateView):
 # No need to log in to see this page
 class AboutArta(TemplateView):
     template_name = 'core/about_this_system.html'
+
+
+class EmailPreferences(LoginRequiredMixin, UpdateView):
+    template_name = "core/email_preferences.html"
+    form_class = EmailPreferencesForm
+    success_url = reverse_lazy('core:email_prefs')
+
+    def get_object(self):
+        return self.request.user
+
+    def form_valid(self, form):
+        with reversion.create_revision():
+            reversion.set_user(self.request.user)
+            reversion.set_comment(_("Email notification preferences updated via frontend."))
+            res = super().form_valid(form)
+
+            # Sanity check, to ensure the reversion/consent user are consistent with the user just updated
+            if self.object != self.request.user:
+                raise SuspiciousOperation("EmailPreferencesForm should be submitted for yourself only")
+        return res

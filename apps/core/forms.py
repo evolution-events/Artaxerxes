@@ -1,6 +1,7 @@
 import reversion
 from django import forms
-from django.utils.translation import gettext as _
+from django.db import transaction
+from django.utils.translation import gettext_lazy as _
 
 from apps.core.models import ConsentLog
 from apps.people.models import ArtaUser
@@ -32,3 +33,36 @@ class SignupFormBase(forms.Form):
                 consent_name='email_announcements',
                 consent_description=self.fields['consent_announcements'].help_text,
             )
+
+
+class EmailPreferencesForm(forms.ModelForm):
+    registration_updates = forms.BooleanField(
+        label=_('Send me updates about events I have registered for'),
+        help_text='You will always receive these, they are not optional.',
+        initial=True,
+        disabled=True,
+        required=False,
+    )
+
+    def save(self):
+        with transaction.atomic():
+            user = super().save()
+
+            if 'consent_announcements' in self.changed_data:
+                if user.consent_announcements:
+                    action = ConsentLog.actions.CONSENTED
+                else:
+                    action = ConsentLog.actions.WITHDRAWN
+
+                ConsentLog.objects.create(
+                    user=user,
+                    action=action,
+                    consent_name='email_announcements',
+                    consent_description=self.fields['consent_announcements'].help_text,
+                )
+
+        return user
+
+    class Meta:
+        model = ArtaUser
+        fields = ['registration_updates', 'consent_announcements']

@@ -3,12 +3,6 @@
 {% load i18n %}
 {% load crispy_forms_filters %}
 
-{% block content %}
-    <h1>{% trans "Email notification preferences" %}</h1>
-
-    <form method="POST" class="email_prefs">
-        {% csrf_token %}
-        {{ form | crispy }}
-        <button type="submit" name="action">{% trans "Update preferences" %}</button>
-    </form>
-{% endblock %}
+{% block buttons %}
+    <button type="submit" name="action">{% trans "Update preferences" %}</button>
+{% endblock buttons %}

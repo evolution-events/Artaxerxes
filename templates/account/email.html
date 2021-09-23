@@ -2,9 +2,7 @@
 
 {% load i18n %}
 
-
-{% block content %}
-    <h1>{% trans "E-mail addresses" %}</h1>
+{% block outerform %}
 {% if user.emailaddress_set.all %}
 <p>{% trans 'The following e-mail addresses are associated with your account:' %}</p>
 
@@ -44,7 +42,7 @@
 {% endif %}
 
 
-    <h2 class="mt-5">{% trans "Add e-mail address" %}</h2>
+    <h3 class="mt-5">{% trans "Add e-mail address" %}</h3>
     <p>
       {% blocktrans trimmed %}
       Your primary e-mail address will be used to contact you about events. Your secondary
@@ -59,7 +57,7 @@
         <button name="action_add" type="submit">{% trans "Add e-mail" %}</button>
     </form>
 
-{% endblock %}
+{% endblock outerform %}
 
 
 {% block extra_body %}

@@ -1,19 +1,43 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load crispy_forms_filters %}
 
 {# This template is used on the pages email.html, password_set.html, password_change.html, connections.html #}
 
 {% block pagetitle %}{% trans "Account settings" %}{% endblock %}
 
-{% block precontent %}
+{% block content %}
+<div class="row">
+  <div class="account-settings-menu col-auto">
+    {% block account-settings-menu %}
+      <ul>
+        <li {% if request.resolver_match.view_name == 'account_email' %} class="current"{% endif %}>
+            <a href="{% url 'account_email' %}">{% trans "E-mail addresses" %}</a>
+        </li>
+        <li{% if request.resolver_match.view_name == 'account_change_password' %} class="current"{% endif %}>
+          <a href="{% url 'account_change_password' %}">{% trans "Password" %}</a>
+        </li>
+        <li{% if request.resolver_match.view_name == 'core:email_prefs' %} class="current"{% endif %}>
+          <a href="{% url 'core:email_prefs' %}">{% trans "E-mail preferences" %}</a>
+        </li>
+        {# TODO: social accounts weer aanzetten als we ze handig hebben gemaakt #}
+        <!-- <li><a href="{% url 'socialaccount_connections' %}">{% trans "Social authentication" %}</a></li> -->
+      </ul>
+    {% endblock %}
+  </div>
+  <div class="account-settings-main col">
+    {% block beforeform %}
+    {% endblock beforeform %}
 
-<div class="account-settings-menu">
-  <ul>
-    <li><a href="{% url 'account_email' %}">{% trans "E-mail addresses" %}</a></li>
-    <li><a href="{% url 'account_change_password' %}">{% trans "Password" %}</a></li>
-    <li><a href="{% url 'core:email_prefs' %}">{% trans "E-mail notification preferences" %}</a></li>
-    {# TODO: social accounts weer aanzetten als we ze handig hebben gemaakt #}
-    <!-- <li><a href="{% url 'socialaccount_connections' %}">{% trans "Social authentication" %}</a></li> -->
-  </ul>
-</div>
-{% endblock precontent %}
+    {% block outerform %}
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% block form %}
+          {{ form | crispy }}
+        {% endblock form %}
+        {% block buttons %}
+        {% endblock buttons %}
+      </form>
+    {% endblock outerform %}
+  </div>
+{% endblock content %}

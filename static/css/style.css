@@ -264,3 +264,23 @@ tr.total-price td.label {
 .registration_steps li.current {
     font-weight: bold;
 }
+
+/*** Account settings menu  ***/
+.account-settings-menu ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    padding-left: 0.5rem;
+    font-size: 1.2rem;
+    border-left: 0.5rem solid var(--primary);
+    color: var(--light);
+}
+
+.account-settings-menu a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.account-settings-menu li.current {
+    font-weight: bold;
+}

@@ -139,6 +139,7 @@ INSTALLED_APPS = [
     'hijack_admin',
     'compat',
     'crispy_forms',
+    'import_export',
 ]
 
 # Middlewares
@@ -256,6 +257,9 @@ HIJACK_ALLOW_GET_REQUESTS = True
 # ##### CRISPY FORMS ######################################
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 CRISPY_FAIL_SILENTLY = False
+
+# ##### IMPORT EXPORT #####################################
+IMPORT_EXPORT_USE_TRANSACTIONS = True
 
 # finally grab the SECRET KEY
 try:

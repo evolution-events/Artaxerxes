@@ -1,3 +1,6 @@
+import import_export.admin
+import import_export.fields
+import import_export.resources
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.http import HttpResponse
@@ -22,13 +25,34 @@ class EmergencyContactInline(admin.StackedInline):
     extra = 0
 
 
+class ArtaUserResource(import_export.resources.ModelResource):
+    secondary_emails = import_export.fields.Field()
+
+    def get_queryset(self):
+        return super().get_queryset().select_related('emailaddress_set')
+
+    def dehydrate_secondary_emails(self, user):
+        secondary_qs = user.emailaddress_set.filter(
+            primary=False,
+            verified=True,
+        )
+        return ','.join(secondary_qs.values_list('email', flat=True))
+
+    class Meta:
+        model = ArtaUser
+        fields = ('first_name', 'last_name', 'email', 'secondary_emails')
+        # https://github.com/django-import-export/django-import-export/issues/1191
+        export_order = fields
+
+
 @admin.register(ArtaUser)
-class ArtaUserAdmin(UserAdmin, HijackUserAdminMixin, VersionAdmin):
+class ArtaUserAdmin(import_export.admin.ExportMixin, UserAdmin, HijackUserAdminMixin, VersionAdmin):
     inlines = (AddressInline, EmergencyContactInline)
     list_display = ('email', 'first_name', 'last_name', 'is_staff', 'is_active', 'hijack_field')
     search_fields = ('first_name', 'last_name', 'email')
     ordering = ('email',)
     actions = ['make_mailing_list']
+    resource_class = ArtaUserResource  # For ExportMixin
 
     fieldsets = (
         (None, {'fields': ('password',)}),

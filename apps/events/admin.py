@@ -51,6 +51,7 @@ class EventRegistrationsResource(import_export.resources.ModelResource):
             .filter(event=self.event)
             .select_related('user')
             .prefetch_options()
+            .order_by('created_at')
         )
 
     class Meta:
@@ -78,7 +79,11 @@ class EventAdmin(VersionAdmin):
             return None
 
         resource = EventRegistrationsResource(event)
-        reg_qs = resource.get_queryset().filter(status__in=Registration.statuses.ACTIVE)
+        reg_qs = (
+            resource.get_queryset()
+            .filter(status__in=Registration.statuses.ACTIVE)
+            .order_by('registered_at')
+        )
         file_format = import_export.formats.base_formats.CSV()
         export_data = file_format.export_data(resource.export(reg_qs))
         response = HttpResponse(export_data, content_type=file_format.get_content_type())

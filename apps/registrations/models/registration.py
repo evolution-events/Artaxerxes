@@ -111,6 +111,16 @@ class Registration(models.Model):
     def admit_immediately(self):
         return self.event.admit_immediately or self.options.filter(option__admit_immediately=True).exists()
 
+    @cached_property
+    def options_by_name(self):
+        """
+        Returns RegistrationFieldValue objects for this Registration by name.
+
+        Returns a dict from RegistrationField.name to RegistrationFieldValue for all fields with values. Works most
+        efficient when prefetch_options() was called on the queryset.
+        """
+        return {value.field.name: value for value in self.options.all()}
+
     def __str__(self):
         return _('%(user)s - %(event)s - %(status)s') % {
             'user': self.user, 'event': self.event, 'status': self.get_status_display(),

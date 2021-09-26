@@ -117,6 +117,8 @@ class RegistrationFieldValue(models.Model):
                     return str(_('No'))
                 else:
                     return "<invalid>"
+        elif self.field.field_type.IMAGE:
+            return self.file_value.name
         else:
             if self.string_value is not None:
                 return self.string_value

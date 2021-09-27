@@ -6,6 +6,11 @@ from django.utils.translation import gettext_lazy as _
 from apps.core.models import ConsentLog
 from apps.people.models import ArtaUser
 
+""" Maps ArtaUser boolean attributes to the corresponding consent name """
+CONSENT_PREFS = {
+    'consent_announcements': 'email_announcements',
+}
+
 
 class SignupFormBase(forms.Form):
     """ Custom signup form. The allauth default forms (local account and social account) will derive from this.  """
@@ -23,16 +28,18 @@ class SignupFormBase(forms.Form):
 
             user.first_name = self.cleaned_data['first_name']
             user.last_name = self.cleaned_data['last_name']
-            user.consent_announcements = self.cleaned_data['consent_announcements']
+            for attr, _consent_name in CONSENT_PREFS.items():
+                setattr(user, attr, self.cleaned_data[attr])
             user.save()
 
-        if user.consent_announcements:
-            ConsentLog.objects.create(
-                user=user,
-                action=ConsentLog.actions.CONSENTED,
-                consent_name='email_announcements',
-                consent_description=self.fields['consent_announcements'].help_text,
-            )
+        for (attr, consent_name) in CONSENT_PREFS.items():
+            if getattr(user, attr):
+                ConsentLog.objects.create(
+                    user=user,
+                    action=ConsentLog.actions.CONSENTED,
+                    consent_name=consent_name,
+                    consent_description=self.fields[attr].help_text,
+                )
 
 
 class EmailPreferencesForm(forms.ModelForm):
@@ -48,21 +55,22 @@ class EmailPreferencesForm(forms.ModelForm):
         with transaction.atomic():
             user = super().save()
 
-            if 'consent_announcements' in self.changed_data:
-                if user.consent_announcements:
-                    action = ConsentLog.actions.CONSENTED
-                else:
-                    action = ConsentLog.actions.WITHDRAWN
+            for (attr, consent_name) in CONSENT_PREFS.items():
+                if attr in self.changed_data:
+                    if getattr(user, attr):
+                        action = ConsentLog.actions.CONSENTED
+                    else:
+                        action = ConsentLog.actions.WITHDRAWN
 
-                ConsentLog.objects.create(
-                    user=user,
-                    action=action,
-                    consent_name='email_announcements',
-                    consent_description=self.fields['consent_announcements'].help_text,
-                )
+                    ConsentLog.objects.create(
+                        user=user,
+                        action=action,
+                        consent_name=consent_name,
+                        consent_description=self.fields[attr].help_text,
+                    )
 
         return user
 
     class Meta:
         model = ArtaUser
-        fields = ['registration_updates', 'consent_announcements']
+        fields = ['registration_updates', *CONSENT_PREFS.keys()]

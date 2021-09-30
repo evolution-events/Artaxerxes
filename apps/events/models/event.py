@@ -36,18 +36,24 @@ class EventQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
         qs = self.annotate(
             is_visible=F('public'),
         ).annotate(
+            registration_has_closed=QExpr(
+                Q(start_date__lte=now)
+                | (~Q(registration_closes_at=None)
+                   & Q(registration_closes_at__lte=now)),
+            ),
+        ).annotate(
             registration_is_open=QExpr(
                 Q(is_visible=True)
                 & ~Q(registration_opens_at=None)
                 & Q(registration_opens_at__lte=now)
-                & Q(start_date__gt=now),
+                & Q(registration_has_closed=False),
             ),
         ).annotate(
             preregistration_is_open=QExpr(
                 Q(is_visible=True)
                 & Q(registration_is_open=False)
                 & Q(admit_immediately=True)
-                & Q(start_date__gt=now),
+                & Q(registration_has_closed=False),
             ),
         ).annotate(
             # TODO: Ideally we would skip this annotation and do F('full') | Exists(...) directly, but django does not
@@ -157,6 +163,9 @@ class Event(models.Model):
     registration_opens_at = models.DateTimeField(
         verbose_name=_('Registration opens at'), null=True, blank=True,
         help_text=_('At this time registration is open for everyone.'))
+    registration_closes_at = models.DateTimeField(
+        verbose_name=_('Registration closes at'), null=True, blank=True,
+        help_text=_('At this time registration closes again. When empty, registration closes on the start date.'))
     public = models.BooleanField(
         verbose_name=_('Public'), default=False,
         help_text=_('When checked, the event is visible to users. If registration is not open yet, they can prepare a '

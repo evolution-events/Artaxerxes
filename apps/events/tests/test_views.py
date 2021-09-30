@@ -32,6 +32,9 @@ class TestRegisteredEventsView(TestCase):
         # Public, open date reached
         EventFactory(title='future_public_open_now', starts_in_days=7, public=True,
                      registration_opens_in_days=-1)
+        # Public, close date reached
+        EventFactory(title='future_public_closed_again', starts_in_days=7, public=True,
+                     registration_opens_in_days=-8, registration_closes_in_days=-3)
 
         # Public, event starts today
         EventFactory(title='future_public_open_now_starts_today', starts_in_days=0, public=True,
@@ -47,9 +50,12 @@ class TestRegisteredEventsView(TestCase):
         EventFactory(title='past_public_opens_soon', starts_in_days=-7, public=True,
                      registration_opens_in_days=1)
 
-        # This is how past events should usually be: public and with an open date in the past before the start date
+        # This is how past events should usually be: public and with an open date in the past before the start date,
+        # with or without closing date
         EventFactory(title='past_public_open_now', starts_in_days=-7, public=True,
                      registration_opens_in_days=-8)
+        EventFactory(title='past_public_closed_again', starts_in_days=-6, public=True,
+                     registration_opens_in_days=-8, registration_closes_in_days=-7)
 
         # Check uniqueness of titles. Cannot use unittests asserts since we are not in a testcase yet.
         events = Event.objects.all()
@@ -101,12 +107,14 @@ class TestRegisteredEventsView(TestCase):
         # TODO: Decide how to handle non-public or closed events (with registrations) and include them here.
         future = self.makeRegistrationsForEvents(user=self.user, status=status, titles=[
             'future_public_open_now',
+            'future_public_closed_again',
         ])
 
         past = self.makeRegistrationsForEvents(user=self.user, status=status, titles=[
             'future_public_open_now_starts_today',
             'past_public_open_now',
             'past_public_closed',
+            'past_public_closed_again',
         ])
 
         response = self.get()

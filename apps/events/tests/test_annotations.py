@@ -31,6 +31,12 @@ class TestOpenedAnnotations(TestCase):
         # Public, open date reached
         EventFactory(title='future_public_open_now', starts_in_days=7, public=True,
                      registration_opens_in_days=-1)
+        # Public, open date reached, closed date not reached
+        EventFactory(title='future_public_open_now_with_close', starts_in_days=7, public=True,
+                     registration_opens_in_days=-1, registration_closes_in_days=5)
+        # Public, close date reached
+        EventFactory(title='future_public_closed_again', starts_in_days=7, public=True,
+                     registration_opens_in_days=-8, registration_closes_in_days=-3)
 
         # Public, admit_immediately=False, no open date yet
         EventFactory(title='future_pending_public_closed', starts_in_days=7, public=True, admit_immediately=False)
@@ -50,10 +56,16 @@ class TestOpenedAnnotations(TestCase):
         EventFactory(title='past_public_closed', starts_in_days=-7, public=True)
         EventFactory(title='past_public_opens_soon', starts_in_days=-7, public=True,
                      registration_opens_in_days=1)
+        # Corner case with close date after start date, should still close at start date
+        EventFactory(title='past_public_closes_after_start', starts_in_days=-1, public=True,
+                     registration_opens_in_days=-7, registration_closes_in_days=1)
 
-        # This is how past events should usually be: public and with an open date in the past before the start date
+        # This is how past events should usually be: public and with an open date in the past before the start date,
+        # with or without closing date
         EventFactory(title='past_public_open_now', starts_in_days=-7, public=True,
                      registration_opens_in_days=-8)
+        EventFactory(title='past_public_closed_again', starts_in_days=-6, public=True,
+                     registration_opens_in_days=-8, registration_closes_in_days=-7)
 
         # Check uniqueness of titles. Cannot use unittests asserts since we are not in a testcase yet.
         events = Event.objects.all()
@@ -71,6 +83,8 @@ class TestOpenedAnnotations(TestCase):
         self.assertEventsWithTitles(visible, {
             'future_public_closed',
             'future_public_open_now',
+            'future_public_open_now_with_close',
+            'future_public_closed_again',
             'future_public_opens_soon',
             'future_pending_public_closed',
             'future_pending_public_open_now',
@@ -78,6 +92,8 @@ class TestOpenedAnnotations(TestCase):
             'past_public_closed',
             'past_public_opens_soon',
             'past_public_open_now',
+            'past_public_closed_again',
+            'past_public_closes_after_start',
         })
 
     def test_registration_is_open(self):
@@ -86,7 +102,24 @@ class TestOpenedAnnotations(TestCase):
         is_open = set(annotated.filter(registration_is_open=True))
         self.assertEventsWithTitles(is_open, {
             'future_public_open_now',
+            'future_public_open_now_with_close',
             'future_pending_public_open_now',
+        })
+
+    def test_registration_has_closed(self):
+        """ Test registration_has_closed annotation. """
+        annotated = Event.objects.for_user(None)
+        has_closed = set(annotated.filter(registration_has_closed=True))
+        self.assertEventsWithTitles(has_closed, {
+            'future_public_closed_again',
+            'past_hidden_closed',
+            'past_hidden_opens_soon',
+            'past_hidden_open_now',
+            'past_public_closed',
+            'past_public_opens_soon',
+            'past_public_open_now',
+            'past_public_closed_again',
+            'past_public_closes_after_start',
         })
 
     def test_preregistration_is_open(self):

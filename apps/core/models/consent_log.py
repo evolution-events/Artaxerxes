@@ -8,7 +8,8 @@ from apps.registrations.models import Registration
 
 
 class ConsentLogQuerySet(models.QuerySet):
-    pass
+    def delete(self, *args, **kwargs):
+        raise NotImplementedError("Deleting consent impossible")
 
 
 class ConsentLogManager(models.Manager.from_queryset(ConsentLogQuerySet)):
@@ -57,7 +58,7 @@ class ConsentLog(models.Model):
             super(ConsentLog, self).save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
-        return
+        raise NotImplementedError("Deleting consent impossible")
 
     def __str__(self):
         res = "{} {} consent for {}{} at {}".format(

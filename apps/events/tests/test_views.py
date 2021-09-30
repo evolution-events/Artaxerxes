@@ -66,12 +66,12 @@ class TestRegisteredEventsView(TestCase):
         with self.assertTemplateUsed('events/registered_events.html'):
             return self.client.get(url)
 
-    def makeRegistrationsForEvents(self, titles, **kwargs):
+    def makeRegistrationsForEvents(self, titles=None, **kwargs):
         """ Make registrations for the event with the given titles and returns them. """
-        return [
-            RegistrationFactory(event=e, **kwargs)
-            for e in Event.objects.filter(title__in=titles)
-        ]
+        events = Event.objects.all()
+        if titles is not None:
+            events = events.filter(title__in=titles)
+        return [RegistrationFactory(event=e, **kwargs) for e in events]
 
     def assertRegistrationsMatch(self, events, registrations):
         """ Assert that the registrations returned for the given events match the given registrations. """
@@ -90,13 +90,7 @@ class TestRegisteredEventsView(TestCase):
     def test_other_users_registrations(self, status):
         """ Check that other users' registrations do not show up. """
 
-        self.makeRegistrationsForEvents(status=status, titles=[
-            'future_public_open_now',
-            'future_public_open_now_starts_today',
-            'past_public_open_now',
-            'past_public_closed',
-        ])
-
+        self.makeRegistrationsForEvents(status=status)
         response = self.get()
         self.assertCountEqual(response.context['events']['future'], [])
         self.assertCountEqual(response.context['events']['past'], [])
@@ -164,12 +158,7 @@ class TestRegisteredEventsView(TestCase):
     @parameterized.expand((s,) for s in Registration.statuses.DRAFT)
     def test_draft_registrations(self, status):
         """ Check that draft registrations do not show up. """
-        self.makeRegistrationsForEvents(user=self.user, status=status, titles=[
-            'future_public_open_now',
-            'future_public_open_now_starts_today',
-            'past_public_open_now',
-            'past_public_closed',
-        ])
+        self.makeRegistrationsForEvents(user=self.user, status=status)
 
         response = self.get()
         self.assertCountEqual(response.context['events']['future'], [])

@@ -1,3 +1,4 @@
+import itertools
 import re
 
 from django.core import mail
@@ -9,12 +10,22 @@ from reversion.models import Revision
 from apps.core.models import ConsentLog
 from apps.people.models import ArtaUser
 
+CONSENT_PREFS = {
+    # ArtaUser attr: consent_name
+    'consent_announcements': 'email_announcements',
+}
+
+CONSENT_COMBOS = list(itertools.product(*(
+    [(attr, value) for value in (True, False)]
+    for attr in CONSENT_PREFS
+)))
+
 
 class TestCreationForm(TestCase):
-    consent_name = 'email_announcements'
-
-    @parameterized.expand([(True,), (False,)])
-    def test_registration(self, consent):
+    # product here converts each item into a single-item tuple to apply to the single argument, and can be used later
+    # to add more parameters if needed.
+    @parameterized.expand(itertools.product(CONSENT_COMBOS))
+    def test_registration(self, consent_values):
         """ Check that registering an account works. """
 
         signup_url = reverse('account_signup')
@@ -26,10 +37,10 @@ class TestCreationForm(TestCase):
             'email': 'info@example.org',
             'first_name': 'first',
             'last_name': 'last',
-            'consent_announcements': consent,
             'password1': 'password',
             'password2': 'password',
         }
+        data.update(consent_values)
         response = self.client.post(signup_url, data)
         self.assertRedirects(response, confirmation_sent_url)
 
@@ -42,14 +53,23 @@ class TestCreationForm(TestCase):
         self.assertTrue(user.is_active)
         self.assertFalse(user.is_staff)
         self.assertFalse(user.is_superuser)
-        self.assertEqual(user.consent_announcements, consent)
+        for attr, value in consent_values:
+            with self.subTest(attr=attr):
+                self.assertEqual(getattr(user, attr), value)
 
         # Check that consent was logged
-        if consent:
-            log = ConsentLog.objects.get()
-            self.assertEqual(log.user, user)
-            self.assertEqual(log.action, ConsentLog.actions.CONSENTED)
-            self.assertEqual(log.consent_name, self.consent_name)
+        logs = {log.consent_name: log for log in ConsentLog.objects.all()}
+        for (attr, value) in consent_values:
+            if value:
+                with self.subTest(attr=attr):
+                    consent_name = CONSENT_PREFS[attr]
+                    log = logs.pop(consent_name, None)
+                    self.assertIsNotNone(log, msg="ConsentLog instance should be created")
+                    self.assertEqual(log.user, user)
+                    self.assertEqual(log.action, ConsentLog.actions.CONSENTED)
+                    self.assertEqual(log.consent_name, consent_name)
+        # Check that no additional consent was logged
+        self.assertFalse(logs, msg="No additional ConsentLog instances should be created")
 
         # Check an unverified e-mail address was added
         email = user.emailaddress_set.get()

@@ -27,12 +27,12 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='artauser',
             name='consent_announcements_en',
-            field=models.BooleanField(default=False, help_text='You will receive at most a few e-mails each year.', verbose_name='Send me updates about new English-speaking events'),
+            field=models.BooleanField(default=False, help_text='These are announcements about our events where English is the primary language. You will receive at most a few e-mails each year.', verbose_name='Send me announcements about new international events'),
         ),
         migrations.AddField(
             model_name='artauser',
             name='consent_announcements_nl',
-            field=models.BooleanField(default=False, help_text='You will receive at most a few e-mails each year.', verbose_name='Send me updates about new Dutch-speaking events'),
+            field=models.BooleanField(default=False, help_text='These are announcements for our events where Dutch is the primary language. You will receive at most a few e-mails each year.', verbose_name='Send me announcements about new Dutch events'),
         ),
         migrations.RunPython(set_default_nl, reverse_code=reverse_default_nl),
     ]

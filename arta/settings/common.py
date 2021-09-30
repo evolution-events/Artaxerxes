@@ -245,6 +245,7 @@ DEBUG = False
 # These are not reported by the BrokenLinkEmailsMiddleware
 IGNORABLE_404_URLS = [
     re.compile(r'.php$'),
+    re.compile(r'^/favicon\.ico$'),
 ]
 
 # ##### DJANGO HIJACK #####################################

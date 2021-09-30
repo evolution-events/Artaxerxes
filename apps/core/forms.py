@@ -36,11 +36,11 @@ class SignupFormBase(forms.Form):
 
         for (attr, consent_name) in CONSENT_PREFS.items():
             if getattr(user, attr):
-                ConsentLog.objects.create(
+                ConsentLog.log_consent(
                     user=user,
-                    action=ConsentLog.actions.CONSENTED,
                     consent_name=consent_name,
-                    consent_description=self.fields[attr].help_text,
+                    value=getattr(user, attr),
+                    form_field=self.fields[attr],
                 )
 
 
@@ -59,16 +59,11 @@ class EmailPreferencesForm(forms.ModelForm):
 
             for (attr, consent_name) in CONSENT_PREFS.items():
                 if attr in self.changed_data:
-                    if getattr(user, attr):
-                        action = ConsentLog.actions.CONSENTED
-                    else:
-                        action = ConsentLog.actions.WITHDRAWN
-
-                    ConsentLog.objects.create(
+                    ConsentLog.log_consent(
                         user=user,
-                        action=action,
                         consent_name=consent_name,
-                        consent_description=self.fields[attr].help_text,
+                        value=getattr(user, attr),
+                        form_field=self.fields[attr],
                     )
 
         return user

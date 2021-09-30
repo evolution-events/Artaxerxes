@@ -7,6 +7,15 @@ from konst.models.fields import ConstantChoiceField
 from apps.registrations.models import Registration
 
 
+class ConsentLogQuerySet(models.QuerySet):
+    pass
+
+
+class ConsentLogManager(models.Manager.from_queryset(ConsentLogQuerySet)):
+    def create(self, *args, **kwargs):
+        raise NotImplementedError("Use ConsentLog.log_consent instead")
+
+
 class ConsentLog(models.Model):
     """ Log entries about consent given or withdrawn. """
 
@@ -29,6 +38,19 @@ class ConsentLog(models.Model):
         help_text=_('What has the user agreed to exactly?'),
         max_length=255,
     )
+
+    objects = ConsentLogManager()
+
+    @classmethod
+    def log_consent(cls, *, consent_name, value, user, form_field, registration=None):
+        """ Helper to create a ConsentLog instance. """
+        ConsentLog(
+            user=user,
+            registration=registration,
+            action=cls.actions.CONSENTED if value else cls.actions.WITHDRAWN,
+            consent_name=consent_name,
+            consent_description="{} | {}".format(form_field.label, form_field.help_text),
+        ).save()
 
     def save(self, *args, **kwargs):
         if self.id is None:

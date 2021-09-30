@@ -95,32 +95,27 @@ class MedicalDetailForm(forms.ModelForm):
         return self.cleaned_data
 
     def save(self, registration, *args, **kwargs):
-        action = None
-
         # Ensure that MedicalDetails are not created or modified when no ConsentLog could be created.
         with transaction.atomic():
+            consented = None
             if self.cleaned_data['consent']:
                 if self.has_changed():
-                    action = ConsentLog.actions.CONSENTED
+                    consented = True
                     obj = super().save()
                     user = obj.user
             else:
                 if self.instance and self.instance.pk is not None:
-                    action = ConsentLog.actions.WITHDRAWN
+                    consented = False
                     user = self.instance.user
                     self.instance.delete()
 
-            if action:
-                consent_description = "{} | {}".format(
-                    self.fields['consent'].label,
-                    self.fields['consent'].help_text,
-                )
-                ConsentLog.objects.create(
+            if consented is not None:
+                ConsentLog.log_consent(
                     user=user,
-                    registration=registration,
-                    action=action,
                     consent_name='medical_data',
-                    consent_description=consent_description,
+                    value=consented,
+                    form_field=self.fields['consent'],
+                    registration=registration,
                 )
 
     class Meta:

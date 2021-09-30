@@ -30,7 +30,7 @@
 {% endblock beforeform %}
 
 {% block buttons %}
-    {% if not event.registration_is_open %}
+    {% if event.registration_is_open %}
     <button class="btn btn-success" type="submit">{% trans 'Start registration' %}</button>
     {% else %}
     <button class="btn btn-success" type="submit">{% trans 'Prepare registration' %}</button>

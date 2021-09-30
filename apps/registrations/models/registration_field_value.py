@@ -74,7 +74,8 @@ class RegistrationFieldValueManager(models.Manager.from_queryset(RegistrationFie
 
 def file_value_path(obj, filename):
     """ Generate the filename of an uploaded file """
-    return 'registration_fields/event_{0}/field_{1}/{2}'.format(obj.registration.event.id, obj.id, filename)
+    return 'registration_fields/event_{0}/field_{1}/{2}-{3}'.format(
+        obj.registration.event.id, obj.field.id, obj.id, filename)
 
 
 @reversion.register(follow=('registration',))

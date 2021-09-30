@@ -12,7 +12,8 @@ from apps.people.models import ArtaUser
 
 CONSENT_PREFS = {
     # ArtaUser attr: consent_name
-    'consent_announcements': 'email_announcements',
+    'consent_announcements_nl': 'email_announcements_nl',
+    'consent_announcements_en': 'email_announcements_en',
 }
 
 CONSENT_COMBOS = list(itertools.product(*(

@@ -50,7 +50,7 @@ class ArtaUserAdmin(import_export.admin.ExportMixin, UserAdmin, HijackUserAdminM
     inlines = (AddressInline, EmergencyContactInline)
     list_display = ('email', 'first_name', 'last_name', 'is_staff', 'is_active', 'hijack_field')
     search_fields = ('first_name', 'last_name', 'email')
-    list_filter = UserAdmin.list_filter + ('consent_announcements',)
+    list_filter = UserAdmin.list_filter + ('consent_announcements_nl', 'consent_announcements_en')
     ordering = ('email',)
     actions = ['make_mailing_list']
     resource_class = ArtaUserResource  # For ExportMixin

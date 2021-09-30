@@ -8,7 +8,8 @@ from apps.people.models import ArtaUser
 
 """ Maps ArtaUser boolean attributes to the corresponding consent name """
 CONSENT_PREFS = {
-    'consent_announcements': 'email_announcements',
+    'consent_announcements_nl': 'email_announcements_nl',
+    'consent_announcements_en': 'email_announcements_en',
 }
 
 
@@ -19,7 +20,8 @@ class SignupFormBase(forms.Form):
     # populated by the social provider if available.
     first_name = ArtaUser._meta.get_field('first_name').formfield(required=True)
     last_name = ArtaUser._meta.get_field('last_name').formfield(required=True)
-    consent_announcements = ArtaUser._meta.get_field('consent_announcements').formfield()
+    consent_announcements_nl = ArtaUser._meta.get_field('consent_announcements_nl').formfield()
+    consent_announcements_en = ArtaUser._meta.get_field('consent_announcements_en').formfield()
 
     def signup(self, request, user):
         with reversion.create_revision():

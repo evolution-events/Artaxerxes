@@ -43,9 +43,16 @@ class ArtaUser(AbstractBaseUser, PermissionsMixin):
 
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
 
-    consent_announcements = models.BooleanField(
-        verbose_name=_('Send me updates about new events'),
-        help_text=_('You will receive at most a few e-mails each year.'),
+    consent_announcements_nl = models.BooleanField(
+        verbose_name=_('Send me announcements about new Dutch events'),
+        help_text=_('These are announcements for our events where Dutch is the primary language.'
+                    ' You will receive at most a few e-mails each year.'),
+        default=False,
+    )
+    consent_announcements_en = models.BooleanField(
+        verbose_name=_('Send me announcements about new international events'),
+        help_text=_('These are announcements about our events where English is the primary language.'
+                    ' You will receive at most a few e-mails each year.'),
         default=False,
     )
 

@@ -88,11 +88,13 @@ input[type="radio"] ~ label {
     color: inherit;
 }
 
-input[name="consent_announcements"] {
+input[name="consent_announcements_nl"],
+input[name="consent_announcements_en"] {
     margin-right: 0.5em;
 }
 
-input[name="consent_announcements"] + br {
+input[name="consent_announcements_nl"] + br,
+input[name="consent_announcements_en"] + br {
     display: none;
 }
 

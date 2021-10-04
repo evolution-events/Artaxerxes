@@ -18,7 +18,10 @@ class RegistrationFieldValueField(import_export.fields.Field):
     """ Export field that takes its value from a RegistrationFieldValue. """
 
     def get_value(self, obj):
-        return obj.options_by_name.get(self.attribute, None).display_value()
+        value = obj.options_by_name.get(self.attribute, None)
+        if value is None:
+            return None
+        return value.display_value()
 
 
 class EventRegistrationsResource(import_export.resources.ModelResource):

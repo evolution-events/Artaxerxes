@@ -691,6 +691,19 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "mollie-api-python"
+version = "2.10.0"
+description = "Mollie API client for Python"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+requests = "*"
+requests_oauthlib = "*"
+urllib3 = "*"
+
+[[package]]
 name = "msgpack"
 version = "1.0.0"
 description = "MessagePack (de)serializer."
@@ -1196,7 +1209,7 @@ testing = ["pathlib2", "unittest2", "jaraco.itertools", "func-timeout"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6"
-content-hash = "ef32db3ab97e9d6a59d02446added79d4dac282ce279467135e6a8cab44e8848"
+content-hash = "29b8c8b1a9435e47a49a3a4069f16a832fb750e4b26e069929bf95ae6bd062ce"
 
 [metadata.files]
 attrs = [
@@ -1567,6 +1580,9 @@ markuppy = [
 mccabe = [
     {file = "mccabe-0.6.1-py2.py3-none-any.whl", hash = "sha256:ab8a6258860da4b6677da4bd2fe5dc2c659cff31b3ee4f7f5d64e79735b80d42"},
     {file = "mccabe-0.6.1.tar.gz", hash = "sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f"},
+]
+mollie-api-python = [
+    {file = "mollie-api-python-2.10.0.tar.gz", hash = "sha256:29cdf5ed54460be4325e4c1c30264a48741cf815362f5874f8de55b74a39ea4f"},
 ]
 msgpack = [
     {file = "msgpack-1.0.0-cp35-cp35m-manylinux1_i686.whl", hash = "sha256:cec8bf10981ed70998d98431cd814db0ecf3384e6b113366e7f36af71a0fca08"},

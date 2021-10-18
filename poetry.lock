@@ -372,6 +372,18 @@ url = "https://github.com/perenecabuto/django-sendmail-backend"
 reference = "43d239faabdfe83bcc5e174ea8ea7d7532f039c1"
 
 [[package]]
+name = "django-sql-utils"
+version = "0.6.1"
+description = "Improved API for aggregating using Subquery"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+django = ">=1.11"
+sqlparse = "*"
+
+[[package]]
 name = "django-with-asserts"
 version = "0.0.1"
 description = "Helpers for testing Django using context managers"
@@ -1209,7 +1221,7 @@ testing = ["pathlib2", "unittest2", "jaraco.itertools", "func-timeout"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6"
-content-hash = "29b8c8b1a9435e47a49a3a4069f16a832fb750e4b26e069929bf95ae6bd062ce"
+content-hash = "689a7870fc0d6383fb6032be510c41a1b1bb881387a7a285f8b6b532f03f5725"
 
 [metadata.files]
 attrs = [
@@ -1419,6 +1431,10 @@ django-reversion = [
     {file = "django_reversion-3.0.5-py2.py3-none-any.whl", hash = "sha256:60efa47f02d8b0451aff1d76e00e5122144b661bd720a099eb44241a081aa254"},
 ]
 django-sendmail-backend = []
+django-sql-utils = [
+    {file = "django-sql-utils-0.6.1.tar.gz", hash = "sha256:4690d9e286095e3a027122fb99dc5d4f2285c64b6e35a2f59467567f293b18af"},
+    {file = "django_sql_utils-0.6.1-py3-none-any.whl", hash = "sha256:4d142f35fbc027e030021ab110d1445bd88988eb6a104169d99abff436dc03d5"},
+]
 django-with-asserts = [
     {file = "django-with-asserts-0.0.1.tar.gz", hash = "sha256:233efc48d9c03a1a05617b3e4725296b575b7199c007b63ad91d6961e08462f0"},
 ]

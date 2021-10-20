@@ -24,6 +24,7 @@ Pillow = "^8.3.2"
 django-import-export = "^2.6.0"
 mollie-api-python = "^2.10.0"
 django-sql-utils = "^0.6.1"
+django-mathfilters = "^1.0.0"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.7"

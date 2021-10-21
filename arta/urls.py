@@ -25,6 +25,7 @@ urlpatterns = [
     path('people/', include('apps.people.urls')),
     path('events/', include('apps.events.urls')),
     path('registrations/', include('apps.registrations.urls')),
+    path('payments/', include('apps.payments.urls')),
     path('hijack/', include('hijack.urls', namespace='hijack')),
 ]
 

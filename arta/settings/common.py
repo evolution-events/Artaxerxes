@@ -133,6 +133,7 @@ INSTALLED_APPS = [
     'apps.events.apps.EventsConfig',
     'apps.registrations.apps.RegistrationsConfig',
     'apps.core.apps.CoreConfig',
+    'apps.payments.apps.PaymentsConfig',
     'phonenumber_field',
     'airplane',
     'hijack',

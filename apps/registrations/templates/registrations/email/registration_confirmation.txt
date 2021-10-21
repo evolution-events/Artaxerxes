@@ -19,6 +19,10 @@ Your registration for {{event}} was completed. Your spot is secured for
 you, provided that you pay in time (see the event website for the
 payment policy: {{eventurl}}).
 {% endblocktrans %}
+{% url 'registrations:payment_status' registration.event.pk as pay_url %}
+{% blocktrans trimmed %}
+Payments can be done here: {{ pay_url }}
+{% endblocktrans %}
 {% else %}
 {% blocktrans with event=registration.event %}
 Your registration for {{event}} was completed. However, your
@@ -28,11 +32,7 @@ options you selected) is full.
 .
 {% blocktrans %}
 Note that admissions from the waiting list are ordered by registration
-date. You can see your waiting list position on the dashboard. Normally,
-we only consider registrations that have been paid for, but for On the
-Styx we have made an exception to this rule (see the event website). So
-no payment is needed now, only when you are actually admitted to the
-event.
+date. You can see your waiting list position on the dashboard.
 {% endblocktrans %}
 .
 {% blocktrans %}
@@ -56,17 +56,6 @@ For details, see our house rules at: {{ house_rules_url }}.
 {% endfor %}
 {% endif %}
 .
-{% if not registration.status.PENDING %}
-{% trans "Payments" %}
-====
-{% blocktrans trimmed with registration.id as regnum %}
-Payments can be made to IBAN account NL52INGB0001297429, held by
-"Stichting Evolution Events" in Capelle aan den IJssel, NL. Please note
-your name, the event name and the registration number ({{regnum}}) in
-the payment description.
-{% endblocktrans %}
-.
-{% endif %}
 {% trans "Changes to your registration" %}
 ====
 {% blocktrans trimmed with registration.event.display_email as mail %}

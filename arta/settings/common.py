@@ -263,6 +263,9 @@ CRISPY_FAIL_SILENTLY = False
 # ##### IMPORT EXPORT #####################################
 IMPORT_EXPORT_USE_TRANSACTIONS = True
 
+# ##### UNIT TESTING ######################################
+TEST_RUNNER = 'arta.testrunner.CustomRunner'
+
 # finally grab the SECRET KEY
 try:
     SECRET_KEY = open(SECRET_FILE).read().strip()

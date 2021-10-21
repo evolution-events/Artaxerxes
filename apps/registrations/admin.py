@@ -9,6 +9,7 @@ from hijack_admin.admin import HijackRelatedAdminMixin
 from reversion.admin import VersionAdmin
 
 from apps.events.models import Event
+from apps.payments.admin import PaymentInline
 from apps.people.models import ArtaUser
 
 from .models import Registration, RegistrationField, RegistrationFieldOption, RegistrationFieldValue
@@ -85,7 +86,7 @@ class RegistrationAdmin(HijackRelatedAdminMixin, VersionAdmin):
     ]
     list_select_related = ['user', 'event__series']
     list_filter = ['status', 'event', ('user__groups', CustomRelatedFieldListFilter)]
-    inlines = [RegistrationFieldValueInline]
+    inlines = [PaymentInline, RegistrationFieldValueInline]
     actions = ['make_mailing_list']
 
     def get_queryset(self, *args, **kwargs):

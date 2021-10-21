@@ -140,6 +140,7 @@ INSTALLED_APPS = [
     'compat',
     'crispy_forms',
     'import_export',
+    'mathfilters',
 ]
 
 # Middlewares

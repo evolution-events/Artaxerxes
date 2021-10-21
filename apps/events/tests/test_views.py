@@ -101,15 +101,6 @@ class TestRegisteredEventsView(TestCase):
         self.assertCountEqual(response.context['events']['future'], [])
         self.assertCountEqual(response.context['events']['past'], [])
 
-    @parameterized.expand((s,) for s in Registration.statuses.DRAFT)
-    def test_draft_registrations(self, status):
-        """ Check that draft registrations do not show up. """
-
-        self.makeRegistrationsForEvents(status=status)
-        response = self.get()
-        self.assertCountEqual(response.context['events']['future'], [])
-        self.assertCountEqual(response.context['events']['past'], [])
-
     @parameterized.expand((s,) for s in Registration.statuses.FINALIZED)
     def test_finalized_registrations(self, status):
         """ Check that finalized registrations do show up. """

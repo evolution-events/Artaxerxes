@@ -336,6 +336,9 @@ class FinalCheck(RegistrationStepMixin, FormView):
     template_name = 'registrations/step_final_check.html'
     form_class = FinalCheckForm
 
+    def get_queryset(self):
+        return super().get_queryset().with_price()
+
     def get_modify_url(self):
         # TODO: This hardcodes skipping the first "start" step, but
         # maybe we can do this more elegantly?

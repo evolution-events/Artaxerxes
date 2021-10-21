@@ -67,6 +67,9 @@ class RegistrationFieldValueQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
         if fields:
             yield (section, fields)
 
+    def priced_only(self):
+        return self.exclude(option=None).exclude(option__price=None)
+
 
 class RegistrationFieldValueManager(models.Manager.from_queryset(RegistrationFieldValueQuerySet)):
     pass

@@ -53,14 +53,27 @@ Our official postal address is:
 <h2>{% trans "Payments" %}</h2>
 <p>
 {% blocktrans trimmed %}
-Payments can be made to IBAN account NL52INGB0001297429, held by
-"Stichting Evolution Events" in Capelle aan den IJssel, NL. Please note
-your name, the event name and the registration number (from the
-confirmation e-mail) in the payment description.
+Payments can be made online using iDeal (Dutch), or using SEPA
+(European) bank transfer. Payments are handled by Mollie, our payment
+provider including bank transfers (you will pay to Mollie, who will
+forward the payment to us). Details needed for the payment can be found
+after completing your registration.
 {% endblocktrans %}
 </p>
 <p>
-{% trans "Payment at the gate is only possible in exceptional cases. Always contact the treasurer well in advance for this at penningmeester@evolution-events.nl."|urlize %}
+{% blocktrans trimmed %}
+Payment deadlines depend on the event and will be communicated on the
+event website, but you will almost always need to pay beforehand.
+{% endblocktrans %}
+</p>
+<p>
+{% blocktrans with email='penningmeester@evolution-events.nl'|urlize %}
+If you need a different payment method, want to propose a
+payment arrangement or have other questions about your
+payment, please contact {{email}}.
+{% endblocktrans %}
+</p>
+
 </p>
 <h3>{% trans "Event pricing" %}</h3>
 <p>

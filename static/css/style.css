@@ -5,6 +5,7 @@
     --default: #b8b9ba;
     --link-color: #c998ea;
     --link-hover-color:#936da3;
+    --line: #dee2e6;
 }
 
 body {
@@ -17,6 +18,13 @@ body {
     color:var(--default);
     max-width: 40em;
 }
+
+.list-group-item {
+    background-color:var(--dark);
+    color:var(--default);
+    border-color: rgba(0,0,0,.5);
+}
+
 
 .text-muted {
     /* The bootstrap builtin muted color is too dark for our dark theme,
@@ -283,6 +291,34 @@ tr.total-price td.label {
 
 .registration_steps li.current {
     font-weight: bold;
+}
+
+/*** Registration payment status ***/
+table.registration-payments {
+    width: auto;
+}
+
+table.registration-payments tr.total-payments td.label,
+table.registration-payments tr.amount-due td.label,
+table.registration-payments tr.total-price td.label {
+    text-align: right;
+}
+
+table.registration-payments td.amount {
+    text-align: right;
+}
+
+table.registration-payments td {
+    padding: 0.5rem;
+}
+
+table.registration-payments tr.amount-due {
+}
+table.registration-payments tr.total-price td.label,
+table.registration-payments tr.payment + tr.total-payments td.label,
+table.registration-payments tr.amount-due td.amount,
+table.registration-payments tr.amount-due td.subtract {
+    border-top: double var(--line) 3px;
 }
 
 /*** Account settings menu  ***/

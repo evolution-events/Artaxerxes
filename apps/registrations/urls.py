@@ -12,4 +12,6 @@ urlpatterns = [
     path('fc/<int:pk>/', views.FinalCheck.as_view(), name="step_final_check"),
     path('rc/<int:pk>/', views.RegistrationConfirmation.as_view(), name="registration_confirmation"),
     path('cr/<int:pk>/', views.ConflictingRegistrations.as_view(), name="conflicting_registrations"),
+    path('ps/<int:pk>/', views.PaymentStatus.as_view(), name="payment_status"),
+    path('pc/<int:pk>/', views.PaymentDone.as_view(), name="payment_done"),
 ]

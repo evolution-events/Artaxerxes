@@ -1,0 +1,59 @@
+{% extends "registrations/step_base.html" %}
+{% load i18n %}
+{% load coretags %}
+
+{% block pagetitle %}
+  {% if payment.status.PENDING %}
+    {# Should not really happen, but handle just in case #}
+    {% blocktrans %}
+    Payment still pending
+    {% endblocktrans %}
+  {% elif payment.status.COMPLETED %}
+    {% blocktrans %}
+    Payment completed successfully
+    {% endblocktrans %}
+  {% elif payment.status.FAILED %}
+    {% blocktrans %}
+    Payment failed
+    {% endblocktrans %}
+  {% endif %}
+{% endblock pagetitle%}
+
+{% block beforeform %}
+  {% if payment.status.PENDING %}
+    {# Should not really happen, but handle just in case #}
+    <p>
+    {% blocktrans with event=payment.registration.event %}
+    Your payment for {{event}} is still pending with our payment
+    provider. Its status should be automatically updated, you can
+    refresh this page to check. If you did not complete the payment yet,
+    you can also try again.
+    {% endblocktrans %}
+    </p>
+  {% elif payment.status.COMPLETED %}
+    <p>
+    {% blocktrans with event=payment.registration.event %}
+    Your payment for {{event}} was succesfully received. Your
+    registration is now fully completed.
+    {% endblocktrans %}
+    </p>
+  {% elif payment.status.FAILED %}
+    <p>
+    {% blocktrans with event=payment.registration.event status=payment.mollie_status %}
+    Your payment for {{event}} has failed ({{status}}).
+    {% endblocktrans %}
+    </p>
+  {% endif %}
+{% endblock beforeform %}
+
+{# Hide steps until we figure out how to nicely integrate in that procedure #}
+{% block steps %}
+{% endblock steps %}
+
+{% block buttons %}
+  {% if payment.status.COMPLETED %}
+    <a class="btn btn-success" href="{% url 'core:dashboard' %}" role="button">{% trans "Ok" %}</a>
+  {% else %}
+    <a class="btn btn-success" href="{% url 'registrations:payment_status' payment.registration.event_id %}" role="button">{% trans "Try again" %}</a>
+  {% endif %}
+{% endblock buttons %}

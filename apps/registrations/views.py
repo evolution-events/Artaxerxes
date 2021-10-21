@@ -12,9 +12,12 @@ from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import DetailView
 from django.views.generic.base import ContextMixin, TemplateView
+from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import FormView
 
 from apps.events.models import Event
+from apps.payments.models import Payment
+from apps.payments.services import PaymentService, PaymentStatusService
 from apps.people.models import Address, ArtaUser, EmergencyContact, MedicalDetails
 from arta.common.views import CacheUsingTimestampsMixin
 
@@ -476,3 +479,69 @@ class ConflictingRegistrations(LoginRequiredMixin, DetailView):
         })
 
         return super().render_to_response(context)
+
+
+class PaymentStatus(DetailView):
+    """ Show the payment status of a given event. """
+
+    template_name = 'registrations/payment_status.html'
+    model = Event
+    context_object_name = 'event'
+
+    @cached_property
+    def registration(self):
+        return Registration.objects.current_for(
+            event=self.kwargs['pk'], user=self.request.user,
+        ).with_payment_status().get()
+
+    def get_context_data(self, **kwargs):
+        options = self.registration.options.select_related('field', 'option')
+        priced_options = options.exclude(option=None).exclude(option__price=None)
+        completed_payments = self.registration.payments.filter(status=Payment.statuses.COMPLETED)
+
+        kwargs.update({
+            'registration': self.registration,
+            'priced_options': priced_options,
+            'completed_payments': completed_payments,
+        })
+        return super().get_context_data(**kwargs)
+
+    def get(self, request, pk):
+        if not self.registration.status.FINALIZED:
+            return redirect('registrations:registration_start', self.kwargs['pk'])
+        return super().get(request, pk)
+
+    def post(self, request, pk):
+        amount = self.registration.amount_due
+        if not amount or amount <= 0:
+            return redirect(self.request.path)
+
+        with reversion.create_revision():
+            payment = Payment.objects.create(
+                registration=self.registration,
+                amount=self.registration.amount_due,
+                status=Payment.statuses.PENDING,
+            )
+            next_url = reverse('registrations:payment_done', args=(payment.pk,))
+            method = self.request.POST.get('method', '')
+            url = PaymentService.start_payment(request, payment, next_url, method)
+
+            reversion.set_user(self.request.user)
+            reversion.set_comment(_("Payment via {} started via frontend ({} / {}).").format(
+                method, payment.id, payment.mollie_id))
+
+        return redirect(url)
+
+
+class PaymentDone(SingleObjectMixin, TemplateView):
+    template_name = 'registrations/payment_done.html'
+    model = Payment
+    context_object_name = 'payment'
+
+    def get(self, request, pk):
+        self.object = self.get_object()
+        # The webhook should have been called before the user is redirected back to here, but if still pending, update
+        # just in case it failed.
+        if self.object.status.PENDING:
+            PaymentStatusService.update_payment_status(self.object)
+        return super().get(request, pk)

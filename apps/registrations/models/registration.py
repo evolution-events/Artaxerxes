@@ -1,12 +1,11 @@
 import reversion
 from django.conf import settings
 from django.db import models
-from django.db.models import Case, Count, ExpressionWrapper, F, Prefetch, Q, Sum, Value, When
-from django.db.models.functions import Coalesce
+from django.db.models import ExpressionWrapper, Prefetch, Q, Value
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from konst import Constant, ConstantGroup, Constants
-from konst.models.fields import ConstantChoiceCharField, ConstantChoiceField
+from konst.models.fields import ConstantChoiceField
 from sql_util.utils import SubquerySum
 
 from apps.core.fields import MonetaryField

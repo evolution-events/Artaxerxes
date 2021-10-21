@@ -1,0 +1,177 @@
+{% extends "registrations/step_base.html" %}
+{% load i18n %}
+{% load coretags %}
+{% load mathfilters %}
+
+{% block pagetitle %}
+  Payment status for {{event}}
+{% endblock pagetitle%}
+
+{% block form %}
+  <div class="container">
+    <div class="row">
+
+      {% if not registration.payment_status.FREE %}
+        <div class="price-and-payments col-sm-auto order-sm-last">
+          {% if completed_payments %}
+          <h2>{% trans "Price & previous payments" %}</h2>
+          {% else %}
+          <h2>{% trans "Price" %}</h2>
+          {% endif %}
+          <table class="registration-payments">
+            {# TODO: Sum price and payment separately and then subtract totals #}
+            {% for value in priced_options %}
+              <tr class="priced-option">
+                <td>{{ value.field.title }}: {{ value.display_value }}</td>
+                <td class="amount">{{ value.price | moneyformat }}</td>
+              </tr>
+            {% endfor %}
+            {% if priced_options.count > 1 or not registration.payment_status.NOT_DUE %}
+            <tr class="total-price">
+              <td class="label" colspan="2">{% trans "Total price" %}</td>
+              <td class="amount">{{ registration.price | moneyformat }}</td>
+            </tr>
+            {% endif %}
+
+            {% if completed_payments %}
+              {% for payment in completed_payments %}
+                <tr class="payment">
+                  <td>
+                    {% if payment.amount > 0 %}
+                      {% blocktrans with date=payment.timestamp|date %}
+                      Payment on {{ date }}
+                      {% endblocktrans %}
+                    {% else %}
+                      <i>
+                      {% blocktrans with date=payment.timestamp|date %}
+                      Refund on {{ date }}
+                      {% endblocktrans %}
+                      </i>
+                    {% endif %}
+                  </td>
+                  <td class="amount">{{ payment.amount | moneyformat }}</td>
+                </tr>
+              {% endfor %}
+              <tr class="total-payments">
+                <td class="label" colspan="2">{% trans "Total payments" %}</td>
+                <td class="amount">{{ registration.paid | moneyformat }}</td>
+                <td class="subtract">-</td>
+              </tr>
+
+              <tr class="amount-due">
+                {% if registration.payment_status.REFUNDABLE %}
+                  <td class="label">{% trans 'Amount refundable' %}</td>
+                  <td class="amount">{{ registration.amount_due | abs | moneyformat }}</td>
+                {% else %}
+                  <td class="label" colspan="2">{% trans 'Amount due' %}</td>
+                  <td class="amount">{{ registration.amount_due | moneyformat }}</td>
+                {% endif %}
+                <td class="subtract"></td>
+              </tr>
+            {% endif %}
+          </table>
+        </div>
+      {% endif %}
+
+
+      <div class="col">
+        {% if registration.payment_status.NOT_DUE %}
+          <p>
+          {% blocktrans with event=registration.event %}
+          Your registration for {{event}} is pending. No payment is required until you are actually admitted.
+          {% endblocktrans %}
+          </p>
+        {% elif registration.payment_status.FREE %}
+          <p>
+          {% blocktrans with event=registration.event %}
+          Your registration for {{event}} is free of charge, no payment is required.
+          {% endblocktrans %}
+          </p>
+        {% elif registration.payment_status.PAID %}
+          <p>
+          {# Note: This includes cancelled registrations that were partially refunded. #}
+          {% blocktrans with event=registration.event %}
+          Your registration for {{event}} is completely paid.
+          {% endblocktrans %}
+          </p>
+        {% elif registration.payment_status.REFUNDABLE %}
+          <p>
+          {# Note: This includes cancelled registrations that still need to be refunded. #}
+          {% blocktrans with event=registration.event email='penningmeester@evolution-events.nl'|urlize %}
+          Your registration for {{event}} is eligable for a (partial) refund. You can contact {{email}} to request the refund.
+          {% endblocktrans %}
+          </p>
+        {% elif registration.payment_status.REFUNDED %}
+          <p>
+          {# Note: This is mostly (but not limited to) cancelled registrations that were fully refunded. #}
+          {% blocktrans with event=registration.event %}
+          Your payment for {{event}} was completely refunded.
+          {% endblocktrans %}
+          </p>
+        {% elif registration.payment_status.OPEN %}
+          <p>
+          {# Note: This includes cancelled registrations that still need to be refunded. #}
+          {% blocktrans with event=registration.event %}
+          Your registration for {{event}} is unpaid and needs payment to finalize it.
+          {% endblocktrans %}
+          </p>
+        {% elif registration.payment_status.PARTIAL %}
+          <p>
+          {# Note: This includes cancelled registrations that still need to be refunded. #}
+          {% blocktrans with event=registration.event %}
+          Your registration for {{event}} is only partially paid. An additional payment is needed to finalize it.
+          {% endblocktrans %}
+          </p>
+        {% endif %}
+
+        {% if registration.payment_status.PAYABLE %}
+          <p>
+          {% blocktrans with email='penningmeester@evolution-events.nl'|urlize %}
+          All payments are handled through our payment provider, Mollie.
+          If you need a different payment method, want to propose a
+          payment arrangement or have other questions about your
+          payment, please contact {{email}}.
+          {% endblocktrans %}
+          </p>
+          <h3>{% trans "Select payment method" %}</h3>
+          <ul class="list-group">
+            <li class="list-group-item">
+                <input type="radio" name="method" value="ideal" id="method_ideal">
+                <label for="method_ideal">{% trans "iDeal online payment" %}</label>
+                <p>Ideal can be used with most Dutch bank accounts to directly
+                pay using your own bank's online banking environment. You will
+                be redirected via our payment provider Mollie to the website
+                of your own bank to handle they payment.</p>
+            </li>
+            <li class="list-group-item">
+                <input type="radio" name="method" value="banktransfer" id="method_banktransfer">
+                <label for="method_banktransfer">{% trans "Bank transfer" %}</label>
+                <p>
+                Bank transfer can be used with most European bank accounts.
+                You will be redirected to our payment provider Mollie and
+                receive payment details from them. You will then transfer the
+                amount to a Mollie account in one of several countries, which will
+                then forward the payment to us.
+                </p>
+            </li>
+          </ul>
+          &nbsp;
+          <p class="text-right">
+            <button class="btn btn-success" type="submit">
+              {% blocktrans with amount=registration.amount_due|moneyformat %}
+              Pay {{amount}} now
+              {% endblocktrans %}
+            </button>
+          </p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endblock form %}
+
+{# Hide steps until we figure out how to nicely integrate in that procedure #}
+{% block steps %}
+{% endblock steps %}
+
+{% block buttons %}
+{% endblock buttons %}

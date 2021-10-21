@@ -2,7 +2,7 @@
 {% load coretags %}
 
 {# This snippet draws 1 event that user is registered for with status of registration (waitinglist/registered) #}
-{% with reg=e.registration_qs.with_price.get %}
+{% with reg=e.registration_qs.with_payment_status.get %}
 
   <li>
   <div class="future-event registered-event event-block" id="event-block-{{e.id}}">
@@ -16,7 +16,17 @@
           {% trans "Registration number" %}: {{reg.pk }}<br/>
           {% trans "Status" %}: {{ reg.status.label }}<br/>
           {% if reg.price is not None %}
-            {% trans "Price" %}: {{ reg.price | moneyformat }}<br/>
+            {% trans "Price" %}: {{ reg.price | moneyformat }}
+            {% if reg.payment_status.OPEN %}
+              (<a href="{% url 'registrations:payment_status' e.pk %}">{% trans "Pay now" %}</a>)
+            {% elif reg.payment_status.PARTIAL %}
+              (<a href="{% url 'registrations:payment_status' e.pk %}">{% trans "Pay remainder" %}</a>)
+            {% elif reg.payment_status.PAID %}
+              (<a href="{% url 'registrations:payment_status' e.pk %}">{% trans "Paid" %}</a>)
+            {% else %}
+              (<a href="{% url 'registrations:payment_status' e.pk %}">{% trans "Details" %}</a>)
+            {% endif %}
+            <br/>
           {% endif %}
         </div>
         <div class="event-bottom-right mt-auto">

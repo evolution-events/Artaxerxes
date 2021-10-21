@@ -2,6 +2,7 @@ from django.db.utils import IntegrityError
 from django.test import TestCase, skipUnlessDBFeature
 
 from apps.events.tests.factories import EventFactory
+from apps.payments.tests.factories import PaymentFactory
 
 from ..models import Registration
 from ..services import RegistrationStatusService
@@ -70,6 +71,34 @@ class TestPriceAnnotation(TestCase):
     def test_negative_priced_option(self):
         """ Test that negative priced options are subtracted """
         self.price_helper(90, [self.player, self.discount_yes])
+
+
+class TestPriceAndPaidAnnotation(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.event = EventFactory()
+
+        cls.field1 = RegistrationFieldFactory(event=cls.event, name="field1")
+        cls.opt1a = RegistrationFieldOptionFactory(field=cls.field1, title="opt2a", price=100)
+        cls.field2 = RegistrationFieldFactory(event=cls.event, name="field2")
+        cls.opt2a = RegistrationFieldOptionFactory(field=cls.field2, title="opt2a", price=50)
+
+    def test_price_and_payments(self):
+        """
+        Test that the price and paid amounts are correct when combined.
+
+        This test in particular tries to verify https://code.djangoproject.com/ticket/10060 does not happen.
+        """
+        options = [self.opt1a, self.opt2a]
+        reg = RegistrationFactory(event=self.event, options=options)
+        payments = [
+            PaymentFactory(registration=reg, amount=150, completed=True),
+            PaymentFactory(registration=reg, amount=250, completed=True),
+        ]
+
+        reg = Registration.objects.with_price().with_paid().get(pk=reg.pk)
+        self.assertEqual(reg.price, sum(o.price for o in options))
+        self.assertEqual(reg.paid, sum(p.amount for p in payments))
 
 
 class TestIsCurrentAnnotation(TestCase):

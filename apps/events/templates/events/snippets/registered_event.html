@@ -2,65 +2,67 @@
 {% load coretags %}
 
 {# This snippet draws 1 event that user is registered for with status of registration (waitinglist/registered) #}
+{% with reg=e.registration_qs.with_price.get %}
 
-<li>
-<div class="future-event registered-event event-block" id="event-block-{{e.id}}">
-  <div class="event-summary row justify-content-between">
-    <div class="col-9 d-flex align-items-start flex-column">
-      {% include 'events/snippets/event_summary.html' with e=e %}
-    </div>
-    <div class="col-3 d-flex align-items-end flex-column">
-      {# TODO: betaalstatus weergeven in kleur en tekst #}
-      <div class="event-top-right registration-info registration-state-payed">
-        {% trans "Registration number" %}: {{e.registration.pk }}<br/>
-        {% trans "Status" %}: {{ e.registration.status.label }}<br/>
-        {% if e.registration.price is not None %}
-        {% trans "Price" %}: {{ e.registration.price | moneyformat }}<br/>
-        {% endif %}
+  <li>
+  <div class="future-event registered-event event-block" id="event-block-{{e.id}}">
+    <div class="event-summary row justify-content-between">
+      <div class="col-9 d-flex align-items-start flex-column">
+        {% include 'events/snippets/event_summary.html' with e=e %}
       </div>
-      <div class="event-bottom-right mt-auto">
-        <a class="details-link collapsed" data-toggle="collapse" data-target="#collapse-event-registration-{{e.id}}" href="#">{% trans "Registration details" %}</a>
+      <div class="col-3 d-flex align-items-end flex-column">
+        {# TODO: betaalstatus weergeven in kleur en tekst #}
+        <div class="event-top-right registration-info registration-state-payed">
+          {% trans "Registration number" %}: {{reg.pk }}<br/>
+          {% trans "Status" %}: {{ reg.status.label }}<br/>
+          {% if reg.price is not None %}
+            {% trans "Price" %}: {{ reg.price | moneyformat }}<br/>
+          {% endif %}
+        </div>
+        <div class="event-bottom-right mt-auto">
+          <a class="details-link collapsed" data-toggle="collapse" data-target="#collapse-event-registration-{{e.id}}" href="#">{% trans "Registration details" %}</a>
+        </div>
       </div>
     </div>
+    <div class="more-info more-info-collapsed collapse" id="collapse-event-{{e.id}}"  data-parent="#event-block-{{e.id}}">
+      {% include 'events/snippets/event_detail.html' with e=e %}
+
+      <h3>{% trans "Cancel?" %}</h3>
+      <p>
+        {% url 'core:house_rules' as house_rules %}
+        {% blocktrans trimmed with event.url as event_url %}
+        If you want or have to cancel your registration, please contact us via e-mail (see above)
+        and make sure you have read <a href="{{house_rules}}">the house rules</a> and
+        <a href="{{event_url}}">event website</a> concerning cancellation because a fee may be
+        due, depending on the time left till the event.
+        {% endblocktrans %}
+      </p>
+
+    </div>
+    <div class="more-info more-info-collapsed collapse" id="collapse-event-registration-{{e.id}}" data-parent="#event-block-{{e.id}}">
+
+      <h3>{% trans 'Date of registration' %}</h3>
+      <p>
+        {% blocktrans with regdate=reg.registered_at|date:"D d M Y" regnr=reg.pk %}
+        Registered on {{regdate}} with registration number {{regnr}}.
+        {% endblocktrans %}
+      </p>
+
+      <h3>{% trans 'Status of registration' %}</h3>
+      <p>{{ reg.status.label }}
+      {% if reg.status.WAITINGLIST %}
+        {% blocktrans with reg.waitinglist_above as above %}
+        - there are {{above}} registrations above you on the waiting list.
+        {% endblocktrans %}
+      {% endif %}
+      </p>
+
+      <h3>{% trans 'Options chosen for registration' %}</h3>
+      {% include 'registrations/snippets/registration_options.html' with registration=reg %}
+
+      {# TODO betaalstatus nadat we het bijhouden daar van hebben geimplementeerd #}
+
+    </div>
   </div>
-  <div class="more-info more-info-collapsed collapse" id="collapse-event-{{e.id}}"  data-parent="#event-block-{{e.id}}">
-    {% include 'events/snippets/event_detail.html' with e=e %}
-
-    <h3>{% trans "Cancel?" %}</h3>
-    <p>
-      {% url 'core:house_rules' as house_rules %}
-      {% blocktrans trimmed with event.url as event_url %}
-      If you want or have to cancel your registration, please contact us via e-mail (see above)
-      and make sure you have read <a href="{{house_rules}}">the house rules</a> and
-      <a href="{{event_url}}">event website</a> concerning cancellation because a fee may be
-      due, depending on the time left till the event.
-      {% endblocktrans %}
-    </p>
-
-  </div>
-  <div class="more-info more-info-collapsed collapse" id="collapse-event-registration-{{e.id}}" data-parent="#event-block-{{e.id}}">
-
-    <h3>{% trans 'Date of registration' %}</h3>
-    <p>
-      {% blocktrans with regdate=e.registration.registered_at|date:"D d M Y" regnr=e.registration.pk %}
-      Registered on {{regdate}} with registration number {{regnr}}.
-      {% endblocktrans %}
-    </p>
-
-    <h3>{% trans 'Status of registration' %}</h3>
-    <p>{{ e.registration.status.label }}
-    {% if e.registration.status.WAITINGLIST %}
-      {% blocktrans with e.registration.waitinglist_above as above %}
-      - there are {{above}} registrations above you on the waiting list.
-      {% endblocktrans %}
-    {% endif %}
-    </p>
-
-    <h3>{% trans 'Options chosen for registration' %}</h3>
-    {% include 'registrations/snippets/registration_options.html' with registration=e.registration %}
-
-    {# TODO betaalstatus nadat we het bijhouden daar van hebben geimplementeerd #}
-
-  </div>
-</div>
-</li>
+  </li>
+{% endwith %}

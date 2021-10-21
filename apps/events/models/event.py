@@ -203,9 +203,11 @@ class Event(models.Model):
         # TODO: It would be better if the registration instance was annotated directly (and would also support
         # select_related or prefetch_related), but it seems Django does not
         # currently support this currently. See https://code.djangoproject.com/ticket/27414#comment:3
-        if self.registration_id is None:
-            return None
-        return Registration.objects.with_price().get(pk=self.registration_id)
+        return self.registration_qs.first()
+
+    @cached_property
+    def registration_qs(self):
+        return Registration.objects.filter(pk=self.registration_id)
 
     def display_name(self):
         if not self.title:

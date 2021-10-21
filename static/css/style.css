@@ -50,7 +50,7 @@ textarea.form-control {
     height: 8em;
 }
 
-.table, .btn {
+.table, .btn-default {
     color:var(--default);
 }
 

@@ -82,7 +82,7 @@ class PaymentService:
         registration = payment.registration
 
         # TODO: If this is a partial or additional payment, modify message?
-        message = _("{event} / {name} / {num}").format(
+        message = _("{num} / {event} / {name}").format(
             num=registration.id, event=registration.event.name, name=registration.user.full_name)
 
         mp = mollie_client.payments.create({

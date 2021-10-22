@@ -238,6 +238,8 @@ STATIC_URL = '/static/'
 # the URL for media files
 MEDIA_URL = '/media/'
 
+# Add checksums to static file urls, to ensure browser caches are never stale
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
 
 # ##### DEBUG CONFIGURATION ###############################
 DEBUG = False

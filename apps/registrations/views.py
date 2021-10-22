@@ -484,7 +484,7 @@ class ConflictingRegistrations(LoginRequiredMixin, DetailView):
         return super().render_to_response(context)
 
 
-class PaymentStatus(DetailView):
+class PaymentStatus(LoginRequiredMixin, DetailView):
     """ Show the payment status of a given event. """
 
     template_name = 'registrations/payment_status.html'
@@ -536,7 +536,7 @@ class PaymentStatus(DetailView):
         return redirect(url)
 
 
-class PaymentDone(SingleObjectMixin, TemplateView):
+class PaymentDone(LoginRequiredMixin, SingleObjectMixin, TemplateView):
     template_name = 'registrations/payment_done.html'
     model = Payment
     context_object_name = 'payment'

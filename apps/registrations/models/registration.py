@@ -109,7 +109,7 @@ class Registration(models.Model):
     )
 
     payment_statuses = Constants(
-        Constant(NOT_DUE='not_due', label=_('No payment required (yet)')),
+        Constant(NOT_DUE='not_due', label=_('No payment required yet')),
         Constant(FREE='free', label=_('Free')),
         Constant(OPEN='open', label=_('Payment due')),
         Constant(PARTIAL='partial', label=_('Partially paid')),

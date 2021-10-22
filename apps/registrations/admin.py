@@ -1,4 +1,6 @@
-from django.contrib import admin
+import reversion
+from django.contrib import admin, messages
+from django.db import transaction
 from django.db.models.functions import Concat
 from django.http import HttpResponse
 from django.utils import timezone
@@ -74,6 +76,31 @@ class CustomRelatedFieldListFilter(admin.filters.RelatedFieldListFilter):
         self.empty_value_display = _('None')
 
 
+# TODO: This should probably use a intermediate view to ask the target status, do additional limitation on acceptable
+# status changes and do additional actions, such as updating the "full" statuses (and probably delegate the status
+# changes to a service).
+def change_status_action(old, new):
+    """ Helper to generate status change actions """
+    def action(modeladmin, request, queryset):
+        with transaction.atomic():
+            if queryset.exclude(status=old).exists():
+                modeladmin.message_user(
+                    request,
+                    'Not all selected registrations in {} state'.format(old.id),
+                    messages.ERROR,
+                )
+            else:
+                with reversion.create_revision():
+                    reversion.set_user(request.user)
+                    reversion.set_comment(_("Updated registration status to {} via admin.".format(new.id)))
+                    for reg in queryset:
+                        reg.status = new
+                        reg.save()
+    action.short_description = 'Change {} registration to {}'.format(old.id, new.id)
+    action.__name__ = '{}_to_{}'.format(old.id, new.id)
+    return action
+
+
 @admin.register(Registration)
 class RegistrationAdmin(HijackRelatedAdminMixin, VersionAdmin):
     list_display = (
@@ -87,7 +114,13 @@ class RegistrationAdmin(HijackRelatedAdminMixin, VersionAdmin):
     list_select_related = ['user', 'event__series']
     list_filter = ['status', 'event', ('user__groups', CustomRelatedFieldListFilter)]
     inlines = [PaymentInline, RegistrationFieldValueInline]
-    actions = ['make_mailing_list']
+
+    actions = [
+        'make_mailing_list',
+        change_status_action(Registration.statuses.PENDING, Registration.statuses.REGISTERED),
+        change_status_action(Registration.statuses.PENDING, Registration.statuses.CANCELLED),
+        change_status_action(Registration.statuses.PENDING, Registration.statuses.WAITINGLIST),
+    ]
 
     def get_queryset(self, *args, **kwargs):
         return super().get_queryset(*args, **kwargs).prefetch_options()

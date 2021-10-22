@@ -104,7 +104,8 @@ def change_status_action(old, new):
 @admin.register(Registration)
 class RegistrationAdmin(HijackRelatedAdminMixin, VersionAdmin):
     list_display = (
-        'event_display_name', 'user_name', 'status', 'registered_at_milliseconds', 'selected_options', 'hijack_field',
+        'event_display_name', 'user_name', 'status', 'registered_at_milliseconds', 'selected_options', 'price',
+        'payment_status', 'hijack_field',
     )
     # add a search field to quickly search by name and title
     search_fields = [
@@ -123,7 +124,7 @@ class RegistrationAdmin(HijackRelatedAdminMixin, VersionAdmin):
     ]
 
     def get_queryset(self, *args, **kwargs):
-        return super().get_queryset(*args, **kwargs).prefetch_options()
+        return super().get_queryset(*args, **kwargs).prefetch_options().with_payment_status()
 
     def registered_at_milliseconds(self, obj):
         tz = timezone.get_current_timezone()
@@ -150,6 +151,14 @@ class RegistrationAdmin(HijackRelatedAdminMixin, VersionAdmin):
     # TODO: This hardcodes info about how user.full_name works, but Django cannot seem to derive this
     # automatically by referencing to the computed field here
     user_name.admin_order_field = Concat('user__first_name', 'user__last_name')
+
+    # The startup check tool does no consider annotations, only fields, properties and admin methods so make it happy
+    def price(self, obj):
+        return obj.price
+
+    # The startup check tool does no consider annotations, only fields, properties and admin methods so make it happy
+    def payment_status(self, obj):
+        return obj.payment_status.label
 
     def selected_options(self, obj):
         return format_html_join(mark_safe("<br>"), "{}={}", ((value.field, value) for value in obj.options.all()))

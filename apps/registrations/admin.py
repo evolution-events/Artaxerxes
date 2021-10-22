@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from django.utils import timezone
 from django.utils.html import format_html_join
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy
+from django.utils.translation import ugettext_lazy as _
 from hijack_admin.admin import HijackRelatedAdminMixin
 from reversion.admin import VersionAdmin
 
@@ -71,7 +71,7 @@ class CustomRelatedFieldListFilter(admin.filters.RelatedFieldListFilter):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.empty_value_display = ugettext_lazy('None')
+        self.empty_value_display = _('None')
 
 
 @admin.register(Registration)
@@ -101,26 +101,26 @@ class RegistrationAdmin(HijackRelatedAdminMixin, VersionAdmin):
         else:
             return ''
 
-    registered_at_milliseconds.short_description = ugettext_lazy("Registered at")
+    registered_at_milliseconds.short_description = _("Registered at")
     registered_at_milliseconds.admin_order_field = 'registered_at'
 
     def event_display_name(self, obj):
         return obj.event.display_name()
-    event_display_name.short_description = ugettext_lazy("Event")
+    event_display_name.short_description = _("Event")
     # TODO: This hardcodes info about how event.display_name works, but Django cannot seem to derive this
     # automatically by referencing to the computed field here
     event_display_name.admin_order_field = Concat('event__name', 'event__title')
 
     def user_name(self, obj):
         return obj.user.full_name
-    user_name.short_description = ugettext_lazy("User")
+    user_name.short_description = _("User")
     # TODO: This hardcodes info about how user.full_name works, but Django cannot seem to derive this
     # automatically by referencing to the computed field here
     user_name.admin_order_field = Concat('user__first_name', 'user__last_name')
 
     def selected_options(self, obj):
         return format_html_join(mark_safe("<br>"), "{}={}", ((value.field, value) for value in obj.options.all()))
-    selected_options.short_description = ugettext_lazy("Selected Options")
+    selected_options.short_description = _("Selected Options")
     selected_options.allow_tags = True
 
     def make_mailing_list(self, request, queryset):

@@ -1,16 +1,22 @@
 import reversion
 from django.conf import settings
 from django.db import models
-from django.db.models import Case, ExpressionWrapper, Prefetch, Q, Value, When
+from django.db.models import ExpressionWrapper, F, Prefetch, Q, Value, When
+from django.db.models.functions import Coalesce
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from konst import Constant, ConstantGroup, Constants
-from konst.models.fields import ConstantChoiceField
+from konst.models.fields import ConstantChoiceCharField, ConstantChoiceField
 from sql_util.utils import SubquerySum
 
 from apps.core.fields import MonetaryField
 from apps.payments.models import Payment
 from arta.common.db import QExpr, UpdatedAtQuerySetMixin
+
+
+# Workaround for https://code.djangoproject.com/ticket/33257
+class Case(models.expressions.SQLiteNumericMixin, models.Case):
+    pass
 
 
 class RegistrationQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
@@ -39,8 +45,45 @@ class RegistrationQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
         )
 
     def with_payment_status(self):
-        """ Ensure payment_status and amount_due properties are usable by calling with_price() and with_paid(). """
-        return self.with_price().with_paid()
+        """ Add a payment_status and amount_due annotation. Also calls with_price() and with_paid(). """
+        s = Registration.payment_statuses
+
+        return self.with_price().with_paid().annotate(
+            amount_due=Case(
+                When(
+                    price=None,
+                    then=None,
+                ),
+                When(
+                    status__in=[Registration.statuses.REGISTERED, Registration.statuses.CANCELLED],
+                    then=F('price') - Coalesce(F('paid'), 0),
+                ),
+                default=Value(None),
+            ),
+        ).annotate(
+            payment_status=ExpressionWrapper(
+                Case(
+                    # paid=0 means *some* payments were made but they net to 0 (when no payments are made at all, paid
+                    # will be None)
+                    When(price=0, paid=0, then=Value(s.REFUNDED.v)),
+                    When(price=None, paid=0, then=Value(s.REFUNDED.v)),
+                    # Both a zero price, or a None price is considered FREE
+                    When(price=0, paid=None, then=Value(s.FREE.v)),
+                    When(price=None, paid=None, then=Value(s.FREE.v)),
+                    # No due price means not due (yet)
+                    When(amount_due=None, then=Value(s.NOT_DUE.v)),
+                    # No payments at all is open
+                    When(paid=None, then=Value(s.OPEN.v)),
+                    # Some payments exist, but not enough
+                    When(amount_due__gt=0, then=Value(s.PARTIAL.v)),
+                    # Some payments exist and exactly enough
+                    When(amount_due=0, then=Value(s.PAID.v)),
+                    # Some payments exist but too much
+                    When(amount_due__lt=0, then=Value(s.REFUNDABLE.v)),
+                    default=None,
+                ), output_field=ConstantChoiceCharField(constants=Registration.payment_statuses),
+            ),
+        )
 
     def with_has_conflicting_registrations(self):
         """ Annotates with whether any conflicting registrations exists. """
@@ -155,46 +198,6 @@ class Registration(models.Model):
         efficient when prefetch_options() was called on the queryset.
         """
         return {value.field.name: value for value in self.options.all()}
-
-    @cached_property
-    def amount_due(self):
-        """ The amount that is (still) due. Returns None when no priced options, or status implies nothing due.  """
-        if self.price is None:
-            return None
-        if self.status.REGISTERED or self.status.CANCELLED:
-            return self.price - (self.paid or 0)
-        return None
-
-    @cached_property
-    def payment_status(self):
-        """ The payment status of this registration. """
-        # This could have been done in an annotation, but that produced a very complex query, with duplicate subqueries
-        # for e.g. price and paid, and seemed to suffer from floating point rounding issues, so this ended up in Python
-        # instead.
-        s = self.payment_statuses
-        # paid=0 means *some* payments were made but they net to 0 (when no payments are made at all, paid
-        # will be None)
-        if not self.price and self.paid == 0:
-            return s.REFUNDED
-        # Both a zero price, or a None price is considered FREE
-        if not self.price and not self.paid:
-            return s.FREE
-        # No due price means not due (yet)
-        if self.amount_due is None:
-            return s.NOT_DUE
-        # No payments at all is open
-        if self.paid is None:
-            return s.OPEN
-        # Some payments exist, but not enough
-        if self.amount_due > 0:
-            return s.PARTIAL
-        # Some payments exist and exactly enough
-        if self.amount_due == 0:
-            return s.PAID
-        # Some payments exist but too much
-        if self.amount_due < 0:
-            return s.REFUNDABLE
-        raise ValueError("Impossible payment status?")
 
     def __str__(self):
         return _('%(user)s - %(event)s - %(status)s') % {

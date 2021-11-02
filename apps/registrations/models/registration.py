@@ -1,7 +1,7 @@
 import reversion
 from django.conf import settings
 from django.db import models
-from django.db.models import ExpressionWrapper, Prefetch, Q, Value
+from django.db.models import Case, ExpressionWrapper, Prefetch, Q, Value, When
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from konst import Constant, ConstantGroup, Constants
@@ -16,7 +16,10 @@ from arta.common.db import QExpr, UpdatedAtQuerySetMixin
 class RegistrationQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
     def with_price(self):
         return self.annotate(
-            price=SubquerySum('options__option__price', output_field=MonetaryField()),
+            price=Case(
+                When(status=Registration.statuses.CANCELLED, then=0),
+                default=SubquerySum('options__option__price', output_field=MonetaryField()),
+            ),
         )
 
     def with_paid(self):
@@ -174,7 +177,7 @@ class Registration(models.Model):
         if not self.price and self.paid == 0:
             return s.REFUNDED
         # Both a zero price, or a None price is considered FREE
-        if not self.price:
+        if not self.price and not self.paid:
             return s.FREE
         # No due price means not due (yet)
         if self.amount_due is None:

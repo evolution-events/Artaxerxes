@@ -1,7 +1,11 @@
+import itertools
+
 from django.db.utils import IntegrityError
 from django.test import TestCase, skipUnlessDBFeature
+from parameterized import parameterized
 
 from apps.events.tests.factories import EventFactory
+from apps.payments.models import Payment
 from apps.payments.tests.factories import PaymentFactory
 
 from ..models import Registration
@@ -33,7 +37,7 @@ class TestConstraints(TestCase):
         RegistrationFactory(registered=True, user=reg.user, event=reg.event)
 
 
-class TestPriceAnnotation(TestCase):
+class TestPaymentAnnotations(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.event = EventFactory()
@@ -51,54 +55,239 @@ class TestPriceAnnotation(TestCase):
         cls.discount_yes = RegistrationFieldOptionFactory(field=cls.discount, title="Yes", price=-10)
         cls.discount_no = RegistrationFieldOptionFactory(field=cls.discount, title="No")
 
-    def price_helper(self, price, options):
-        reg = RegistrationFactory(event=self.event, options=options)
-        reg = Registration.objects.with_price().get(pk=reg.pk)
+        cls.s = Registration.statuses
+        cls.ps = Registration.payment_statuses
+
+    def check_helper(self, options, price, amount_due, payments=None, paid=None,
+                     payment_status=Registration.payment_statuses.OPEN, status=Registration.statuses.REGISTERED):
+        """ Create a registration, payments and check the resulting annotations. """
+        reg = RegistrationFactory(event=self.event, options=options, status=status)
+
+        def create(info):
+            if isinstance(info, tuple):
+                (amount, status) = info
+            else:
+                amount = info
+                status = Payment.statuses.COMPLETED
+
+            return PaymentFactory(registration=reg, amount=amount, status=status)
+
+        if payments:
+            [create(p) for p in payments]
+
+        reg = Registration.objects.with_payment_status().get(pk=reg.pk)
         self.assertEqual(reg.price, price)
+        self.assertEqual(reg.paid, paid)
+        self.assertEqual(reg.amount_due, amount_due)
+        self.assertEqual(reg.payment_status, payment_status)
 
     def test_no_priced_options(self):
-        """ Test that no priced options produces None """
-        self.price_helper(None, [self.free])
+        """ Test that no priced options produces None price """
+        self.check_helper(
+            options=[self.free],
+            price=None,
+            amount_due=None,
+            payment_status=self.ps.FREE,
+        )
 
     def test_single_priced_option(self):
         """ Test a registration with a single priced option """
-        self.price_helper(50, [self.crew])
+        self.check_helper(
+            options=[self.crew],
+            price=50,
+            amount_due=50,
+        )
 
     def test_sum_priced_options(self):
         """ Test that multiple priced options are summed """
-        self.price_helper(175, [self.player, self.donation_yes])
+        self.check_helper(
+            options=[self.player, self.donation_yes],
+            price=175,
+            amount_due=175,
+        )
 
     def test_negative_priced_option(self):
         """ Test that negative priced options are subtracted """
-        self.price_helper(90, [self.player, self.discount_yes])
+        self.check_helper(
+            options=[self.player, self.discount_yes],
+            price=90,
+            amount_due=90,
+        )
 
+    @parameterized.expand(itertools.product([
+        Registration.statuses.PREPARATION_IN_PROGRESS,
+        Registration.statuses.PREPARATION_COMPLETE,
+        Registration.statuses.WAITINGLIST,
+        Registration.statuses.PENDING,
+    ]))
+    def test_non_admitted(self, status):
+        """ Test that non-admitted registrations are not due. """
+        self.check_helper([self.player], price=100, status=status, amount_due=None, payment_status=self.ps.NOT_DUE)
 
-class TestPriceAndPaidAnnotation(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        cls.event = EventFactory()
+    @parameterized.expand(itertools.product([
+        Registration.statuses.PREPARATION_IN_PROGRESS,
+        Registration.statuses.PREPARATION_COMPLETE,
+        Registration.statuses.WAITINGLIST,
+        Registration.statuses.PENDING,
+    ]))
+    def test_free_non_admitted(self, status):
+        """ Test that free non-admitted registrations are free. """
+        self.check_helper([self.free], price=None, status=status, amount_due=None, payment_status=self.ps.FREE)
 
-        cls.field1 = RegistrationFieldFactory(event=cls.event, name="field1")
-        cls.opt1a = RegistrationFieldOptionFactory(field=cls.field1, title="opt2a", price=100)
-        cls.field2 = RegistrationFieldFactory(event=cls.event, name="field2")
-        cls.opt2a = RegistrationFieldOptionFactory(field=cls.field2, title="opt2a", price=50)
+    def test_paid(self):
+        """ Test that registrations with full payments are paid. """
+        self.check_helper(
+            options=[self.player],
+            payments=[100],
+            price=100,
+            paid=100,
+            amount_due=0,
+            payment_status=self.ps.PAID,
+        )
 
-    def test_price_and_payments(self):
+    def test_paid_multiple(self):
+        """ Test that registrations with multiple pricing and payments. """
+        self.check_helper(
+            options=[self.player, self.donation_yes],
+            payments=[100, 75],
+            price=175,
+            paid=175,
+            amount_due=0,
+            payment_status=self.ps.PAID,
+        )
+
+    def test_free_refunded(self):
+        """ Test that free registrations with refunds are REFUNDED. """
+        # These can occur when a payment has been made, then all paid options are removed/changed and then it is
+        # refunded.
+        self.check_helper(
+            options=[self.free],
+            payments=[100, -100],
+            price=None,
+            paid=0,
+            amount_due=None,
+            payment_status=self.ps.REFUNDED,
+        )
+
+    def test_cancelled(self):
+        """ Test that cancelled registrations have a zero price. """
+        self.check_helper(
+            options=[self.player],
+            status=self.s.CANCELLED,
+            price=0,
+            amount_due=0,
+            payment_status=self.ps.FREE,
+        )
+
+    def test_cancelled_free(self):
+        """ Test that cancelled registrations without paid options are FREE. """
+        self.check_helper(
+            options=[self.free],
+            status=self.s.CANCELLED,
+            price=0,
+            amount_due=0,
+            payment_status=self.ps.FREE,
+        )
+
+    def test_free_cancelled_refunded(self):
+        """ Test that free cancelled registrations with refunds are REFUNDED. """
+        # These can occur when a payment has been made, then all paid options are removed and then it is cancelled and
+        # refunded.
+        self.check_helper(
+            options=[self.free],
+            status=self.s.CANCELLED,
+            payments=[100, -100],
+            paid=0,
+            price=0,
+            amount_due=0,
+            payment_status=self.ps.REFUNDED,
+        )
+
+    def test_cancelled_with_payments(self):
+        """ Test that cancelled registrations with full payments are refundable. """
+        self.check_helper(
+            options=[self.player],
+            payments=[100],
+            status=self.s.CANCELLED,
+            paid=100,
+            price=0,
+            amount_due=-100,
+            payment_status=self.ps.REFUNDABLE,
+        )
+
+    def test_cancelled_with_refunds(self):
+        """ Test that cancelled registrations with payment and refunds are refunded. """
+        self.check_helper(
+            options=[self.player],
+            payments=[100, -100],
+            status=self.s.CANCELLED,
+            price=0,
+            paid=0,
+            amount_due=0,
+            payment_status=self.ps.REFUNDED,
+        )
+
+    def test_cancelled_multiple(self):
+        """ Test that cancelled registrations with multiple prices, payments and refunds. """
+        self.check_helper(
+            options=[self.player, self.donation_yes],
+            payments=[100, 75, -50, -125],
+            status=self.s.CANCELLED,
+            price=0,
+            paid=0,
+            amount_due=0,
+            payment_status=self.ps.REFUNDED,
+        )
+
+    def test_cancelled_with_partial_refunds(self):
+        """ Test that cancelled registrations with partial refunds are refundable. """
+        self.check_helper(
+            options=[self.player],
+            payments=[100, -50],
+            status=self.s.CANCELLED,
+            price=0,
+            paid=50,
+            amount_due=-50,
+            payment_status=self.ps.REFUNDABLE,
+        )
+
+    def test_cancelled_over_refunded(self):
+        """ Test that cancelled registrations with too much refunds still need to be paid. """
+        self.check_helper(
+            options=[self.player],
+            payments=[100, -150],
+            status=self.s.CANCELLED,
+            price=0,
+            paid=-50,
+            amount_due=50,
+            payment_status=self.ps.PARTIAL,
+        )
+
+    def test_partial(self):
+        """ Test that partial payments are correctly registered. """
+        self.check_helper(
+            options=[self.player],
+            payments=[25],
+            payment_status=self.ps.PARTIAL,
+            paid=25,
+            price=100,
+            amount_due=75,
+        )
+
+    def test_multiple_price_and_payments(self):
         """
         Test that the price and paid amounts are correct when combined.
 
         This test in particular tries to verify https://code.djangoproject.com/ticket/10060 does not happen.
         """
-        options = [self.opt1a, self.opt2a]
-        reg = RegistrationFactory(event=self.event, options=options)
-        payments = [
-            PaymentFactory(registration=reg, amount=150, completed=True),
-            PaymentFactory(registration=reg, amount=250, completed=True),
-        ]
-
-        reg = Registration.objects.with_price().with_paid().get(pk=reg.pk)
-        self.assertEqual(reg.price, sum(o.price for o in options))
-        self.assertEqual(reg.paid, sum(p.amount for p in payments))
+        self.check_helper(
+            options=[self.player, self.donation_yes],
+            payments=[75, 25],
+            payment_status=self.ps.PARTIAL,
+            paid=100,
+            price=175,
+            amount_due=75,
+        )
 
 
 class TestIsCurrentAnnotation(TestCase):

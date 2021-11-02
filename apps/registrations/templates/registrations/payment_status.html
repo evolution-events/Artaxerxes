@@ -22,8 +22,15 @@
             {# TODO: Sum price and payment separately and then subtract totals #}
             {% for value in priced_options %}
               <tr class="priced-option">
-                <td>{{ value.field.title }}: {{ value.display_value }}</td>
-                <td class="amount">{{ value.price | moneyformat }}</td>
+                <td>
+                  {% if registration.status.CANCELLED %}<del>{% endif %}
+                    {{ value.field.title }}: {{ value.display_value }}</td>
+                  {% if registration.status.CANCELLED %}</del>{% endif %}
+                <td class="amount">
+                  {% if registration.status.CANCELLED %}<del>{% endif %}
+                    {{ value.price | moneyformat }}
+                  {% if registration.status.CANCELLED %}</del>{% endif %}
+                </td>
               </tr>
             {% endfor %}
             {% if priced_options.count > 1 or not registration.payment_status.NOT_DUE %}

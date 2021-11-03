@@ -61,7 +61,7 @@ class TestParallelUsers(TransactionTestCase):
         for user in self.users:
             RegistrationFactory(event=self.event, user=user, preparation_complete=True)
 
-    def run_threads(self, func, duration, min_rps=None):
+    def run_threads(self, func, duration=None, timeout=None, min_rps=None):
         """ Helper to run func in parallel for each user. """
         done = threading.Event()
         all_started = threading.Barrier(len(self.users) + 1)
@@ -90,11 +90,12 @@ class TestParallelUsers(TransactionTestCase):
         # their functions and starting the duration
         all_started.wait()
         # Make sure that all threads are signalled to stop after duration
-        threading.Timer(duration, lambda: done.set()).start()
+        threading.Timer(duration or timeout, lambda: done.set()).start()
         with Stopwatch() as stopwatch:
             for thread in threads:
                 thread.join()
-        self.assertFalse(done.is_set(), msg="Test time expired before all registrations were completed")
+        if timeout:
+            self.assertFalse(done.is_set(), msg="Test time expired before all registrations were completed")
         actual_duration = stopwatch.seconds()
 
         print()  # noqa: T001
@@ -178,7 +179,7 @@ class TestParallelUsers(TransactionTestCase):
 
                     break
 
-        self.run_threads(thread_func, duration=self.duration, min_rps=10)
+        self.run_threads(thread_func, timeout=self.duration, min_rps=10)
         from apps.events.models import Event
         Event.objects.for_user(self.users[0]).get()
 

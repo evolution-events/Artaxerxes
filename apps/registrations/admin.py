@@ -8,8 +8,10 @@ from django.utils.html import format_html_join
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from hijack_admin.admin import HijackRelatedAdminMixin
+from konst.models.fields import ConstantChoiceCharField
 from reversion.admin import VersionAdmin
 
+from apps.core.fields import MonetaryField
 from apps.events.models import Event
 from apps.payments.admin import PaymentInline
 from apps.people.models import ArtaUser
@@ -76,6 +78,36 @@ class CustomRelatedFieldListFilter(admin.filters.RelatedFieldListFilter):
         self.empty_value_display = _('None')
 
 
+def annotation_list_filter(field_name, field):
+    """
+    Generate a filter class that can be used to filter on to-be annotated values.
+
+    This wraps builtin Django filter classes to prevent code duplication, but only works with fields that have a
+    limited set of choices, since the AllValuesFieldListFilter that is used for other field types insists on looking up
+    the field on the model class...
+
+    This is a bit of a hack, if annotations could be defined on the model as "computed fields" (i.e.
+    https://code.djangoproject.com/ticket/28822), then this class would no longer be needed.
+    """
+    class AnnotationListFilter(admin.filters.ListFilter):
+        def __init__(self, *args, **kwargs):
+            self.filter = admin.filters.FieldListFilter.create(field, *args, **kwargs, field_path=field_name)
+            self.title = self.filter.title
+
+        def has_output(self):
+            return self.filter.has_output()
+
+        def choices(self, changelist):
+            return self.filter.choices(changelist)
+
+        def queryset(self, request, queryset):
+            return self.filter.queryset(request, queryset)
+
+        def expected_parameters(self):
+            return self.filter.expected_parameters()
+    return AnnotationListFilter
+
+
 # TODO: This should probably use a intermediate view to ask the target status, do additional limitation on acceptable
 # status changes and do additional actions, such as updating the "full" statuses (and probably delegate the status
 # changes to a service).
@@ -113,7 +145,14 @@ class RegistrationAdmin(HijackRelatedAdminMixin, VersionAdmin):
         'options__option__title',
     ]
     list_select_related = ['user', 'event__series']
-    list_filter = ['status', 'event', ('user__groups', CustomRelatedFieldListFilter)]
+    list_filter = [
+        'status', 'event', ('user__groups', CustomRelatedFieldListFilter),
+        annotation_list_filter('payment_status', ConstantChoiceCharField(
+            constants=Registration.payment_statuses,
+            verbose_name=_('Payment status'),
+        )),
+    ]
+
     inlines = [PaymentInline, RegistrationFieldValueInline]
 
     actions = [

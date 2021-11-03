@@ -51,12 +51,8 @@ class RegistrationQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
         return self.with_price().with_paid().annotate(
             amount_due=Case(
                 When(
-                    price=None,
-                    then=None,
-                ),
-                When(
                     status__in=[Registration.statuses.REGISTERED, Registration.statuses.CANCELLED],
-                    then=F('price') - Coalesce(F('paid'), 0),
+                    then=Coalesce(F('price'), 0) - Coalesce(F('paid'), 0),
                 ),
                 default=Value(None),
             ),

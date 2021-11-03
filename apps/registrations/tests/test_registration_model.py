@@ -86,7 +86,7 @@ class TestPaymentAnnotations(TestCase):
         self.check_helper(
             options=[self.free],
             price=None,
-            amount_due=None,
+            amount_due=0,
             payment_status=self.ps.FREE,
         )
 
@@ -165,7 +165,7 @@ class TestPaymentAnnotations(TestCase):
             payments=[100, -100],
             price=None,
             paid=0,
-            amount_due=None,
+            amount_due=0,
             payment_status=self.ps.REFUNDED,
         )
 

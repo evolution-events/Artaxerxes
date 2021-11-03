@@ -94,6 +94,7 @@ class TestParallelUsers(TransactionTestCase):
         with Stopwatch() as stopwatch:
             for thread in threads:
                 thread.join()
+        self.assertFalse(done.is_set(), msg="Test time expired before all registrations were completed")
         actual_duration = stopwatch.seconds()
 
         print()  # noqa: T001

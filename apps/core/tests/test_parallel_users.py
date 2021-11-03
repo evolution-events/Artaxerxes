@@ -153,7 +153,9 @@ class TestParallelUsers(TransactionTestCase):
     def test_registration(self):
         """ Test users refreshing the finalcheck until registration is open, then register. """
 
-        self.event.registration_opens_at = datetime.now(timezone.utc) + timedelta(seconds=self.duration / 2)
+        timeout=20
+        registration_start=5
+        self.event.registration_opens_at = datetime.now(timezone.utc) + timedelta(seconds=registration_start)
         self.event.save()
 
         def thread_func(client, user, index, done):
@@ -179,7 +181,7 @@ class TestParallelUsers(TransactionTestCase):
 
                     break
 
-        self.run_threads(thread_func, timeout=self.duration, min_rps=10)
+        self.run_threads(thread_func, timeout=timeout, min_rps=10)
         from apps.events.models import Event
         Event.objects.for_user(self.users[0]).get()
 

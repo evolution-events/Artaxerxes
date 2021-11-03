@@ -187,7 +187,7 @@ class TestPaymentService(MockMollieMixin, TestCase):
 
         (mollie_payment,) = self.mollie_payments.values()
         webhook_url = reverse('payments:webhook', args=(payment.pk,))
-        self.assertIn(str(payment.pk), mollie_payment.description)
+        self.assertIn(str(registration.pk), mollie_payment.description)
         self.assertIn(registration.event.name, mollie_payment.description)
         self.assertIn(registration.user.full_name, mollie_payment.description)
         self.assertEquals(mollie_payment.amount['value'], "10.00")

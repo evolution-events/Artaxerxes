@@ -122,6 +122,10 @@ class EventQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
         """ Returns the number of slots used (i.e. the number of REGISTERED registrations) for the given event. """
         return Registration.objects.filter(event=event, status=Registration.statuses.REGISTERED).count()
 
+    def for_organizer(self, user):
+        """ Filter that only returns events the given user is organizer of. """
+        return self.filter(organizer_group__user=user)
+
 
 class EventManager(models.Manager.from_queryset(EventQuerySet)):
     def get_by_natural_key(self, name):

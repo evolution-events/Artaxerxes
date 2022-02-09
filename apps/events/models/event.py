@@ -1,5 +1,6 @@
 import reversion
 from django.conf import settings
+from django.contrib.auth.models import Group
 from django.db import models
 from django.db.models import Case, Count, Exists, F, OuterRef, Q, When
 from django.db.models.functions import Concat
@@ -159,6 +160,9 @@ class Event(models.Model):
     location_info = models.TextField(
         verbose_name=('Location information'), blank=True,
         help_text=_('Address and additional information about the location'))
+    organizer_group = models.ForeignKey(
+        Group, null=True, blank=True, on_delete=models.SET_NULL, verbose_name=_('Organizer group'),
+        help_text=_('Group of users that can view all information about this event.'))
 
     registration_opens_at = models.DateTimeField(
         verbose_name=_('Registration opens at'), null=True, blank=True,

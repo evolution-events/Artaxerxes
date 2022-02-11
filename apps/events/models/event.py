@@ -164,6 +164,9 @@ class Event(models.Model):
     location_info = models.TextField(
         verbose_name=('Location information'), blank=True,
         help_text=_('Address and additional information about the location'))
+    signature_place = models.CharField(
+        max_length=100, verbose_name=_('Signature place'), blank=True,
+        help_text=_('Place to be prefilled in registration form for signature place.'))
     organizer_group = models.ForeignKey(
         Group, null=True, blank=True, on_delete=models.SET_NULL, verbose_name=_('Organizer group'),
         help_text=_('Group of users that can view all information about this event.'))

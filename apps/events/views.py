@@ -23,17 +23,18 @@ class RegisteredEventList(LoginRequiredMixin, ListView):
         )
 
     def get_context_data(self, **kwargs):
-        events = {'future': [], 'past': []}
+        future = []
+        past = []
         for e in self.object_list:
             if e.start_date > date.today():
-                events['future'].append(e)
+                future.append(e)
             else:
-                events['past'].append(e)
+                past.append(e)
 
-        events['future'].reverse()
+        future.reverse()
 
-        context = super().get_context_data(**kwargs)
-        context.update({
-            'events': events,
-        })
-        return context
+        kwargs['events'] = {
+            'past': past,
+            'future': future,
+        }
+        return super().get_context_data(**kwargs)

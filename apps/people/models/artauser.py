@@ -4,8 +4,10 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
 from django.db.models.functions import Concat
 from django.utils import timezone
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
+from apps.events.models import Event
 from arta.common.db import UpdatedAtQuerySetMixin
 
 
@@ -74,6 +76,10 @@ class ArtaUser(AbstractBaseUser, PermissionsMixin):
         return full_name
     full_name.admin_order_field = Concat('first_name', 'last_name')
     full_name = property(full_name)
+
+    @cached_property
+    def is_organizer(self):
+        return Event.objects.for_organizer(self).exists()
 
     def __str__(self):
         return self.full_name

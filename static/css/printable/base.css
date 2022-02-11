@@ -1,0 +1,51 @@
+@media print {
+  .print-link {
+    display: none;
+  }
+}
+
+@media screen {
+  html
+  {
+    /* Set size and some margin for HTML rendering */
+    width: 21cm;
+    margin: 0.5cm;
+  }
+}
+
+@page
+{
+  /* Set page size,  clear default big margin and add
+     margin with footer for PDF rendering
+   */
+  size: A4;
+  margin: 0.5cm;
+}
+
+body
+{
+  font-size:   12pt;
+  font-family: serif;
+  margin: 0;
+}
+
+h1
+{
+  font-family: sans-serif;
+  font-size:   15pt;
+  font-weight: bold;
+}
+
+h2
+{
+  font-family: sans-serif;
+  font-size:   12pt;
+  font-weight: normal;
+}
+
+h3
+{
+  font-family: sans-serif;
+  font-size:   10pt;
+  font-weight: bold;
+}

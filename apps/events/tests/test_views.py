@@ -216,3 +216,64 @@ class TestOrganizedEventsList(TestCase):
         """ Check that you are redirected when not logged in. """
 
         self.get(status_code=302)
+
+
+class EventRegistrationInfo(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.organizers = ArtaUserFactory.create_batch(2)
+        cls.other_organizers = ArtaUserFactory.create_batch(2)
+
+        cls.organizer_group = GroupFactory(users=cls.organizers)
+        cls.other_group = GroupFactory(users=cls.other_organizers)
+
+        # Add two events with organizers, one with other organizers and one without
+        cls.events_for_organizers = EventFactory.create_batch(2, organizer_group=cls.organizer_group)
+        cls.event_for_others = EventFactory(organizer_group=cls.other_group)
+        cls.other_event = EventFactory()
+
+    views = [
+        ('events:registration_forms', 'events/registration_forms.html', 'text/html'),
+        ('events:printable_registration_forms', 'events/registration_forms.html', 'application/pdf'),
+        ('events:kitchen_info', 'events/kitchen_info.html', 'text/html'),
+        ('events:printable_kitchen_info', 'events/kitchen_info.html', 'application/pdf'),
+        ('events:safety_reference', 'events/safety_info.html', 'text/html'),
+        ('events:printable_safety_reference', 'events/safety_info.html', 'application/pdf'),
+        ('events:safety_info', 'events/safety_info.html', 'text/html'),
+    ]
+
+    def get(self, view, template, content_type, event, status_code=200):
+        """ Helper to request a view. """
+        response = self.client.get(reverse(view, args=(event.pk,)))
+        self.assertEqual(response.status_code, status_code)
+        if status_code == 200:
+            self.assertTemplateUsed(response, template)
+            self.assertEqual(response.content_type, content_type)
+
+        return response
+
+    # TODO: Add actualy participants (with different variations of address/medical details set/unset) and test that all
+    # views return the expected registrations (and no others, especially not of other events).
+
+    @parameterized.expand(views)
+    def test_other_organizer(self, view, template, content_type):
+        """ Check that you get an error when you are only organizer for another event. """
+
+        self.client.force_login(self.other_organizers[0])
+        e = self.events_for_organizers[0]
+        self.get(view, template, content_type, e, status_code=404)
+
+    @parameterized.expand(views)
+    def test_no_organizer(self, view, template, content_type):
+        """ Check that you get an error when you are no organizer. """
+
+        e = self.events_for_organizers[0]
+        self.client.force_login(ArtaUserFactory())
+        self.get(view, template, content_type, e, status_code=404)
+
+    @parameterized.expand(views)
+    def test_not_logged_in(self, view, template, content_type):
+        """ Check that you are redirected when not logged in. """
+
+        e = self.events_for_organizers[0]
+        self.get(view, template, content_type, e, status_code=302)

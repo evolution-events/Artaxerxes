@@ -1,0 +1,179 @@
+{% load coretags %}
+{% load i18n %}
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>
+    {% blocktrans with event=event.name %}
+    Registration forms for {{ event }}
+    {% endblocktrans %}
+  </title>
+  <style>
+    @import url("{% static "css/printable/watermarked.css" %}");
+
+    .personal-details ul, .signature ul
+    {
+      padding-left: 0;
+    }
+
+    .personal-details li, .signature li
+    {
+      list-style-type: none;
+      margin-bottom: 0.15cm;
+    }
+
+    .page-header
+    {
+      border: solid black 1px;
+      font-family: sans-serif;
+      font-size: 20pt;
+      text-align: center;
+      font-weight: bold;
+      /* Use margin for right aligning, floats can float up through a page boundary it seems */
+      margin-left: auto;
+      width: 10cm;
+
+      /* Put names in the PDF TOC rather than headings */
+      bookmark-level: 1;
+      bookmark-label: content(text);
+    }
+
+    h1
+    {
+      clear: both;
+      text-align: center;
+      bookmark-level: none;
+    }
+
+    h2
+    {
+      font-family: sans-serif;
+      font-size: 13pt;
+      margin-bottom: 0.10cm;
+      bookmark-level: none;
+    }
+
+    .page-content
+    {
+      padding:      0cm 3cm 2cm 3cm;
+      page-break-after: always;
+    }
+
+    .page-footer
+    {
+      text-align: center;
+      /* Not that this footer is not really aligned to the bottom
+       * of the page, that's just accidental (because of
+       * .PageContent's bottom padding */
+      page-break-after: always;
+    }
+
+    ul
+    {
+      margin-top: 0;
+    }
+
+    body
+    {
+      font-size:   12pt;
+    }
+
+    @page
+    {
+      /* Add margin for footer */
+      margin-bottom: 3cm;
+
+      /* Create footer here, so we can automatically repeat it on every page, and properly align it vertically */
+      @bottom-center {
+        content: "Stichting Evolution Events - KVK 24385140 - BTW/VAT NL 8158.18.956.B01";
+        text-align: center;
+      };
+    }
+  </style>
+</head>
+<body>
+  <p class="print-link">
+  <a href="{{ print_url }}">{% trans "Printable" %}</a>
+  </p>
+  {% for reg in registration_list %}
+    <div class="page-header">{{ reg.user.full_name }}</div>
+    <div class="page-content">
+      <h1>{% trans "Registration form" %} — {{ reg.event.name }}</h1>
+      <div class="personal-details">
+        <h2>{% trans 'Participant' %}</h2>
+        <ul>
+          <li>{% trans 'Name' %}: {{ reg.user.full_name }}</li>
+          {% if reg.user.address.address %}
+          <li>{% trans 'Address' %}: {{ reg.user.address.address }}</li>
+          <li>{% trans 'Postal code' %}: {{ reg.user.address.postalcode}}</li>
+          <li>{% trans 'City' %}: {{ reg.user.address.city}}</li>
+          <li>{% trans 'Country' %}: {{ reg.user.address.country }}</li>
+          {% endif %}
+          <li>{% trans 'Telephone' %}: {{ reg.user.address.phone_number }}</li>
+          <li>{% trans 'Email' %} adres: {{ reg.user.email }}</li>
+        </ul>
+      </div>
+
+      <div class="conditions">
+        <h2>{% trans "Conditions" %}</h2>
+        {% if 0 %}
+        TODO: Add this once events that did not have liability conditions  in the registration
+        finalcheck are finished
+        <p>{% trans "As agreed during registration"%}:</p>
+        {% endif %}
+        <ul>
+          <li>Participants must abide by the house rules of Evolution Events, any rules that are announced
+          during the event itself and any instructions of crew designated by Evolution Events.</i>
+
+          <li>Participation is at your own risk. Evolution Events is not liable for any accidents, or loss,
+          damage or theft of personal property.</li>
+
+          {{ reg.event.extra_conditions|safe }}
+        </ul>
+      </div>
+
+      {% if reg.price %}
+        <div class="payment">
+        <h2>{% trans "Payment" %}</h2>
+        <p>
+        {% if reg.amount_due == 0 %}
+          {% blocktrans with event=reg.event price=reg.price|moneyformat %}
+          The fee for participating in "{{ event }}" is {{ price }},
+          and has been paid before the start of the event.
+          {% endblocktrans %}
+        {% elif reg.amount_due == reg.price %}
+          {% blocktrans with event=reg.event price=reg.price|moneyformat %}
+          The fee for participating in "{{ event }}" is {{ price }},
+          and must still be paid before the start of the event.
+          {% endblocktrans %}
+        {% else %}
+          {% blocktrans with event=reg.event price=reg.price|moneyformat amount=reg.amount_due|moneyformat %}
+          The fee for participating in "{{ event }}" is {{ price }},
+          of which {{ amount }} must still be paid before the start of the event.
+          {% endblocktrans %}
+        {% endif %}
+        </p>
+        </div>
+      {% endif %}
+
+      <div class="signature">
+      <h2>{% trans "Signature" %}</h2>
+      <p>
+      {% blocktrans with event=reg.event start=reg.event.start_date end=reg.event.end_date %}
+      By signing below, the participant asserts that the above details are correct. Participant agrees to the
+      above conditions and commits to pay the above participation fee. Participant thereby participates in the
+      LARP event "{{ event }}" from {{ start }} until {{ end }}.
+      {% endblocktrans %}
+      </p>
+      <ul>
+      <li>{% trans "Date" %}:</li>
+      <li>{% trans "Place" %}:</li>
+      <li>{% trans "Signature" %}:</li>
+      </ul>
+      </div>
+    </div>
+  {% endfor %}
+</body>
+</html>

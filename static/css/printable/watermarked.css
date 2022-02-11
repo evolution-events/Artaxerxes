@@ -1,0 +1,10 @@
+@import url("base.css");
+
+@page
+{
+  /* Put background on page (not some part of the content), so it is nicely centered on each page. */
+  background-image: url("../../img/logo-watermark.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}

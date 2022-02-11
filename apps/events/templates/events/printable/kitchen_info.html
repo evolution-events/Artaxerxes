@@ -1,0 +1,103 @@
+{% load coretags %}
+{% load i18n %}
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>
+    {% blocktrans with event=event.name %}
+    Kitchen crew info for {{ event }}
+    {% endblocktrans %}
+  </title>
+  <style>
+    @import url("{% static "css/printable/watermarked.css" %}");
+
+    h1
+    {
+      text-align: center;
+      bookmark-level: none;
+    }
+
+    h2
+    {
+      margin-bottom: 0.1cm;
+      bookmark-level: 1;
+    }
+
+    .person td.desc {
+      padding-left: 1cm;
+      width: 5cm;
+    }
+
+    .person {
+      border-bottom: solid 1px grey;
+      padding-bottom: 0.3cm;
+      margin-bottom: 0.3cm;
+    }
+
+    .footer {
+      font-size: 9pt;
+      text-align: center;
+    }
+
+    @media print {
+      .footer {
+        display: none;
+      }
+    }
+
+    @page
+    {
+      /* Add margin for footer */
+      margin-bottom: 3cm;
+
+      margin-left: 1cm;
+      margin-right: 1cm;
+
+
+      /* Create footer here, so we can automatically repeat it on every page, and properly align it vertically */
+      @bottom-center {
+        text-align: center;
+        {% now "SHORT_DATETIME_FORMAT" as exported %}
+        {% blocktrans trimmed with event=event.name|safe now=exported|safe asvar footer %}
+        Kitchen crew info for {{ event }} — exported at {{now}}
+        {% endblocktrans %}
+        content: "{{ footer | addslashes | safe }}";
+	font-size: 9pt;
+      };
+    }
+  </style>
+</head>
+<body>
+  <p class="print-link">
+  <a href="{{ print_url }}">{% trans "Printable" %}</a>
+  </p>
+  <h1>
+  {% blocktrans with event=event.name %}
+  Kitchen crew info for {{ event }}
+  {% endblocktrans %}
+  </h1>
+
+  {% for reg in registration_list %}
+    <div class="person">
+      <h2 class="name">{{ reg.user.full_name }}</h2>
+      <div class="content">
+	<table>
+	  {# TODO: More info, like vegatarian preferences #}
+	  {% if reg.user.medical_details.food_allergies %}
+	    <tr>
+	      <td class="desc">{% trans "Food allergies" %}</td>
+	      <td class="val">{{ reg.user.medical_details.food_allergies }}</td>
+	    </tr>
+	  {% endif %}
+	</table>
+      </div>
+    </div>
+  {% endfor %}
+
+  <p class="footer">
+  {{ footer }}
+  </p>
+</body>
+</html>

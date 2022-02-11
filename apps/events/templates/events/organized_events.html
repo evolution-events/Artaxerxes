@@ -11,6 +11,51 @@
             <h2 class="bigname">{{ e }}</h2>
             <div class="eventdate">{{e.start_date}} - {{e.end_date}}</div>
             <div class="numregistrations">Registrations: {{ e.num_registered }} (plus {{ e.num_waitinglist }} on the waiting list and {{ e.num_cancelled }} cancelled).</div>
+            <p></p>
+            {% if e.show_registration_details %}
+                {% url 'core:privacy_policy' as privacy_url %}
+
+                <h2>Registration details</h2>
+                <p>Here you will find details about the admitted
+                registrations (so excluding e.g. the waitinglist or
+                cancelled registrations), in different forms intended
+                for specific purposes. This information should be shared
+                carefully and only within organizers and crew (see the
+                <a href="{{ privacy_url }}">privacy policy</a> for
+                details).</p>
+
+                <h3>Registration forms</h3>
+                <p>These are registration forms and are intended to be printed and signed by participants during participant check-in.</p>
+                <p><a class="btn btn-primary" href="{% url 'events:printable_registration_forms' pk=e.pk %}">{% trans 'Download' %}</a></p>
+
+                <h3>Kitchen crew info</h3>
+                <p>This document contains food allergy information and is intended to be shared by the kitchen crew. </p>
+                <p><a class="btn btn-primary" href="{% url 'events:printable_kitchen_info' pk=e.pk %}">{% trans 'Download' %}</a></p>
+
+                <h3>Safety info</h3>
+                <p>This page shows any safety-related information
+                (except emergency contacts) provided by participants. It
+                contains potentially extra sensitive (medical) details,
+                so it is intended to be reviewed by the safety
+                coordinator (and/or other organizers), with only
+                selected information to be shared among organizers and
+                crew members only if needed. If sharing this information with
+                (selected) other participants (e.g. first aiders) seems
+                important, explicit consent must be obtained first.</p>
+                <p><a class="btn btn-primary" href="{% url 'events:safety_info' pk=e.pk %}">{% trans 'View' %}</a></p>
+
+                <h3>Safety info — printable reference</h3>
+                <p>This document collects the safety information about
+                each participant (including emergency contacts), to
+                print and reference during the event.  This contains
+                potentially extra sensitive (medical) details so should
+                only be accessed for printing shortly before the event,
+                stored securely during the event and properly destroyed
+                immediately afterwards.</p>
+                <p>There should not normally be any reason to look at
+                this document unless an emergency occurs.</p>
+                <p><a class="btn btn-primary" href="{% url 'events:printable_safety_reference' pk=e.pk %}">{% trans 'Download' %}</a></p>
+            {% endif %}
         </div>
     </div>
 </div>

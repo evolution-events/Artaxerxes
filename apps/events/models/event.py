@@ -194,7 +194,8 @@ class Event(models.Model):
     extra_conditions = models.TextField(
         verbose_name=_('Extra registration conditions'), blank=True,
         help_text=_('These are shown in the list of conditions when finalizing a registration. Rendered inside the '
-                    'existing &lt;ul&gt; tag, so should contain &lt;li&gt; tags, but no &lt;ul&gt;.'))
+                    'existing &lt;ul&gt; tag, so should contain &lt;li&gt; tags, but no &lt;ul&gt;. Can use '
+                    'class=&quot;hide-on-form&quot; to show during online registration, but not on the paper form.'))
 
     slots = models.IntegerField(
         null=True, blank=True,

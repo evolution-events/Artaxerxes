@@ -34,7 +34,6 @@ class RegisteredEventList(LoginRequiredMixin, ListView):
 
         context = super().get_context_data(**kwargs)
         context.update({
-            'user': self.request.user,
             'events': events,
         })
         return context

@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.urls import reverse
 from parameterized import parameterized
 
-from apps.people.tests.factories import ArtaUserFactory
+from apps.people.tests.factories import ArtaUserFactory, GroupFactory
 from apps.registrations.models import Registration
 from apps.registrations.tests.factories import RegistrationFactory
 
@@ -171,3 +171,48 @@ class TestRegisteredEventsView(TestCase):
         response = self.get()
         self.assertCountEqual(response.context['events']['future'], [])
         self.assertCountEqual(response.context['events']['past'], [])
+
+
+class TestOrganizedEventsList(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.organizers = ArtaUserFactory.create_batch(2)
+        cls.other_organizers = ArtaUserFactory.create_batch(2)
+
+        cls.organizer_group = GroupFactory(users=cls.organizers)
+        cls.other_group = GroupFactory(users=cls.other_organizers)
+
+        # Add two events with organizers, one with other organizers and one without
+        cls.events_for_organizers = EventFactory.create_batch(2, organizer_group=cls.organizer_group)
+        cls.event_for_others = EventFactory(organizer_group=cls.other_group)
+        cls.other_event = EventFactory()
+
+    def get(self, status_code=200):
+        """ Helper to request this view. """
+        response = self.client.get(reverse('events:organized_events'))
+        self.assertEqual(response.status_code, status_code)
+        if status_code == 200:
+            self.assertTemplateUsed(response, 'events/organized_events.html')
+        return response
+
+    def test_events_shown(self):
+        """ Check that the list of events shown is correct """
+
+        self.client.force_login(self.organizers[0])
+
+        response = self.get()
+
+        qs = response.context['event_list']
+        # Pass transform to prevent string conversion (TODO: remove in Django 3.2)
+        self.assertQuerysetEqual(qs, self.events_for_organizers, transform=lambda o: o, ordered=False)
+
+    def test_no_organizer(self):
+        """ Check that you get an error when you are no organizer. """
+
+        self.client.force_login(ArtaUserFactory())
+        self.get(status_code=404)
+
+    def test_not_logged_in(self):
+        """ Check that you are redirected when not logged in. """
+
+        self.get(status_code=302)

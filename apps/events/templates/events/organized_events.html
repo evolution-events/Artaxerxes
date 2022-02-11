@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block pagetitle %}{% trans 'Overview of events you organize' %}{% endblock pagetitle%}
+
+{% block content %}
+{% for e in event_list %}
+<div class="organized-event event-block" id="event-block-{{e.id}}">
+    <div class="event-summary">
+        <div class="col-12 d-flex align-items-start flex-column">
+            <h2 class="bigname">{{ e }}</h2>
+            <div class="eventdate">{{e.start_date}} - {{e.end_date}}</div>
+            <div class="numregistrations">Registrations: {{ e.num_registered }} (plus {{ e.num_waitinglist }} on the waiting list and {{ e.num_cancelled }} cancelled).</div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% endblock content%}

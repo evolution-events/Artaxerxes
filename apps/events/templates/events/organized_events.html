@@ -20,7 +20,7 @@
                 registrations (so excluding e.g. the waitinglist or
                 cancelled registrations), in different forms intended
                 for specific purposes. This information should be shared
-                carefully and only within organizers and crew (see the
+                only when needed and only among organizers and crew (see the
                 <a href="{{ privacy_url }}">privacy policy</a> for
                 details).</p>
 
@@ -29,19 +29,20 @@
                 <p><a class="btn btn-primary" href="{% url 'events:printable_registration_forms' pk=e.pk %}">{% trans 'Download' %}</a></p>
 
                 <h3>Kitchen crew info</h3>
-                <p>This document contains food allergy information and is intended to be shared by the kitchen crew. </p>
+                <p>This document contains food allergy information and is intended to be shared with the kitchen crew. </p>
                 <p><a class="btn btn-primary" href="{% url 'events:printable_kitchen_info' pk=e.pk %}">{% trans 'Download' %}</a></p>
 
                 <h3>Safety info</h3>
                 <p>This page shows any safety-related information
                 (except emergency contacts) provided by participants. It
-                contains potentially extra sensitive (medical) details,
+                might contain extra-sensitive (medical) details,
                 so it is intended to be reviewed by the safety
-                coordinator (and/or other organizers), with only
-                selected information to be shared among organizers and
-                crew members only if needed. If sharing this information with
-                (selected) other participants (e.g. first aiders) seems
-                important, explicit consent must be obtained first.</p>
+                coordinator (and/or other organizers), who can decide to
+                share selected information with other organizers and
+                crew members on a need-to-know basis.</p>
+                <p>Sharing with others than organizers and crew (e.g.
+                first aiders) can be considered, but only after
+                obtaining explicit consent from the participant.</p>
                 <p><a class="btn btn-primary" href="{% url 'events:safety_info' pk=e.pk %}">{% trans 'View' %}</a></p>
 
                 <h3>Safety info — printable reference</h3>

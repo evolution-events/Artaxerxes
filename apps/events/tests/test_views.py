@@ -240,6 +240,8 @@ class EventRegistrationInfo(TestCase):
         ('events:safety_reference', 'events/safety_info.html', 'text/html'),
         ('events:printable_safety_reference', 'events/safety_info.html', 'application/pdf'),
         ('events:safety_info', 'events/safety_info.html', 'text/html'),
+        ('events:registrations_table', 'events/registrations_table.html', 'text/html'),
+        ('events:registrations_table_download', None, 'application/vnd.oasis.opendocument.spreadsheet'),
     ]
 
     def get(self, view, template, content_type, event, status_code=200):
@@ -247,7 +249,8 @@ class EventRegistrationInfo(TestCase):
         response = self.client.get(reverse(view, args=(event.pk,)))
         self.assertEqual(response.status_code, status_code)
         if status_code == 200:
-            self.assertTemplateUsed(response, template)
+            if template:
+                self.assertTemplateUsed(response, template)
             self.assertEqual(response.content_type, content_type)
 
         return response

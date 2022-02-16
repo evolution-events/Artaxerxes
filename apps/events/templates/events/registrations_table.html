@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block pagetitle %}
+    {% blocktrans %}
+    Registrations for {{ event }}
+    {% endblocktrans %}
+{% endblock %}
+
+{% block content %}
+    <a class="btn btn-primary" href="{{ download_url }}">{% trans "Download spreadsheet" %}</a>
+    {{ data.html | safe }}
+{% endblock content%}

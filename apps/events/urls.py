@@ -15,4 +15,7 @@ urlpatterns = [
          name='printable_safety_reference'),
     path('organized/<int:pk>/safety_reference', views.SafetyReference.as_view(), name='safety_reference'),
     path('organized/<int:pk>/safety_info', views.SafetyInfo.as_view(), name='safety_info'),
+    path('organized/<int:pk>/registrations', views.RegistrationsTable.as_view(), name='registrations_table'),
+    path('organized/<int:pk>/registrations/download', views.RegistrationsTableDownload.as_view(),
+         name='registrations_table_download'),
 ]

@@ -12,6 +12,8 @@
             <div class="eventdate">{{e.start_date}} - {{e.end_date}}</div>
             <div class="numregistrations">Registrations: {{ e.num_registered }} (plus {{ e.num_waitinglist }} on the waiting list and {{ e.num_cancelled }} cancelled).</div>
             <p></p>
+            <div class="registration_table"><a class="btn btn-primary" href="{% url 'events:registrations_table' pk=e.pk %}">{% trans 'Show registrations' %}</a></p>
+            <p></p>
             {% if e.show_registration_details %}
                 {% url 'core:privacy_policy' as privacy_url %}
 

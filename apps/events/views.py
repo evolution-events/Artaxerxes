@@ -1,7 +1,9 @@
-from datetime import date
+from datetime import date, datetime
 
+import import_export.formats.base_formats
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count, Q
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.functional import cached_property
@@ -11,6 +13,7 @@ from django_weasyprint import WeasyTemplateResponseMixin
 from apps.registrations.models import Registration
 from arta.common.db import QExpr
 
+from .admin import EventRegistrationsResource
 from .models import Event
 
 
@@ -161,3 +164,36 @@ class SafetyInfo(EventRegistrationInfoBase):
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(omit_contacts=True, **kwargs)
+
+
+class RegistrationsTable(EventRegistrationInfoBase):
+    """ Show a table of active registrations """
+
+    template_name = 'events/registrations_table.html'
+
+    @cached_property
+    def data(self):
+        resource = EventRegistrationsResource(self.event)
+        return resource.export(
+            resource.get_queryset()
+            .filter(status__in=Registration.statuses.ACTIVE)
+            .order_by('status', 'registered_at'))
+
+    def get_context_data(self, **kwargs):
+        kwargs['data'] = self.data
+        kwargs['download_url'] = reverse('events:registrations_table_download', args=(self.event.pk,))
+
+        return super().get_context_data(**kwargs)
+
+
+class RegistrationsTableDownload(RegistrationsTable):
+    """ Download a spreadsheet of registered registrations  """
+
+    def get(self, *args, **kwargs):
+        file_format = import_export.formats.base_formats.ODS()
+        export_data = file_format.export_data(self.data)
+        response = HttpResponse(export_data, content_type=file_format.get_content_type())
+        response['Content-Disposition'] = 'attachment; filename="{}-{}.{}"'.format(
+            self.event.name, datetime.now().strftime('%Y-%m-%d'), file_format.get_extension(),
+        )
+        return response

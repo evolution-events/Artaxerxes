@@ -23,7 +23,7 @@ from arta.common.views import CacheUsingTimestampsMixin
 
 from .forms import (EmergencyContactFormSet, FinalCheckForm, MedicalDetailForm, PersonalDetailForm,
                     RegistrationOptionsForm)
-from .models import Registration, RegistrationFieldOption, RegistrationFieldValue
+from .models import Registration, RegistrationFieldOption, RegistrationFieldValue, RegistrationPriceCorrection
 from .services import RegistrationNotifyService, RegistrationStatusService
 
 REGISTRATION_STEPS = [
@@ -500,11 +500,13 @@ class PaymentStatus(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         options = self.registration.options.select_related('field', 'option')
         priced_options = options.exclude(option=None).exclude(option__price=None)
+        price_corrections = self.registration.price_corrections.with_active().order_by('created_at')
         completed_payments = self.registration.payments.filter(status=Payment.statuses.COMPLETED).order_by('timestamp')
 
         kwargs.update({
             'registration': self.registration,
             'priced_options': priced_options,
+            'price_corrections': price_corrections,
             'completed_payments': completed_payments,
         })
         return super().get_context_data(**kwargs)

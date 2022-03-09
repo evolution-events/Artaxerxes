@@ -10,7 +10,8 @@ from apps.payments.tests.factories import PaymentFactory
 
 from ..models import Registration
 from ..services import RegistrationStatusService
-from .factories import RegistrationFactory, RegistrationFieldFactory, RegistrationFieldOptionFactory
+from .factories import (RegistrationFactory, RegistrationFieldFactory, RegistrationFieldOptionFactory,
+                        RegistrationPriceCorrectionFactory)
 
 
 class TestConstraints(TestCase):
@@ -58,8 +59,9 @@ class TestPaymentAnnotations(TestCase):
         cls.s = Registration.statuses
         cls.ps = Registration.payment_statuses
 
-    def check_helper(self, options, price, amount_due, payments=None, paid=None,
-                     payment_status=Registration.payment_statuses.OPEN, status=Registration.statuses.REGISTERED):
+    def check_helper(self, options, price, amount_due, payments=(), corrections=(), cancelled_corrections=(),
+                     paid=None, payment_status=Registration.payment_statuses.OPEN,
+                     status=Registration.statuses.REGISTERED):
         """ Create a registration, payments and check the resulting annotations. """
         reg = RegistrationFactory(event=self.event, options=options, status=status)
 
@@ -72,8 +74,12 @@ class TestPaymentAnnotations(TestCase):
 
             return PaymentFactory(registration=reg, amount=amount, status=status)
 
-        if payments:
-            [create(p) for p in payments]
+        for p in payments:
+            create(p)
+        for p in corrections:
+            RegistrationPriceCorrectionFactory(registration=reg, price=p, when_cancelled=False)
+        for p in cancelled_corrections:
+            RegistrationPriceCorrectionFactory(registration=reg, price=p, when_cancelled=True)
 
         reg = Registration.objects.with_payment_status().get(pk=reg.pk)
         self.assertEqual(reg.price, price)
@@ -112,6 +118,42 @@ class TestPaymentAnnotations(TestCase):
             options=[self.player, self.discount_yes],
             price=90,
             amount_due=90,
+        )
+
+    def test_only_correction(self):
+        """ Test a registration with a single correction """
+        self.check_helper(
+            options=[self.free],
+            corrections=[10],
+            price=10,
+            amount_due=10,
+        )
+
+    def test_multiple_corrections(self):
+        """ Test a registration with multiple corrections """
+        self.check_helper(
+            options=[self.free],
+            corrections=[10, 20],
+            price=30,
+            amount_due=30,
+        )
+
+    def test_option_and_multiple_corrections(self):
+        """ Test a registration with an option and multiple corrections """
+        self.check_helper(
+            options=[self.player],
+            corrections=[10, 20],
+            price=130,
+            amount_due=130,
+        )
+
+    def test_unused_cancelled_corrections(self):
+        """ Test that cancelled corrections are not used when the registration is not cancelled """
+        self.check_helper(
+            options=[self.player],
+            cancelled_corrections=[10],
+            price=100,
+            amount_due=100,
         )
 
     @parameterized.expand(itertools.product([
@@ -173,6 +215,7 @@ class TestPaymentAnnotations(TestCase):
         """ Test that cancelled registrations have a zero price. """
         self.check_helper(
             options=[self.player],
+            corrections=[10],
             status=self.s.CANCELLED,
             price=0,
             amount_due=0,
@@ -187,6 +230,32 @@ class TestPaymentAnnotations(TestCase):
             price=0,
             amount_due=0,
             payment_status=self.ps.FREE,
+        )
+
+    def test_cancelled_corrections(self):
+        """ Test that cancelled corrections are applied for cancelled registrations. """
+        self.check_helper(
+            options=[self.player],
+            corrections=[10],
+            cancelled_corrections=[20],
+            status=self.s.CANCELLED,
+            price=20,
+            amount_due=20,
+            payment_status=self.ps.OPEN,
+        )
+
+    def test_paid_cancelled_corrections(self):
+        """ Test that payment of a cancelled correction is correctly registered. """
+        self.check_helper(
+            options=[self.player],
+            corrections=[10],
+            cancelled_corrections=[20],
+            payments=[20],
+            status=self.s.CANCELLED,
+            price=20,
+            paid=20,
+            amount_due=0,
+            payment_status=self.ps.PAID,
         )
 
     def test_free_cancelled_refunded(self):
@@ -261,6 +330,20 @@ class TestPaymentAnnotations(TestCase):
             paid=-50,
             amount_due=50,
             payment_status=self.ps.PARTIAL,
+        )
+
+    def test_cancelled_corrections_refunded(self):
+        """ Test a cancelled registrations with a cancelled correction and payment and matching refund. """
+        self.check_helper(
+            options=[self.player],
+            payments=[110, -90],
+            corrections=[10],
+            cancelled_corrections=[20],
+            status=self.s.CANCELLED,
+            price=20,
+            paid=20,
+            amount_due=0,
+            payment_status=self.ps.PAID,
         )
 
     def test_partial(self):

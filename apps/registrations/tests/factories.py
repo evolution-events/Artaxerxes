@@ -5,7 +5,8 @@ import factory
 from apps.events.tests.factories import EventFactory
 from apps.people.tests.factories import ArtaUserFactory
 
-from ..models import Registration, RegistrationField, RegistrationFieldOption, RegistrationFieldValue
+from ..models import (Registration, RegistrationField, RegistrationFieldOption, RegistrationFieldValue,
+                      RegistrationPriceCorrection)
 
 
 class RegistrationFactory(factory.django.DjangoModelFactory):
@@ -44,6 +45,15 @@ class RegistrationFactory(factory.django.DjangoModelFactory):
                 else:
                     (field, value) = option
                     RegistrationFieldValueFactory.create(registration=obj, field=field, value=value)
+
+
+class RegistrationPriceCorrectionFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = RegistrationPriceCorrection
+
+    price = 10
+    description = factory.Sequence(lambda n: 'Correction %d' % n)
+    when_cancelled = False
 
 
 class RegistrationFieldFactory(factory.django.DjangoModelFactory):

@@ -2,6 +2,7 @@
 {% load coretags %}
 
 {% with options=options|default:registration.options.select_related_option_and_field %}
+{% with price_corrections=price_corrections|default:registration.price_corrections.with_active %}
 <table class="table registration-options">
   {% for section, values in options.group_by_section %}
     {% if section %}
@@ -27,13 +28,31 @@
         {# Check for None and not 0, so prices are shown even when negative amounts make the total price 0 #}
         {% if registration.price is not None %}
           {% if value.price is not None %}
-          <td class="price">{{ value.price | moneyformat }}</td>
+          <td class="price">
+          {% if registration.status.CANCELLED %}<del>{% endif %}
+            {{ value.price | moneyformat }}
+          {% if registration.status.CANCELLED %}</del>{% endif %}
+          </td>
           {% else %}
           <td class="noprice"></td>
           {% endif %}
         {% endif %}
       </tr>
     {% endfor %}
+  {% endfor %}
+
+  {% for value in price_corrections %}
+    <tr>
+      <td colspan="2">
+        {% if not value.active %}<del>{% endif %}
+          {{ value.description }}</td>
+        {% if not value.active %}</del>{% endif %}
+      <td class="price">
+        {% if not value.active %}<del>{% endif %}
+          {{ value.price | moneyformat }}</td>
+        {% if not value.active %}</del>{% endif %}
+      </td>
+    </tr>
   {% endfor %}
 
   {% if registration.price is not None %}
@@ -44,4 +63,5 @@
   </tr>
   {% endif %}
 </table>
+{% endwith %}
 {% endwith %}

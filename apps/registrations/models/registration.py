@@ -1,7 +1,7 @@
 import reversion
 from django.conf import settings
 from django.db import models
-from django.db.models import ExpressionWrapper, F, Prefetch, Q, Value, When
+from django.db.models import ExpressionWrapper, F, OuterRef, Prefetch, Q, Value, When
 from django.db.models.functions import Coalesce
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
@@ -22,10 +22,21 @@ class Case(models.expressions.SQLiteNumericMixin, models.Case):
 class RegistrationQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
     def with_price(self):
         return self.annotate(
-            price=Case(
+            # This annotation is just to be referred to in corrections subquery. Doing this comparison inside that
+            # query (I could not get something like Exact(OuterRef('status'), CANCELLED) to work, nor getting the
+            # with_active() annotation inside the SubquerySum...).
+            is_cancelled=QExpr(status=Registration.statuses.CANCELLED),
+            options_price=Case(
                 When(status=Registration.statuses.CANCELLED, then=0),
                 default=SubquerySum('options__option__price', output_field=MonetaryField()),
             ),
+            corrections_price=SubquerySum(
+                'price_corrections__price',
+                filter=Q(when_cancelled=OuterRef('is_cancelled')),
+                output_field=MonetaryField(),
+            ),
+            # This ensures that if there are no priced options nor corrections, the price stays NULL/None
+            price=Coalesce(F('options_price') + F('corrections_price'), F('options_price'), F('corrections_price')),
         )
 
     def with_paid(self):

@@ -33,6 +33,19 @@
                 </td>
               </tr>
             {% endfor %}
+            {% for value in price_corrections %}
+              <tr class="price-correction">
+                <td>
+                  {% if not value.active %}<del>{% endif %}
+                    {{ value.description }}</td>
+                  {% if not value.active %}</del>{% endif %}
+                <td class="amount">
+                  {% if not value.active %}<del>{% endif %}
+                    {{ value.price | moneyformat }}</td>
+                  {% if not value.active %}</del>{% endif %}
+                </td>
+              </tr>
+            {% endfor %}
             {% if priced_options.count > 1 or not registration.payment_status.NOT_DUE %}
             <tr class="total-price">
               <td class="label" colspan="2">{% trans "Total price" %}</td>

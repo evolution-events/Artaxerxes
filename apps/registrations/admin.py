@@ -16,7 +16,8 @@ from apps.events.models import Event
 from apps.payments.admin import PaymentInline
 from apps.people.models import ArtaUser
 
-from .models import Registration, RegistrationField, RegistrationFieldOption, RegistrationFieldValue
+from .models import (Registration, RegistrationField, RegistrationFieldOption, RegistrationFieldValue,
+                     RegistrationPriceCorrection)
 
 
 class LimitDependsMixin:
@@ -68,6 +69,11 @@ class RegistrationFieldInline(LimitDependsMixin, admin.TabularInline):
 class RegistrationFieldValueInline(admin.TabularInline):
     model = RegistrationFieldValue
     extra = 0
+
+
+class RegistrationPriceCorrectionInline(admin.TabularInline):
+    model = RegistrationPriceCorrection
+    extra = 1
 
 
 class CustomRelatedFieldListFilter(admin.filters.RelatedFieldListFilter):
@@ -153,7 +159,7 @@ class RegistrationAdmin(HijackRelatedAdminMixin, VersionAdmin):
         )),
     ]
 
-    inlines = [PaymentInline, RegistrationFieldValueInline]
+    inlines = [PaymentInline, RegistrationFieldValueInline, RegistrationPriceCorrectionInline]
 
     actions = [
         'make_mailing_list',

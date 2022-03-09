@@ -500,7 +500,7 @@ class PaymentStatus(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         options = self.registration.options.select_related('field', 'option')
         priced_options = options.exclude(option=None).exclude(option__price=None)
-        completed_payments = self.registration.payments.filter(status=Payment.statuses.COMPLETED)
+        completed_payments = self.registration.payments.filter(status=Payment.statuses.COMPLETED).order_by('timestamp')
 
         kwargs.update({
             'registration': self.registration,

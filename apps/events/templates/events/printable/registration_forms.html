@@ -172,7 +172,7 @@
       {% endblocktrans %}
       </p>
       <ul>
-        <li>{% trans "Date" %}:</li>
+        <li>{% trans "Date" %}: {{ reg.event.start_date|date:"SHORT_DATE_FORMAT" }}</li>
         <li>{% trans "Place" %}: {{ reg.event.signature_place }}</li>
         <li>{% trans "Signature" %}:</li>
       </ul>

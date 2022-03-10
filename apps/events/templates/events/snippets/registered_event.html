@@ -28,6 +28,14 @@
             {% endif %}
             <br/>
           {% endif %}
+
+          {% if reg.status.CANCELLED and e.registration_is_open %}
+            {% if e.is_full %}
+              <a class="toregistration" href="{% url 'registrations:registration_start' eventid=e.id %}" role="button">{% trans 'Register again on waiting list' %}</a><br/>
+            {% else %}
+              <a class="toregistration" href="{% url 'registrations:registration_start' eventid=e.id %}" role="button">{% trans 'Register again' %}</a><br/>
+            {% endif %}
+          {% endif %}
         </div>
         <div class="event-bottom-right mt-auto">
           <a class="details-link collapsed" data-toggle="collapse" data-target="#collapse-event-registration-{{e.id}}" href="#">{% trans "Registration details" %}</a>

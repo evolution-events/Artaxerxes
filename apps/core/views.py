@@ -30,7 +30,7 @@ class Dashboard(LoginRequiredMixin, View):
             request.user,
             with_registration=True,
         ).filter(
-            ~Q(registration_has_closed=True) | Q(registration_status__in=Registration.statuses.ACTIVE),
+            ~Q(registration_has_closed=True) | Q(registration_status__in=Registration.statuses.FINALIZED),
             start_date__gt=date.today(),
             is_visible=True,
         ).order_by(
@@ -38,7 +38,7 @@ class Dashboard(LoginRequiredMixin, View):
         )
 
         def group(e):
-            if e.registration and e.registration.status.ACTIVE:
+            if e.registration and e.registration.status.FINALIZED:
                 return 'active'
             elif e.registration_is_open or e.preregistration_is_open:
                 return 'open'

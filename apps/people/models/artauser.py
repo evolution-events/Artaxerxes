@@ -86,3 +86,6 @@ class ArtaUser(AbstractBaseUser, PermissionsMixin):
 
     def natural_key(self):
         return (self.email,)
+
+    class Meta:
+        ordering = ('first_name', 'last_name')

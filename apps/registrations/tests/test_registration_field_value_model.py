@@ -94,5 +94,5 @@ class TestSatisfiesRequiredAnnotation(TestCase):
                         value = option
                 value_obj = RegistrationFieldValueFactory(field=field, registration=reg, value=value)
                 with_satisfies = RegistrationFieldValue.objects.with_satisfies_required().get(pk=value_obj.pk)
-                self.assertEquals(with_satisfies.satisfies_required, satisfies)
+                self.assertEqual(with_satisfies.satisfies_required, satisfies)
             field.delete()

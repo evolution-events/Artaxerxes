@@ -8,7 +8,7 @@ from .models import Payment
 
 @admin.register(Payment)
 class PaymentAdmin(VersionAdmin):
-    list_display = ('type', 'amount', 'status', 'mollie_status')
+    list_display = ('registration', 'timestamp', 'type', 'amount', 'status', 'mollie_status')
 
     def get_readonly_fields(self, request, obj=None):
         fields = ['mollie_id', 'mollie_status']
@@ -54,7 +54,7 @@ class PaymentInline(admin.TabularInline):
     # Edit and delete can only be done through the PaymentAdmin, which can properly limit editing of mollie payments
     # (in an inline admin, you can only limit based on the containing object, e.g. Registration). This uses readonly
     # fields, since removing change permission also removes the change link.
-    readonly_fields = ['amount', 'status', 'mollie_id', 'mollie_status']
+    readonly_fields = ['timestamp', 'amount', 'status', 'mollie_id', 'mollie_status']
     can_delete = False
     show_change_link = True
 

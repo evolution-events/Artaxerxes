@@ -33,7 +33,7 @@ class Payment(models.Model):
     status = ConstantChoiceField(verbose_name=_('Status'), constants=statuses, null=False)
 
     # null=True to allow non-unique blank values
-    mollie_id = models.CharField(max_length=16, unique=True, blank=True, null=True)
+    mollie_id = models.CharField(max_length=16, unique=True, blank=True, null=True, default=None)
     mollie_status = models.CharField(max_length=16, blank=True)
 
     timestamp = models.DateTimeField(verbose_name=_('Transaction date/time'),

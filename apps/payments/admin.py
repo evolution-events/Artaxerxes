@@ -28,7 +28,9 @@ class PaymentAdmin(VersionAdmin):
         # TODO: Would be better to do this centrally in some way. Maybe a mixin that handles all foreignkeys to models
         # that have similar __str__ methods? See also https://code.djangoproject.com/ticket/33208#ticket
         if db_field.name == "registration":
-            kwargs['queryset'] = Registration.objects.all().select_related('user', 'event').order_by('user', 'event')
+            kwargs['queryset'] = Registration.objects.filter(
+                status__in=Registration.statuses.FINALIZED,
+            ).select_related('user', 'event').order_by('user', 'event')
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
     def formfield_for_choice_field(self, db_field, request, **kwargs):

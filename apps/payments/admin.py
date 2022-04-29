@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.forms.fields import DateTimeField
 from reversion.admin import VersionAdmin
 
 from apps.registrations.models import Registration
@@ -35,6 +36,16 @@ class PaymentAdmin(VersionAdmin):
         if db_field.name == "status":
             kwargs['choices'] = [(k.v, k.label) for k in [Payment.statuses.COMPLETED]]
         return super().formfield_for_choice_field(db_field, request, **kwargs)
+
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        if db_field.name == 'timestamp':
+            # This uses a regular datetime input instead of split, but with the datewidget so you get just a date
+            # picker (manual transactions usually have just a date), but override the format to include a time
+            # component so you *can* still input a time if you want.
+            kwargs['form_class'] = DateTimeField
+            kwargs['widget'] = admin.widgets.AdminDateWidget(format='%Y-%m-%d %H:%M:%S')
+
+        return super().formfield_for_dbfield(db_field, **kwargs)
 
     def get_queryset(self, *args, **kwargs):
         qs = super().get_queryset(*args, **kwargs)

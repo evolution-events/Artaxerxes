@@ -13,7 +13,7 @@ class PaymentAdmin(VersionAdmin):
     def get_readonly_fields(self, request, obj=None):
         fields = ['mollie_id', 'mollie_status']
         if obj and obj.mollie_id:
-            fields += ['amount', 'status']
+            fields += ['amount', 'status', 'timestamp']
         return fields
 
     def has_delete_permission(self, request, obj=None):

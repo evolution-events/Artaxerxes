@@ -2,6 +2,7 @@ import datetime
 
 from django.conf import settings
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from mollie.api.client import Client
 
@@ -99,6 +100,7 @@ class PaymentService:
 
         payment.mollie_id = mp.id
         payment.mollie_status = mp.status
+        payment.timestamp = timezone.now()
         payment.save()
 
         return mp.checkout_url

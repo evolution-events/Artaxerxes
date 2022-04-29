@@ -1,6 +1,7 @@
 import datetime
 
 import factory
+from django.utils import timezone
 from faker import Faker
 
 from apps.registrations.tests.factories import RegistrationFactory
@@ -33,7 +34,7 @@ class PaymentFactory(factory.django.DjangoModelFactory):
     amount = 10
     status = Payment.statuses.PENDING
     registration = factory.SubFactory(RegistrationFactory)
-    timestamp = factory.LazyFunction(datetime.datetime.now)
+    timestamp = factory.LazyFunction(timezone.now)
 
     class Params:
         # These are just to more concisely define status

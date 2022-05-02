@@ -73,6 +73,27 @@ class MockMollieMixin:
         self.mollie_payments[mollie_id] = mollie_payment
         return mollie_payment
 
+    def assert_single_payment_started(self, payment, registration, amount, next_url, checkout_url):
+        self.assertTrue(self.mollie_client.payments.create.called_once())
+
+        (mollie_payment,) = self.mollie_payments.values()
+        webhook_url = reverse('payments:webhook', args=(payment.pk,))
+        self.assertIn(str(registration.pk), mollie_payment.description)
+        self.assertIn(registration.event.name, mollie_payment.description)
+        self.assertIn(registration.user.full_name, mollie_payment.description)
+        self.assertEqual(float(mollie_payment.amount['value']), amount)
+        self.assertEqual(mollie_payment.redirect_url, self.request.build_absolute_uri(next_url))
+        self.assertEqual(mollie_payment.webhook_url, self.request.build_absolute_uri(webhook_url))
+        self.assertEqual(mollie_payment.checkout_url, checkout_url)
+
+        self.assertNotIn(checkout_url, [None, ""])
+        validate_url = URLValidator(schemes=('http', 'https'))
+        validate_url(checkout_url)
+        self.assertEqual(payment.amount, amount)
+        self.assertEqual(payment.status, Payment.statuses.PENDING)
+        self.assertEqual(payment.mollie_id, mollie_payment.id)
+        self.assertEqual(payment.mollie_status, mollie_payment.status)
+
 
 class TestPaymentStatusService(MockMollieMixin, TestCase):
     @parameterized.expand(itertools.product(Payment.statuses.constants))
@@ -184,26 +205,8 @@ class TestPaymentService(MockMollieMixin, TestCase):
         registration = payment.registration
         next_url = 'foo'
 
-        with self.mollie_client.payments.create.called_once():
-            checkout_url = PaymentService.start_payment(self.request, payment, next_url)
-
-        (mollie_payment,) = self.mollie_payments.values()
-        webhook_url = reverse('payments:webhook', args=(payment.pk,))
-        self.assertIn(str(registration.pk), mollie_payment.description)
-        self.assertIn(registration.event.name, mollie_payment.description)
-        self.assertIn(registration.user.full_name, mollie_payment.description)
-        self.assertEqual(mollie_payment.amount['value'], "10.00")
-        self.assertEqual(mollie_payment.redirect_url, self.request.build_absolute_uri(next_url))
-        self.assertEqual(mollie_payment.webhook_url, self.request.build_absolute_uri(webhook_url))
-        self.assertEqual(mollie_payment.checkout_url, checkout_url)
-
-        self.assertNotIn(checkout_url, [None, ""])
-        validate_url = URLValidator(schemes=('http', 'https'))
-        validate_url(checkout_url)
-        self.assertEqual(payment.amount, amount)
-        self.assertEqual(payment.status, Payment.statuses.PENDING)
-        self.assertEqual(payment.mollie_id, mollie_payment.id)
-        self.assertEqual(payment.mollie_status, mollie_payment.status)
+        checkout_url = PaymentService.start_payment(self.request, payment, next_url)
+        self.assert_single_payment_started(payment, registration, amount, next_url, checkout_url)
 
     @parameterized.expand(itertools.product([-1, 0]))
     def test_invalid_amount(self, amount):

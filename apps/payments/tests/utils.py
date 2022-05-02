@@ -36,6 +36,15 @@ class MockMollieMixin:
         mollie_id = self.mollie_id_faker.generate()
         return self.add_mollie_payment(mollie_id, status='open', **data)
 
+    def set_mollie_status(self, mollie_id, status, updated_at=None):
+        """ Helper for testcase to set status for a mollie payment. """
+        if updated_at is None:
+            updated_at = datetime.datetime.now(datetime.timezone.utc)
+
+        mp = self.mollie_payments[mollie_id]
+        mp['status'] = status
+        mp['{}At'.format(status)] = updated_at.isoformat()
+
     def add_mollie_payment(self, mollie_id, status, updated_at=None, **kwargs):
         """ Helper for testcase to add a mollie payment object, to be returned by get """
         if updated_at is None:

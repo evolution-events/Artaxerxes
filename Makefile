@@ -110,6 +110,6 @@ shell:
 deploy: ensure_virtual_env
 	@poetry install --no-dev
 	$(MAKE) migrate
-	$(CURDIR)/manage.py collectstatic
+	$(CURDIR)/manage.py collectstatic --no-input
 	# Reload wsgi app, if configured like that
 	touch arta/wsgi.py

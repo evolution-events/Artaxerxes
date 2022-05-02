@@ -80,6 +80,9 @@ class PaymentService:
         if payment.mollie_id:
             raise ValueError("Payment already started")
 
+        if not payment.status.PENDING:
+            raise ValueError("Payment has invalid status")
+
         registration = payment.registration
 
         # TODO: If this is a partial or additional payment, modify message?

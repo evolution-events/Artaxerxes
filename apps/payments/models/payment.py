@@ -30,7 +30,7 @@ class Payment(models.Model):
     registration = models.ForeignKey('registrations.Registration', related_name='payments', on_delete=models.CASCADE)
 
     amount = MonetaryField()
-    status = ConstantChoiceField(verbose_name=_('Status'), constants=statuses, null=False)
+    status = ConstantChoiceField(verbose_name=_('Status'), constants=statuses, null=False, default=statuses.PENDING)
 
     # null=True to allow non-unique blank values
     mollie_id = models.CharField(max_length=16, unique=True, blank=True, null=True, default=None)

@@ -525,7 +525,6 @@ class PaymentStatus(LoginRequiredMixin, DetailView):
             payment = Payment.objects.create(
                 registration=self.registration,
                 amount=self.registration.amount_due,
-                status=Payment.statuses.PENDING,
             )
             next_url = reverse('registrations:payment_done', args=(payment.pk,))
             method = self.request.POST.get('method', '')

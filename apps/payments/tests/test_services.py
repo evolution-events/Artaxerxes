@@ -24,6 +24,8 @@ mollie_statuses = [
 
 class MockMollieMixin:
     def setUp(self):
+        super().setUp()
+
         # Create a fresh patch and "database" for each testcase, so things like assert_called work as expected.
         patcher = mock.patch('apps.payments.services.mollie_client')
         self.mollie_client = patcher.start()

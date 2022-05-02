@@ -20,14 +20,14 @@ class MockMollieMixin:
         self.addCleanup(patcher.stop)
         self.mollie_id_faker = MollieIdFaker()
 
-        self.mollie_client.payments.get.side_effect = self.mollie_get
-        self.mollie_client.payments.create.side_effect = self.mollie_create
+        self.mollie_client.payments.get.side_effect = self._mollie_get
+        self.mollie_client.payments.create.side_effect = self._mollie_create
         self.mollie_payments = {}
 
-    def mollie_get(self, mollie_id):
+    def _mollie_get(self, mollie_id):
         return self.mollie_payments[mollie_id]
 
-    def mollie_create(self, data):
+    def _mollie_create(self, data):
         self.assertRegex(data['amount']['value'], r'\d+.\d\d')
         self.assertEqual(data['amount']['currency'], 'EUR')
         self.assertIn('redirectUrl', data)

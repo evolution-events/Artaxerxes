@@ -357,6 +357,31 @@ class TestPaymentAnnotations(TestCase):
             amount_due=75,
         )
 
+    def test_partially_refunded_but_still_due(self):
+        """ Test that partially paid registrations including refunds are PARTIAL. """
+        # These can occur when a payment has been made, then options are removed and refunded, and then options are
+        # added again. Or when a refund is made without also updating the registration options.
+        self.check_helper(
+            options=[self.player],
+            payments=[100, -50],
+            price=100,
+            paid=50,
+            amount_due=50,
+            payment_status=self.ps.PARTIAL,
+        )
+
+    def test_fully_refunded_but_still_due(self):
+        """ Test that fully refunded but still due registrations are OPEN. """
+        # This can occur when a refund is made without also cancelling/updating the registration.
+        self.check_helper(
+            options=[self.player],
+            payments=[100, -100],
+            price=100,
+            paid=0,
+            amount_due=100,
+            payment_status=self.ps.OPEN,
+        )
+
     def test_multiple_price_and_payments(self):
         """
         Test that the price and paid amounts are correct when combined.

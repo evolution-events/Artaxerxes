@@ -81,6 +81,8 @@ class RegistrationQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
                     When(amount_due=None, then=Value(s.NOT_DUE.v)),
                     # No payments at all is open
                     When(paid=None, then=Value(s.OPEN.v)),
+                    # Payments exist but net 0, so return to OPEN instead of PARTIAL
+                    When(paid=0, then=Value(s.OPEN.v)),
                     # Some payments exist, but not enough
                     When(amount_due__gt=0, then=Value(s.PARTIAL.v)),
                     # Some payments exist and exactly enough

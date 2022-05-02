@@ -103,7 +103,6 @@ class PaymentService:
 
         payment.mollie_id = mp.id
         payment.mollie_status = mp.status
-        payment.timestamp = timezone.now()
         payment.save()
 
         return mp.checkout_url

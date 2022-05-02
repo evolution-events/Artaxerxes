@@ -36,8 +36,9 @@ class Payment(models.Model):
     mollie_id = models.CharField(max_length=16, unique=True, blank=True, null=True, default=None)
     mollie_status = models.CharField(max_length=16, blank=True)
 
-    timestamp = models.DateTimeField(verbose_name=_('Transaction date/time'),
-                                     help_text=_('For pending payments, this is the creation timestamp'))
+    created_at = models.DateTimeField(verbose_name=_('Creation timestamp'), auto_now_add=True, null=False)
+    updated_at = models.DateTimeField(verbose_name=_('Last update timestamp'), auto_now=True, null=False)
+    timestamp = models.DateTimeField(verbose_name=_('Transaction date/time'), null=True)
 
     objects = PaymentManager()
 

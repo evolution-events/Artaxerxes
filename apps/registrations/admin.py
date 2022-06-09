@@ -40,6 +40,35 @@ class RegistrationFieldInline(LimitDependsMixin, admin.TabularInline):
 class RegistrationFieldValueInline(admin.TabularInline):
     model = RegistrationFieldValue
     extra = 0
+    # Disallow editing inline, because only the regular admin can properly limit the choices
+    readonly_fields = ('option', 'field', 'string_value', 'file_value')
+    fields = ('field', 'option', 'string_value', 'file_value')
+    show_change_link = True
+
+    # Disable add permission to defer adding to the AddRegistrationFieldValueInline below
+    def has_add_permission(self, request):
+        return False
+
+
+class AddRegistrationFieldValueInline(LimitForeignKeyOptionsMixin, admin.TabularInline):
+    # Extra inline just for adding new values, which does not have all values readonly.
+    # This just allows setting the field when adding a new item, deferring setting the values to the regular change
+    # value (which has better limiting of choices).
+    model = RegistrationFieldValue
+    extra = 0
+    fields = ('field',)
+
+    def get_foreignkey_limits(self, fieldname):
+        if fieldname == 'field':
+            return ('event', {Registration: 'event'})
+        return super().get_foreignkey_limits(fieldname)
+
+    # Disable change/view permission to prevent displaying existing items here
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_view_permission(self, request, obj=None):
+        return False
 
 
 class RegistrationPriceCorrectionInline(admin.TabularInline):
@@ -130,7 +159,10 @@ class RegistrationAdmin(HijackRelatedAdminMixin, VersionAdmin):
         )),
     ]
 
-    inlines = [PaymentInline, RegistrationFieldValueInline, RegistrationPriceCorrectionInline]
+    inlines = [
+        PaymentInline, RegistrationFieldValueInline, AddRegistrationFieldValueInline,
+        RegistrationPriceCorrectionInline,
+    ]
 
     actions = [
         'make_mailing_list',
@@ -207,9 +239,17 @@ class RegistratFieldOptionAdmin(LimitDependsMixin, VersionAdmin):
 
 @admin.register(RegistrationFieldValue)
 class RegistratFieldValueAdmin(LimitForeignKeyOptionsMixin, VersionAdmin):
+    fields = ('registration', 'field', 'option', 'string_value', 'file_value')
+
     def get_foreignkey_limits(self, fieldname):
         if fieldname == 'field':
             return ('event', {RegistrationFieldValue: 'registration__event'})
         elif fieldname == 'option':
             return ('field', {RegistrationFieldValue: 'field'})
         return super().get_foreignkey_limits(fieldname)
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj:
+            return ['field', 'registration']
+        else:
+            return []

@@ -14,47 +14,19 @@ from reversion.admin import VersionAdmin
 from apps.events.models import Event
 from apps.payments.admin import PaymentInline
 from apps.people.models import ArtaUser
+from arta.common.admin import LimitForeignKeyOptionsMixin
 
 from .models import (Registration, RegistrationField, RegistrationFieldOption, RegistrationFieldValue,
                      RegistrationPriceCorrection)
 
 
-class LimitDependsMixin:
-    """
-    Mixin intended to limit the choices for a ForeignKey field in the admin based on another field.
+class LimitDependsMixin(LimitForeignKeyOptionsMixin):
+    """ Mixin intended to limit choices for the depends field based on the event. """
 
-    This is based on https://stackoverflow.com/a/29455444/740048 but slightly generalized. This can probably be made
-    even more general (by doing the actual filter configuration in the Admin classes instead, or in a function that
-    returns a dynamic mixin).
-    """
-
-    def get_form(self, request, obj=None, **kwargs):
-        """ Called for ModelAdmin instances """
-        self.instance = obj
-        return super().get_form(request, obj=obj, **kwargs)
-
-    def get_formset(self, request, obj=None, **kwargs):
-        """ Called for InlineModelAdmin instances """
-        self.instance = obj
-        return super().get_formset(request, obj=obj, **kwargs)
-
-    def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
-        # For the "depends" foreignkey, only offer options that are associated with the same event.
-        if db_field.name == 'depends' and self.instance:
-            # Note that for inline admins, self.instance is the parent instance, not the per-inline-row instance. Since
-            # a single form is shared by all inline rows, we are called only once and can only filter based on the
-            # parent (which is ok for this particular case).
-            if isinstance(self.instance, Event):
-                check = {'field__event': self.instance}
-            elif isinstance(self.instance, RegistrationField):
-                check = {'field__event': self.instance.event}
-            elif isinstance(self.instance, RegistrationFieldOption):
-                check = {'field__event': self.instance.field.event}
-            else:
-                raise AssertionError()
-            objects = db_field.remote_field.model.objects
-            kwargs['queryset'] = objects.filter(**check)
-        return super().formfield_for_foreignkey(db_field, request=request, **kwargs)
+    def get_foreignkey_limits(self, fieldname):
+        if fieldname == 'depends':
+            return ('field__event', {Event: '', RegistrationField: 'event', RegistrationFieldOption: 'field__event'})
+        return super().get_foreignkey_limits(fieldname)
 
 
 class RegistrationFieldInline(LimitDependsMixin, admin.TabularInline):

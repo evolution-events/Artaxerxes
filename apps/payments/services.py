@@ -2,7 +2,6 @@ import datetime
 
 from django.conf import settings
 from django.urls import reverse
-from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from mollie.api.client import Client
 

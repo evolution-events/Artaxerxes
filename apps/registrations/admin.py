@@ -206,5 +206,10 @@ class RegistratFieldOptionAdmin(LimitDependsMixin, VersionAdmin):
 
 
 @admin.register(RegistrationFieldValue)
-class RegistratFieldValueAdmin(VersionAdmin):
-    pass
+class RegistratFieldValueAdmin(LimitForeignKeyOptionsMixin, VersionAdmin):
+    def get_foreignkey_limits(self, fieldname):
+        if fieldname == 'field':
+            return ('event', {RegistrationFieldValue: 'registration__event'})
+        elif fieldname == 'option':
+            return ('field', {RegistrationFieldValue: 'field'})
+        return super().get_foreignkey_limits(fieldname)

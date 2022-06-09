@@ -153,8 +153,8 @@ class TestParallelUsers(TransactionTestCase):
     def test_registration(self):
         """ Test users refreshing the finalcheck until registration is open, then register. """
 
-        timeout=20
-        registration_start=5
+        timeout = 20
+        registration_start = 5
         self.event.registration_opens_at = datetime.now(timezone.utc) + timedelta(seconds=registration_start)
         self.event.save()
 

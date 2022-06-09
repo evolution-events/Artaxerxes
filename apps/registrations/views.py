@@ -23,7 +23,7 @@ from arta.common.views import CacheUsingTimestampsMixin
 
 from .forms import (EmergencyContactFormSet, FinalCheckForm, MedicalDetailForm, PersonalDetailForm,
                     RegistrationOptionsForm)
-from .models import Registration, RegistrationFieldOption, RegistrationFieldValue, RegistrationPriceCorrection
+from .models import Registration, RegistrationFieldOption, RegistrationFieldValue
 from .services import RegistrationNotifyService, RegistrationStatusService
 
 REGISTRATION_STEPS = [

@@ -11,7 +11,6 @@ from hijack_admin.admin import HijackRelatedAdminMixin
 from konst.models.fields import ConstantChoiceCharField
 from reversion.admin import VersionAdmin
 
-from apps.core.fields import MonetaryField
 from apps.events.models import Event
 from apps.payments.admin import PaymentInline
 from apps.people.models import ArtaUser

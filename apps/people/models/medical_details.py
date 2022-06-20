@@ -32,7 +32,7 @@ class MedicalDetails(models.Model):
     event_risks = models.TextField(
         verbose_name=_('Take into account for event'),
         help_text=_("Please specify any medical or psychological conditions that we should take into account while "
-                    "preparing for the event. For example if you are allergic to smoke machines, can not handle "
+                    "preparing for the event. For example if you are allergic to smoke machines, cannot handle "
                     "flashes of light, are claustrophobic etc. Leave blank when there is nothing to mention."),
         blank=True,
     )

@@ -23,9 +23,10 @@ class MedicalDetails(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='medical_details')
     food_allergies = models.TextField(
         verbose_name=_('Food allergies'),
-        help_text=_("Please specify any allergies that our kitchen staff should take into account. Please also "
-                    "mention the severity. Do not use this field for food you dislike, only enter things "
-                    "that can cause real problems. Leave blank when you have no allergies. "),
+        help_text=_("Please specify any allergies or other restrictions our kitchen staff should take into account. "
+                    "Please also mention the severity. Do not use this field for food you dislike (we cannot "
+                    "accomodate that), only enter things that can cause real problems. Leave blank when you have no "
+                    "allergies."),
         blank=True,
     )
 

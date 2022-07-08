@@ -228,9 +228,6 @@ class RegistrationOptionsForm(forms.Form):
             'options',
             queryset=RegistrationFieldOption.objects.filter(Q(invite_only=None) | Q(invite_only__user=self.user)),
             to_attr='available_options',
-            # TODO: This modifies the default field.options manager to return a subset, which is not ideal. Better to
-            # use to_attr='available_options', but that produces a list object in field.available_options rather
-            # than a queryset with pre-cached results, which will not work with
         ))
 
         fields = fields.select_related('depends__field')

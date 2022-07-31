@@ -356,10 +356,11 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
             self.optional_image.name + "-clear": "on",
         })
 
-    def check_field_saved_helper(self, reg, value, field, data):
+    def check_field_saved_helper(self, reg, value, data):
         """ Check that the given value is saved for the given registration and field, and value from the form data. """
-        self.assertEqual(value.field, field)
         self.assertEqual(value.registration, reg)
+
+        field = value.field
 
         submitted = data.get(field.name, "")
         string_value = ""
@@ -442,35 +443,21 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         self.assertFormRedirects(response, next_url)
 
         values = list(RegistrationFieldValue.objects.all().order_by('field__name'))
-        (
-            gender,
-            optional_checkbox, optional_choice, optional_image, optional_rating5, optional_string, optional_text,
-            optional_uncheckbox,
-            origin,
-            required_checkbox, required_choice, required_image, required_rating5, required_string, required_text,
-            required_uncheckbox,
-            reg_type,
-        ) = values
 
-        self.check_field_saved_helper(reg, reg_type, self.type, data)
-        self.check_field_saved_helper(reg, gender, self.gender, data)
-        self.check_field_saved_helper(reg, origin, self.origin, data)
-        self.check_field_saved_helper(reg, optional_checkbox, self.optional_checkbox, data)
-        self.check_field_saved_helper(reg, optional_uncheckbox, self.optional_uncheckbox, data)
-        self.check_field_saved_helper(reg, optional_choice, self.optional_choice, data)
-        self.check_field_saved_helper(reg, optional_image, self.optional_image, data)
-        self.check_field_saved_helper(reg, optional_rating5, self.optional_rating5, data)
-        self.check_field_saved_helper(reg, optional_string, self.optional_string, data)
-        self.check_field_saved_helper(reg, optional_text, self.optional_text, data)
-        self.check_field_saved_helper(reg, required_checkbox, self.required_checkbox, data)
-        self.check_field_saved_helper(reg, required_uncheckbox, self.required_uncheckbox, data)
-        self.check_field_saved_helper(reg, required_choice, self.required_choice, data)
-        self.check_field_saved_helper(reg, required_image, self.required_image, data)
-        self.check_field_saved_helper(reg, required_rating5, self.required_rating5, data)
-        self.check_field_saved_helper(reg, required_string, self.required_string, data)
-        self.check_field_saved_helper(reg, required_text, self.required_text, data)
+        expected_values = {
+            self.type, self.gender, self.origin,
+            self.optional_checkbox, self.optional_uncheckbox, self.optional_choice, self.optional_image,
+            self.optional_rating5, self.optional_string, self.optional_text,
+            self.required_checkbox, self.required_uncheckbox, self.required_choice, self.required_image,
+            self.required_rating5, self.required_string, self.required_text,
+        }
 
-        form_response = self.client.get(form_url, data)
+        self.assertEqual({v.field for v in values}, expected_values)
+
+        for value in values:
+            self.check_field_saved_helper(reg, value, data)
+
+        form_response = self.client.get(form_url)
         for value in values:
             self.check_field_rendered_helper(form_response, value)
 

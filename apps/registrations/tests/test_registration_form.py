@@ -77,13 +77,13 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         )
 
         cls.optional_text = RegistrationFieldFactory(
-            event=cls.event, name="optional_text", field_type=RegistrationField.types.STRING, required=False,
+            event=cls.event, name="optional_text", field_type=RegistrationField.types.TEXT, required=False,
         )
         cls.required_text = RegistrationFieldFactory(
-            event=cls.event, name="required_text", field_type=RegistrationField.types.STRING,
+            event=cls.event, name="required_text", field_type=RegistrationField.types.TEXT,
         )
         cls.depends_text = RegistrationFieldFactory(
-            event=cls.event, name="depends_text", field_type=RegistrationField.types.STRING, depends=cls.crew,
+            event=cls.event, name="depends_text", field_type=RegistrationField.types.TEXT, depends=cls.crew,
         )
 
         cls.optional_checkbox = RegistrationFieldFactory(
@@ -457,7 +457,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
                     self.assertEqual(elem.get('value', ''), value.string_value)
             elif field.field_type.TEXT:
                 with self.assertHTML(response, 'textarea[name="{}"]'.format(field.name)) as (elem,):
-                    self.assertEqual(elem.text, value.string_value)
+                    self.assertEqual(elem.text, '\n' + value.string_value)
             elif field.field_type.RATING5:
                 with self.assertHTML(response, 'input[type="radio"][name="{}"]'.format(field.name)) as elems:
                     for elem in elems:

@@ -302,58 +302,61 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         reg = RegistrationFactory(event=self.event, user=self.user, preparation_in_progress=True)
 
         # Set initial values for all fields
-        self.options_form_helper(reg, {
+        data = {
             self.type.name: self.player.pk,
             self.gender.name: self.option_m.pk,
             self.origin.name: self.option_nl.pk,
             self.required_checkbox.name: "on",
             self.required_uncheckbox.name: "on",
             self.required_choice.name: self.required_choice_option.pk,
-            self.required_image.name: self.test_image,
             self.required_rating5.name: "3",
             self.required_string.name: "abc",
             self.required_text.name: "xyz",
             self.optional_checkbox.name: "on",
             self.optional_choice.name: self.optional_choice_option.pk,
-            self.optional_image.name: self.test_image2,
             self.optional_rating5.name: "2",
             self.optional_string.name: "def",
             self.optional_text.name: "ghi",
+        }
+
+        # Images are added separately, since they need not be resubmitted on every request, and the images are use-once
+        # iterators.
+        self.options_form_helper(reg, data | {
+            self.required_image.name: self.test_image,
+            self.optional_image.name: self.test_image2,
         })
 
         # Then change all values (except for required checkboxes that have only one valid value)
-        self.options_form_helper(reg, {
+        data.update({
             self.type.name: self.npc.pk,
             self.gender.name: self.option_f.pk,
             self.origin.name: self.option_intl.pk,
-            self.required_checkbox.name: "on",
-            self.required_uncheckbox.name: "on",
             self.required_choice.name: self.required_choice_option2.pk,
-            self.required_image.name: self.test_image2,
             self.required_rating5.name: "1",
             self.required_string.name: "ABC",
             self.required_text.name: "XYZ",
             self.optional_uncheckbox.name: "on",
             self.optional_choice.name: self.optional_choice_option2.pk,
-            self.optional_image.name: self.test_image2,
             self.optional_rating5.name: "5",
             self.optional_string.name: "DEF",
             self.optional_text.name: "GHI",
         })
+        del data[self.optional_uncheckbox.name]
+        self.options_form_helper(reg, data | {
+            self.required_image.name: self.test_image2,
+            self.optional_image.name: self.test_image2,
+        })
 
         # Finally, remove all optional values
-        self.options_form_helper(reg, {
-            self.type.name: self.player.pk,
-            self.gender.name: self.option_f.pk,
-            self.origin.name: self.option_intl.pk,
-            self.required_checkbox.name: "on",
-            self.required_uncheckbox.name: "on",
-            self.required_choice.name: self.required_choice_option.pk,
-            self.required_image.name: self.test_image2,
-            self.required_rating5.name: "1",
-            self.required_string.name: "ABC",
-            self.required_text.name: "XYZ",
+        del data[self.optional_choice.name]
+        del data[self.optional_rating5.name]
+        del data[self.optional_string.name]
+        del data[self.optional_text.name]
+
+        self.options_form_helper(reg, data | {
             self.optional_image.name + "-clear": "on",
+        }, check_data=data | {
+            self.required_image.name: self.test_image2,
         })
 
     def check_field_saved_helper(self, reg, value, data):

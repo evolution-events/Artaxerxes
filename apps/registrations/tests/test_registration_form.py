@@ -347,7 +347,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
             self.optional_image.name: self.test_image2,
         })
 
-        # Finally, remove all optional values
+        # Remove all optional values
         del data[self.optional_choice.name]
         del data[self.optional_rating5.name]
         del data[self.optional_string.name]
@@ -357,6 +357,35 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
             self.optional_image.name + "-clear": "on",
         }, check_data=data | {
             self.required_image.name: self.test_image2,
+        })
+
+        # Set type=crew to unlock options that depend on that, and change them
+        data.update({
+            self.type.name: self.crew.pk,
+            self.depends_uncheckbox.name: "on",
+            self.depends_checkbox.name: "on",
+            self.depends_choice.name: self.depends_choice_option.pk,
+            self.depends_rating5.name: "1",
+            self.depends_string.name: "ABC",
+            self.depends_text.name: "XYZ",
+        })
+        self.options_form_helper(reg, data | {
+            self.depends_image.name: self.test_image2,
+        }, check_data=data | {
+            self.required_image.name: self.test_image2,
+            self.depends_image.name: self.test_image2,
+        })
+
+        # And reset type to assert the dependent options are removed again, even when we do supply values for them
+        # (options_form_helper checks this based on the type value).
+        data.update({
+            self.type.name: self.player.pk,
+        })
+        self.options_form_helper(reg, data | {
+            self.depends_image.name: self.test_image2,
+        }, check_data=data | {
+            self.required_image.name: self.test_image2,
+            self.depends_image.name: self.test_image2,
         })
 
     def check_field_saved_helper(self, reg, value, data):
@@ -450,13 +479,21 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
 
         values = list(RegistrationFieldValue.objects.all().order_by('field__name'))
 
-        expected_values = {
+        nondepends_fields = {
             self.type, self.gender, self.origin,
             self.optional_checkbox, self.optional_uncheckbox, self.optional_choice, self.optional_image,
             self.optional_rating5, self.optional_string, self.optional_text,
             self.required_checkbox, self.required_uncheckbox, self.required_choice, self.required_image,
             self.required_rating5, self.required_string, self.required_text,
         }
+        depends_fields = {
+            self.depends_checkbox, self.depends_uncheckbox, self.depends_choice, self.depends_image,
+            self.depends_rating5, self.depends_string, self.depends_text,
+        }
+
+        expected_values = set(nondepends_fields)
+        if check_data[self.type.name] == self.crew.pk:
+            expected_values.update(depends_fields)
 
         self.assertEqual({v.field for v in values}, expected_values)
 

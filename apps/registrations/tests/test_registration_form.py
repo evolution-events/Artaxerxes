@@ -434,8 +434,11 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
                         else:
                             self.assertIsNone(elem.get('checked'))
 
-    def options_form_helper(self, reg, data):
+    def options_form_helper(self, reg, data, check_data=None):
         """ Submits the given data to the options form, and checks that it is saved correctly. """
+        if check_data is None:
+            check_data = data
+
         form_url = reverse('registrations:step_registration_options', args=(reg.pk,))
         response = self.client.post(form_url, data)
 
@@ -455,7 +458,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         self.assertEqual({v.field for v in values}, expected_values)
 
         for value in values:
-            self.check_field_saved_helper(reg, value, data)
+            self.check_field_saved_helper(reg, value, check_data)
 
         form_response = self.client.get(form_url)
         for value in values:

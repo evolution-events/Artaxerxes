@@ -39,6 +39,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
 
         cls.type = RegistrationFieldFactory(event=cls.event, name="type")
         cls.player = RegistrationFieldOptionFactory(field=cls.type, title="Player")
+        cls.npc = RegistrationFieldOptionFactory(field=cls.type, title="NPC")
         cls.crew = RegistrationFieldOptionFactory(field=cls.type, title="Crew")
 
         cls.gender = RegistrationFieldFactory(event=cls.event, name="gender")
@@ -320,10 +321,9 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
             self.optional_text.name: "ghi",
         })
 
-        # Then change all values (except for required checkboxes that have only one valid value, and the player option
-        # that is needed for the other options to exist at all).
+        # Then change all values (except for required checkboxes that have only one valid value)
         self.options_form_helper(reg, {
-            self.type.name: self.player.pk,
+            self.type.name: self.npc.pk,
             self.gender.name: self.option_f.pk,
             self.origin.name: self.option_intl.pk,
             self.required_checkbox.name: "on",

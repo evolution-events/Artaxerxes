@@ -203,7 +203,9 @@ class RegistrationOptionsForm(forms.Form):
         options = registration.options.select_related('field')
         for option in options:
             if option.field.field_type.CHOICE:
-                value = option.option
+                # TODO: In Django 3.0 this can just be option.option again, see
+                # https://code.djangoproject.com/ticket/30014
+                value = option.option.pk if option.option else None
             elif option.field.field_type.IMAGE:
                 value = option.file_value
             elif option.field.field_type.CHECKBOX or option.field.field_type.UNCHECKBOX:

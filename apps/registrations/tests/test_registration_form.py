@@ -60,11 +60,19 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         )
         cls.required_choice_option = RegistrationFieldOptionFactory(field=cls.required_choice, title="rco")
         cls.required_choice_option2 = RegistrationFieldOptionFactory(field=cls.required_choice, title="rco2")
+        cls.required_choice_option_depends = RegistrationFieldOptionFactory(
+            field=cls.required_choice, depends=cls.crew, title="rco_dep",
+        )
         cls.depends_choice = RegistrationFieldFactory(
             event=cls.event, name="depends_choice", field_type=RegistrationField.types.CHOICE, depends=cls.crew,
         )
         cls.depends_choice_option = RegistrationFieldOptionFactory(field=cls.depends_choice, title="dco")
         cls.depends_choice_option2 = RegistrationFieldOptionFactory(field=cls.depends_choice, title="dco2")
+
+        # Add one more option to required_choice that depends on a field that has a depends itself
+        cls.required_choice_option_depends_depends = RegistrationFieldOptionFactory(
+            field=cls.required_choice, depends=cls.depends_choice_option2, title="rco_dep_dep",
+        )
 
         cls.optional_string = RegistrationFieldFactory(
             event=cls.event, name="optional_string", field_type=RegistrationField.types.STRING, required=False,
@@ -74,6 +82,10 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         )
         cls.depends_string = RegistrationFieldFactory(
             event=cls.event, name="depends_string", field_type=RegistrationField.types.STRING, depends=cls.crew,
+        )
+        cls.depends_depends_string = RegistrationFieldFactory(
+            event=cls.event, name="depends_depends_string", field_type=RegistrationField.types.STRING,
+            depends=cls.depends_choice_option2, allow_change_days=1,
         )
 
         cls.optional_text = RegistrationFieldFactory(
@@ -378,6 +390,16 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
             self.depends_image.name: self.test_image2,
         })
 
+        # Set depends_choice=option2 to unlock depend_depend_string
+        data.update({
+            self.depends_choice.name: self.depends_choice_option2.pk,
+            self.depends_depends_string.name: "def",
+        })
+        self.options_form_helper(reg, data, check_data=data | {
+            self.required_image.name: self.test_image2,
+            self.depends_image.name: self.test_image2,
+        })
+
         # And reset type to assert the dependent options are removed again, even when we do supply values for them
         # (options_form_helper checks this based on the type value).
         data.update({
@@ -493,10 +515,16 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
             self.depends_checkbox, self.depends_uncheckbox, self.depends_choice, self.depends_image,
             self.depends_rating5, self.depends_string, self.depends_text,
         }
+        depends_depends_fields = {
+            self.depends_depends_string,
+        }
 
         expected_values = set(nondepends_fields)
         if check_data[self.type.name] == self.crew.pk:
             expected_values.update(depends_fields)
+
+            if check_data.get(self.depends_choice.name, None) == self.depends_choice_option2.pk:
+                expected_values.update(depends_depends_fields)
 
         self.assertEqual({v.field for v in values}, expected_values)
 
@@ -544,6 +572,44 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
                 self.assertEqual(response.status_code, 200)
                 self.assertFalse(response.context['form'].is_valid())
                 self.assertIn(field_name, response.context['form'].errors)
+
+    def test_option_depends_not_satisfied(self):
+        """ Test that using an option whose depends are not satisfied fails validation """
+        e = self.event
+        reg = RegistrationFactory(event=e, user=self.user, preparation_in_progress=True)
+
+        data = {
+            self.type.name: self.player.pk,
+            self.gender.name: self.option_m.pk,
+            self.origin.name: self.option_nl.pk,
+            self.required_checkbox.name: "on",
+            self.required_uncheckbox.name: "on",
+            self.required_choice.name: self.required_choice_option.pk,
+            self.required_image.name: self.test_image,
+            self.required_rating5.name: "3",
+            self.required_string.name: "abc",
+            self.required_text.name: "xyz",
+        }
+        next_url = reverse('registrations:step_registration_options', args=(reg.pk,))
+
+        with self.subTest("Option that depends on non-selected option should fail validation"):
+            response = self.client.post(next_url, {
+                **data,
+                self.required_choice.name: self.required_choice_option_depends,
+            })
+            self.assertEqual(response.status_code, 200)
+            self.assertFalse(response.context['form'].is_valid())
+            self.assertIn(self.required_choice.name, response.context['form'].errors)
+
+        with self.subTest("Option that depends on field that depends on non-selected option should fail validation"):
+            response = self.client.post(next_url, {
+                **data,
+                self.depends_choice.name: self.depends_choice_option2.pk,
+                self.required_choice.name: self.required_choice_option_depends_depends.pk,
+            })
+            self.assertEqual(response.status_code, 200)
+            self.assertFalse(response.context['form'].is_valid())
+            self.assertIn(self.required_choice.name, response.context['form'].errors)
 
     def test_registration_sends_email(self):
         """ Register until the option slots are taken and the next registration ends up on the waiting list. """

@@ -299,6 +299,11 @@ class RegistrationOptionsForm(forms.Form):
         msg = field.error_messages[code]
         self.add_error(field_name, forms.ValidationError(msg, code=code, params=kwargs))
 
+    def depends_satisfied(self, d, depends):
+        if depends is None:
+            return True
+        return self.depends_satisfied(d, depends.field.depends) and d.get(depends.field.name, None) == depends
+
     def clean(self):
         # Most validation is implicit based on the generated form (e.g. based on required, choices, etc.)
         super().clean()
@@ -309,7 +314,7 @@ class RegistrationOptionsForm(forms.Form):
         for field in fields:
             # If the dependencies for this option are not satisfied, ignore it and remove any previous (e.g.
             # 'required') errors generated for it.
-            if field.depends and d.get(field.depends.field.name, None) != field.depends:
+            if not self.depends_satisfied(d, field.depends):
                 self.errors.pop(field.name, None)
                 continue
 
@@ -317,7 +322,7 @@ class RegistrationOptionsForm(forms.Form):
                 # For CHOICE fields, also check depends on the selected option. A missing value here means validation
                 # already failed in our super, so we can ignore those fields
                 option = d.get(field.name, None)
-                if option and option.depends and d.get(option.depends.field.name, None) != option.depends:
+                if option and not self.depends_satisfied(d, option.depends):
                     self.add_error_by_code(field.name, 'invalid_choice', value=option.title)
 
     def save(self, registration):
@@ -327,7 +332,7 @@ class RegistrationOptionsForm(forms.Form):
         fields = fields.exclude(field_type=RegistrationField.types.SECTION)
         for field in fields:
             # If the dependencies for this option are not satisfied, delete any values for it that might be present
-            if field.depends and d.get(field.depends.field.name, None) != field.depends:
+            if not self.depends_satisfied(d, field.depends):
                 RegistrationFieldValue.objects.filter(registration=registration, field=field).delete()
                 continue
 

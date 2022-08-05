@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 import factory
 
@@ -63,6 +63,15 @@ class RegistrationFieldFactory(factory.django.DjangoModelFactory):
     name = factory.Sequence(lambda n: 'field_%d' % n)
     title = factory.Sequence(lambda n: 'Field title %d' % n)
     field_type = RegistrationField.types.CHOICE
+
+    @factory.lazy_attribute
+    def allow_change_until(obj):
+        if obj.allow_change_days is None:
+            return None
+        return datetime.now(timezone.utc) + timedelta(days=obj.allow_change_days)
+
+    class Params:
+        allow_change_days = None
 
 
 class RegistrationFieldOptionFactory(factory.django.DjangoModelFactory):

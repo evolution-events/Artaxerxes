@@ -416,13 +416,14 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         else:
             string_value = submitted
 
-        self.assertEqual(value.string_value, string_value)
-        self.assertEqual(value.option, option)
+        msg = "for field: {}".format(repr(value.field))
+        self.assertEqual(value.string_value, string_value, msg=msg)
+        self.assertEqual(value.option, option, msg=msg)
         if file_value:
             file_value.seek(0)
-            self.assertEqual(value.file_value.read(), file_value.read())
+            self.assertEqual(value.file_value.read(), file_value.read(), msg=msg)
         else:
-            self.assertEqual(value.file_value.name, "")
+            self.assertEqual(value.file_value.name, "", msg=msg)
 
     def check_field_rendered_helper(self, response, value):
         """ Check that the field for the given value is rendered in the form with the given value shown. """

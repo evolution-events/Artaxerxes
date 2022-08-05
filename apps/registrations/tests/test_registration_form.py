@@ -131,7 +131,8 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
     def test_image(self):
         # Minimal 1-pixel white gif, from https://cloudinary.com/blog/one_pixel_is_worth_three_thousand_words
         image = io.BytesIO(b'\x47\x49\x46\x38\x37\x61\x01\x00\x01\x00\x80\x01\x00\x00\x00\x00'
-                           + b'\xff\xff\xff\x2c\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02\x4c\x01\x00\x3b')
+                           + b'\xff\xff\xff\x2c\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02\x4c\x01\x00\x3b'
+                           + b'img')
         image.name = 'white.gif'
         return image
 
@@ -140,7 +141,8 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         # Minimal 1-pixel transparent gif, from https://cloudinary.com/blog/one_pixel_is_worth_three_thousand_words
         image = io.BytesIO(b'\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x01\x00\x00\x00\x00'
                            + b'\xff\xff\xff\x21\xf9\x04\x01\x0a\x00\x01\x00\x2c\x00\x00\x00\x00\x01\x00\x01'
-                           + b'\x00\x00\x02\x02\x4c\x01\x00\x3b')
+                           + b'\x00\x00\x02\x02\x4c\x01\x00\x3b'
+                           + b'img2')
         image.name = 'transparent.gif'
         return image
 

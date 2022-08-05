@@ -659,6 +659,23 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         self.assertEqual(Registration.objects.all().count(), 1)
         self.assertEqual(reg.status, Registration.statuses.PREPARATION_COMPLETE)
 
+        # And if registered, getting it should redirect to the confirmation
+        reg.status = Registration.statuses.REGISTERED
+        reg.registered_at = timezone.now()
+        reg.save()
+        confirmation_url = reverse('registrations:registration_confirmation', args=(reg.pk,))
+        response = self.client.get(start_url)
+        self.assertRedirects(response, confirmation_url)
+        self.assertEqual(Registration.objects.all().count(), 1)
+        self.assertEqual(reg.status, Registration.statuses.REGISTERED)
+
+        # And posting again should now redirect to confirmation, without creating a new Registration or modifying the
+        # status.
+        response = self.client.post(start_url)
+        self.assertRedirects(response, confirmation_url)
+        self.assertEqual(Registration.objects.all().count(), 1)
+        self.assertEqual(reg.status, Registration.statuses.REGISTERED)
+
     @parameterized.expand(registration_steps)
     def test_others_registration(self, viewname):
         """ Check that all registration steps fail with someone else's registration. """

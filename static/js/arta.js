@@ -8,6 +8,12 @@ $(function() {
         var name = elem.attr('data-depends-name')
         var value = elem.attr('data-depends-value')
         var select = $(this).closest('form').find('select[name="' + name + '"]')
+        // If the select is not present, this means it can no longer be
+        // changed and has the right value selected (if it had a
+        // different value, the depending field would have been omitted).
+        if (!select.length)
+            return;
+
         elem.find('[required]').attr('data-required', true);
         function update() {
             if (select.val() == value) {

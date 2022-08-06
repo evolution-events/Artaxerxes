@@ -1,5 +1,7 @@
 import reversion
 from django.db import models
+from django.utils import timezone
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from konst import Constant, Constants
 from konst.models.fields import ConstantChoiceCharField
@@ -57,6 +59,10 @@ class RegistrationField(models.Model):
 
     def natural_key(self):
         return (self.event.name, self.name)
+
+    @cached_property
+    def allow_change(self):
+        return self.allow_change_until and timezone.now().date() <= self.allow_change_until
 
     class Meta:
         verbose_name = _('registration field')

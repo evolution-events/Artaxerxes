@@ -201,8 +201,11 @@ class RegistrationOptionsForm(forms.Form):
 
         super().__init__(**kwargs)
 
+        # Are we changing the registration (in the sense of "allow_change_until"?
+        self.is_change = (registration.status.ACTIVE)
         self.event = event
         self.user = user
+        self.registration = registration
         self.add_fields()
 
     def values_for_registration(self, registration):
@@ -248,12 +251,27 @@ class RegistrationOptionsForm(forms.Form):
         self._sections = []
 
         for field in fields:
-            # TODO: Handle allow_change_until
             kwargs = {
                 'help_text': field.help_text,
                 'label': conditional_escape(field.title),
                 'required': field.required,
             }
+
+            if self.is_change:
+                # Make fields that can no longer be changed read-only
+                if not field.field_type.SECTION and not field.allow_change:
+                    kwargs['disabled'] = True
+                    kwargs['widget'] = SpanWidget
+                    kwargs['help_text'] = _('This option can no longer be changed — contact organization if needed')
+
+                # Omit fields that depend on a not-selected option on a field that can no longer be changed, because
+                # the javascript that normally handles this cannot know the value of the omitted dependend-on-field.
+                # Fields that depend on a selected, but unchangeable option will be shown as normal, because the
+                # dependency-handling javascript does not act when the depended-on-field is omitted.
+                if field.depends and not field.depends.field.allow_change:
+                    depend_value = self.initial.get(field.depends.field.name, None)
+                    if depend_value != field.depends.pk:
+                        continue
 
             if field.field_type.CHOICE:
                 # TODO: This wraps the prefetched list into something that looks enough like a queryset to satisfy
@@ -281,11 +299,16 @@ class RegistrationOptionsForm(forms.Form):
                 form_field = RegistrationOptionField(queryset=options, empty_label=empty_label, **kwargs)
             elif field.field_type.RATING5:
                 choices = ((str(n), str(n)) for n in range(1, 6))
-                form_field = forms.ChoiceField(choices=choices, widget=forms.RadioSelect, **kwargs)
+                if 'widget' not in kwargs:
+                    kwargs['widget'] = forms.RadioSelect
+
+                form_field = forms.ChoiceField(choices=choices, **kwargs)
             elif field.field_type.STRING:
                 form_field = forms.CharField(**kwargs)
             elif field.field_type.TEXT:
-                form_field = forms.CharField(widget=forms.widgets.Textarea, **kwargs)
+                if 'widget' not in kwargs:
+                    kwargs['widget'] = forms.Textarea
+                form_field = forms.CharField(**kwargs)
             elif field.field_type.CHECKBOX:
                 form_field = forms.BooleanField(**kwargs)
             elif field.field_type.UNCHECKBOX:
@@ -361,5 +384,3 @@ class RegistrationOptionsForm(forms.Form):
             else:
                 value.string_value = d[field.name]
             value.save()
-
-            # TODO: Handle allow_change_until

@@ -18,6 +18,18 @@ class SpanWidget(forms.Widget):
     """ Renders a value wrapped in a <span> tag. """
 
     def render(self, name, value, attrs=None, renderer=None):
+        if hasattr(self, 'choices'):
+            for (v, label) in self.choices:
+                if v == value:
+                    value = label
+                    break
+            # clear consumed iterator, should be needed only once anyway
+            self.choices = None
+        elif value is True:
+            value = _('Yes')
+        elif value is False:
+            value = _('No')
+
         final_attrs = self.build_attrs(self.attrs, attrs)
         return mark_safe(u'<span%s >%s</span>' % (
             forms.utils.flatatt(final_attrs), value))

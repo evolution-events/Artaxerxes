@@ -19,6 +19,11 @@ body {
     max-width: 40em;
 }
 
+span.form-control {
+    background-color:var(--dark);
+    border: none;
+}
+
 .list-group-item {
     background-color:var(--dark);
     color:var(--default);

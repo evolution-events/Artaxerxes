@@ -35,19 +35,19 @@ REGISTRATION_STEPS = [
         'title': _('Event options'),
         'view': 'registrations:step_registration_options',
         'cancel_view': 'core:dashboard',
-        'statuses': Registration.statuses.DRAFT,
+        'statuses': Registration.statuses.DRAFT | Registration.statuses.ACTIVE,
     }, {
         'title': _('Personal details'),
         'view': 'registrations:step_personal_details',
-        'statuses': Registration.statuses.DRAFT,
+        'statuses': Registration.statuses.DRAFT | Registration.statuses.ACTIVE,
     }, {
         'title': _('Safety information'),
         'view': 'registrations:step_medical_details',
-        'statuses': Registration.statuses.DRAFT,
+        'statuses': Registration.statuses.DRAFT | Registration.statuses.ACTIVE,
     }, {
         'title': _('Emergency contacts'),
         'view': 'registrations:step_emergency_contacts',
-        'statuses': Registration.statuses.DRAFT,
+        'statuses': Registration.statuses.DRAFT | Registration.statuses.ACTIVE,
     }, {
         'title': _('Final check'),
         'view': 'registrations:step_final_check',

@@ -37,26 +37,28 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
     def setUpTestData(cls):
         cls.event = EventFactory(registration_opens_in_days=-1, public=True)
 
-        cls.type = RegistrationFieldFactory(event=cls.event, name="type")
+        cls.type = RegistrationFieldFactory(event=cls.event, name="type", allow_change_days=1)
         cls.player = RegistrationFieldOptionFactory(field=cls.type, title="Player")
         cls.npc = RegistrationFieldOptionFactory(field=cls.type, title="NPC")
         cls.crew = RegistrationFieldOptionFactory(field=cls.type, title="Crew")
 
-        cls.gender = RegistrationFieldFactory(event=cls.event, name="gender")
+        cls.gender = RegistrationFieldFactory(event=cls.event, name="gender", allow_change_days=1)
         cls.option_m = RegistrationFieldOptionFactory(field=cls.gender, title="M", slots=2)
         cls.option_f = RegistrationFieldOptionFactory(field=cls.gender, title="F", slots=2)
 
-        cls.origin = RegistrationFieldFactory(event=cls.event, name="origin")
+        cls.origin = RegistrationFieldFactory(event=cls.event, name="origin", allow_change_days=1)
         cls.option_nl = RegistrationFieldOptionFactory(field=cls.origin, title="NL", slots=2)
         cls.option_intl = RegistrationFieldOptionFactory(field=cls.origin, title="INTL", slots=2)
 
         cls.optional_choice = RegistrationFieldFactory(
             event=cls.event, name="optional_choice", field_type=RegistrationField.types.CHOICE, required=False,
+            allow_change_days=1,
         )
         cls.optional_choice_option = RegistrationFieldOptionFactory(field=cls.optional_choice, title="oco")
         cls.optional_choice_option2 = RegistrationFieldOptionFactory(field=cls.optional_choice, title="oco2")
         cls.required_choice = RegistrationFieldFactory(
             event=cls.event, name="required_choice", field_type=RegistrationField.types.CHOICE,
+            allow_change_days=1,
         )
         cls.required_choice_option = RegistrationFieldOptionFactory(field=cls.required_choice, title="rco")
         cls.required_choice_option2 = RegistrationFieldOptionFactory(field=cls.required_choice, title="rco2")
@@ -65,6 +67,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         )
         cls.depends_choice = RegistrationFieldFactory(
             event=cls.event, name="depends_choice", field_type=RegistrationField.types.CHOICE, depends=cls.crew,
+            allow_change_days=1,
         )
         cls.depends_choice_option = RegistrationFieldOptionFactory(field=cls.depends_choice, title="dco")
         cls.depends_choice_option2 = RegistrationFieldOptionFactory(field=cls.depends_choice, title="dco2")
@@ -76,12 +79,15 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
 
         cls.optional_string = RegistrationFieldFactory(
             event=cls.event, name="optional_string", field_type=RegistrationField.types.STRING, required=False,
+            allow_change_days=1,
         )
         cls.required_string = RegistrationFieldFactory(
             event=cls.event, name="required_string", field_type=RegistrationField.types.STRING,
+            allow_change_days=1,
         )
         cls.depends_string = RegistrationFieldFactory(
             event=cls.event, name="depends_string", field_type=RegistrationField.types.STRING, depends=cls.crew,
+            allow_change_days=1,
         )
         cls.depends_depends_string = RegistrationFieldFactory(
             event=cls.event, name="depends_depends_string", field_type=RegistrationField.types.STRING,
@@ -90,53 +96,67 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
 
         cls.optional_text = RegistrationFieldFactory(
             event=cls.event, name="optional_text", field_type=RegistrationField.types.TEXT, required=False,
+            allow_change_days=1,
         )
         cls.required_text = RegistrationFieldFactory(
             event=cls.event, name="required_text", field_type=RegistrationField.types.TEXT,
+            allow_change_days=1,
         )
         cls.depends_text = RegistrationFieldFactory(
             event=cls.event, name="depends_text", field_type=RegistrationField.types.TEXT, depends=cls.crew,
+            allow_change_days=1,
         )
 
         cls.optional_checkbox = RegistrationFieldFactory(
             event=cls.event, name="optional_checkbox", field_type=RegistrationField.types.CHECKBOX, required=False,
+            allow_change_days=1,
         )
         cls.required_checkbox = RegistrationFieldFactory(
             event=cls.event, name="required_checkbox", field_type=RegistrationField.types.CHECKBOX,
+            allow_change_days=1,
         )
         cls.depends_checkbox = RegistrationFieldFactory(
             event=cls.event, name="depends_checkbox", field_type=RegistrationField.types.CHECKBOX, depends=cls.crew,
+            allow_change_days=1,
         )
 
         cls.optional_uncheckbox = RegistrationFieldFactory(
             event=cls.event, name="optional_uncheckbox", field_type=RegistrationField.types.UNCHECKBOX, required=False,
+            allow_change_days=1,
         )
         cls.required_uncheckbox = RegistrationFieldFactory(
             event=cls.event, name="required_uncheckbox", field_type=RegistrationField.types.UNCHECKBOX,
+            allow_change_days=1,
         )
         cls.depends_uncheckbox = RegistrationFieldFactory(
             event=cls.event, name="depends_uncheckbox", field_type=RegistrationField.types.UNCHECKBOX,
-            depends=cls.crew,
+            depends=cls.crew, allow_change_days=1,
         )
 
         cls.optional_rating5 = RegistrationFieldFactory(
             event=cls.event, name="optional_rating5", field_type=RegistrationField.types.RATING5, required=False,
+            allow_change_days=1,
         )
         cls.required_rating5 = RegistrationFieldFactory(
             event=cls.event, name="required_rating5", field_type=RegistrationField.types.RATING5,
+            allow_change_days=1,
         )
         cls.depends_rating5 = RegistrationFieldFactory(
             event=cls.event, name="depends_rating5", field_type=RegistrationField.types.RATING5, depends=cls.crew,
+            allow_change_days=1,
         )
 
         cls.optional_image = RegistrationFieldFactory(
             event=cls.event, name="optional_image", field_type=RegistrationField.types.IMAGE, required=False,
+            allow_change_days=1,
         )
         cls.required_image = RegistrationFieldFactory(
             event=cls.event, name="required_image", field_type=RegistrationField.types.IMAGE,
+            allow_change_days=1,
         )
         cls.depends_image = RegistrationFieldFactory(
             event=cls.event, name="depends_image", field_type=RegistrationField.types.IMAGE, depends=cls.crew,
+            allow_change_days=1,
         )
 
     @property
@@ -311,9 +331,12 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         reg = Registration.objects.get()
         self.assertEqual(reg.status, Registration.statuses.REGISTERED)
 
-    def test_change_options(self):
+    @parameterized.expand(itertools.product(
+        Registration.statuses.DRAFT | Registration.statuses.ACTIVE,
+    ))
+    def test_change_options(self, status):
         """ Test that you can set options and then change them to different values, including empty. """
-        reg = RegistrationFactory(event=self.event, user=self.user, preparation_in_progress=True)
+        reg = RegistrationFactory(event=self.event, user=self.user, status=status)
 
         # Set initial values for all fields
         data = {
@@ -537,10 +560,13 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
 
         return response
 
-    def test_missing_options(self):
+    @parameterized.expand(itertools.product(
+        Registration.statuses.DRAFT | Registration.statuses.ACTIVE,
+    ))
+    def test_missing_options(self, status):
         """ """
         e = self.event
-        reg = RegistrationFactory(event=e, user=self.user, preparation_in_progress=True)
+        reg = RegistrationFactory(event=e, user=self.user, status=status)
 
         data = {
             self.type.name: self.player.pk,
@@ -573,10 +599,13 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
                 self.assertFalse(response.context['form'].is_valid())
                 self.assertIn(field_name, response.context['form'].errors)
 
-    def test_option_depends_not_satisfied(self):
+    @parameterized.expand(itertools.product(
+        Registration.statuses.DRAFT | Registration.statuses.ACTIVE,
+    ))
+    def test_option_depends_not_satisfied(self, status):
         """ Test that using an option whose depends are not satisfied fails validation """
         e = self.event
-        reg = RegistrationFactory(event=e, user=self.user, preparation_in_progress=True)
+        reg = RegistrationFactory(event=e, user=self.user, status=status)
 
         data = {
             self.type.name: self.player.pk,
@@ -754,14 +783,20 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         response = self.client.post(url)
         self.assertEqual(response.status_code, 404)
 
-    @parameterized.expand(registration_steps)
-    def test_own_registration(self, viewname):
+    @parameterized.expand(itertools.product(
+        registration_steps,
+        Registration.statuses.DRAFT | Registration.statuses.ACTIVE,
+    ))
+    def test_own_registration(self, viewname, status):
         """ Check that all registration steps load with your own registration. """
-        registration = RegistrationFactory(event=self.event, user=self.user, preparation_complete=True)
+        registration = RegistrationFactory(event=self.event, user=self.user, status=status)
 
         url = reverse(viewname, args=(registration.pk,))
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        expected_status = 200
+        if not status.PREPARATION_COMPLETE and viewname == 'registrations:step_final_check':
+            expected_status = 302
+        self.assertEqual(response.status_code, expected_status)
 
         # Do not test POST, since that might not work reliably (e.g. the emergency contacts formset breaks for lack
         # of a management form).
@@ -780,10 +815,10 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         self.assertEqual(response.status_code, 404)
 
     @parameterized.expand(itertools.product(
-        registration_steps,
         Registration.statuses.ACTIVE))
-    def test_active_registration(self, viewname, status):
-        """ Check that active registrations redirect to the registration completed page """
+    def test_active_registration(self, status):
+        """ Check that finalcheck for active registrations redirect to the registration completed page """
+        viewname = 'registrations:step_final_check'
         registration = RegistrationFactory(event=self.event, user=self.user, status=status)
 
         url = reverse(viewname, args=(registration.pk,))
@@ -795,7 +830,10 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         response = self.client.post(url, follow=True)
         self.assertRedirects(response, confirm_url)
 
-    def test_not_logged_in(self):
+    @parameterized.expand(itertools.product(
+        Registration.statuses.DRAFT | Registration.statuses.ACTIVE,
+    ))
+    def test_not_logged_in(self, status):
         """ Check that the registration steps redirect when not logged in. """
         def test_view(view, args):
             url = reverse(view, args=args)
@@ -811,7 +849,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
                 self.assertEqual(response.resolver_match.url_name, 'account_login')
 
         self.client.logout()
-        registration = RegistrationFactory(event=self.event, user=self.user)
+        registration = RegistrationFactory(event=self.event, user=self.user, status=status)
 
         test_view('registrations:registration_start', args=(self.event.pk,))
         for view in self.registration_steps:

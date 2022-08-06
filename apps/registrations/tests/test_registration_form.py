@@ -1,5 +1,6 @@
 import io
 import itertools
+import re
 from datetime import datetime
 from datetime import time as dt_time
 from datetime import timedelta
@@ -470,10 +471,13 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         else:
             self.assertEqual(value.file_value.name, "", msg=msg)
 
-    def check_field_rendered_helper(self, response, value):
+    def check_field_rendered_helper(self, response, value, readonly):
         """ Check that the field for the given value is rendered in the form with the given value shown. """
         field = value.field
-        if field.field_type.CHOICE:
+        if readonly:
+            # Just assert that the span is present, figuring out what should be inside exactly is a hassle
+            self.assertHTML(response, 'span[id="id_{}",class="spanwidget"]'.format(field.name))
+        elif field.field_type.CHOICE:
             option = value.option
             if not value.option and field.required:
                 option = field.options[0]
@@ -514,7 +518,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
                         else:
                             self.assertIsNone(elem.get('checked'))
 
-    def options_form_helper(self, reg, data, check_data=None):
+    def options_form_helper(self, reg, data, check_data=None, readonly_fields=()):
         """ Submits the given data to the options form, and checks that it is saved correctly. """
         if check_data is None:
             check_data = data
@@ -549,6 +553,14 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
             if check_data.get(self.depends_choice.name, None) == self.depends_choice_option2.pk:
                 expected_values.update(depends_depends_fields)
 
+        # Fields that depend on another option should be hidden when it is not selected and readonly
+        expected_form_fields = set(nondepends_fields)
+        if not (self.type in readonly_fields and check_data[self.type.name] != self.crew.pk):
+            expected_form_fields.update(depends_fields)
+        if not (self.depends_choice in readonly_fields
+                and check_data[self.depends_choice.name] != self.depends_choice_option2.pk):
+            expected_form_fields.update(depends_depends_fields)
+
         self.assertEqual({v.field for v in values}, expected_values)
 
         for value in values:
@@ -556,7 +568,18 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
 
         form_response = self.client.get(form_url)
         for value in values:
-            self.check_field_rendered_helper(form_response, value)
+            self.check_field_rendered_helper(form_response, value, readonly=(value.field in readonly_fields))
+
+        # check_field_rendered_helper already checked if the values that were saved were actually rendered correctly,
+        # this additionally checks that fields with unsatisfied dependencies are rendered and no extra fields are
+        # rendered.
+        with self.assertHTML(form_response, '.form-control, .form-control-file, .form-check-input') as elems:
+            # Strip id_ prefix and rating options suffix
+            id_re = re.compile(r'^id_(.+?)(_[0-9]*)?$')
+            self.assertEqual(
+                {id_re.sub(r'\1', e.get('id')) for e in elems},
+                {f.name for f in expected_form_fields},
+            )
 
         return response
 
@@ -598,6 +621,112 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
                 self.assertEqual(response.status_code, 200)
                 self.assertFalse(response.context['form'].is_valid())
                 self.assertIn(field_name, response.context['form'].errors)
+
+    @parameterized.expand(itertools.product(
+        # Test both never-changeable and expired changeable options
+        [None, timezone.now() - timedelta(days=1)],
+        Registration.statuses.ACTIVE,
+    ))
+    def test_allow_change_until(self, until, status):
+        """ Check that allow_change_until on a field is respected. """
+
+        reg = RegistrationFactory(event=self.event, user=self.user, status=status)
+
+        # Set initial values for all fields
+        data = {
+            self.type.name: self.player.pk,
+            self.gender.name: self.option_m.pk,
+            self.origin.name: self.option_nl.pk,
+            self.required_checkbox.name: "on",
+            self.required_uncheckbox.name: "on",
+            self.required_choice.name: self.required_choice_option.pk,
+            self.required_rating5.name: "3",
+            self.required_string.name: "abc",
+            self.required_text.name: "xyz",
+            self.optional_checkbox.name: "on",
+            self.optional_choice.name: self.optional_choice_option.pk,
+            self.optional_rating5.name: "2",
+            self.optional_string.name: "def",
+            self.optional_text.name: "ghi",
+        }
+        self.options_form_helper(reg, data | {
+            self.required_image.name: self.test_image,
+            self.optional_image.name: self.test_image2,
+        })
+
+        # Make a lot of options unchangeable, but keep required_choice editable so we can test
+        # required_choice_option_depends
+        unchangeable = [
+            self.type,
+            self.required_checkbox,
+            self.required_uncheckbox,
+            self.required_image,
+            self.required_rating5,
+            self.required_string,
+            self.required_text,
+            self.optional_uncheckbox,
+            self.optional_checkbox,
+            self.optional_choice,
+            self.optional_image,
+            self.optional_rating5,
+            self.optional_string,
+            self.optional_text,
+        ]
+
+        for o in RegistrationField.objects.filter(pk__in=[f.id for f in unchangeable]):
+            o.allow_change_until = until
+            o.save()
+
+        # Then try to change all values (including for required checkboxes), and assert that unchangeable options are
+        # not actually changed
+        data.update({
+            self.gender.name: self.option_f.pk,
+            self.origin.name: self.option_intl.pk,
+            self.required_choice.name: self.required_choice_option2.pk,
+        })
+
+        self.options_form_helper(reg, data | {
+            self.type.name: self.npc.pk,
+            self.required_image.name: self.test_image2,
+            self.required_rating5.name: "1",
+            self.required_string.name: "ABC",
+            self.required_text.name: "XYZ",
+            self.optional_uncheckbox.name: "on",
+            self.optional_choice.name: self.optional_choice_option.pk,
+            self.optional_image.name: self.test_image,
+            self.optional_rating5.name: "5",
+            self.optional_string.name: "DEF",
+            self.optional_text.name: "GHI",
+        }, check_data=data | {
+            self.required_image.name: self.test_image,
+            self.optional_image.name: self.test_image2,
+        }, readonly_fields=unchangeable)
+
+        # Set type=crew to unlock depends options
+        type_value = reg.options.get(field=self.type)
+        type_value.option = self.crew
+        type_value.save()
+
+        # Then try to set all depends values
+        data.update({
+            self.type.name: self.crew.pk,
+            self.required_choice.name: self.required_choice_option_depends.pk,
+            self.depends_uncheckbox.name: "on",
+            self.depends_checkbox.name: "on",
+            self.depends_choice.name: self.depends_choice_option.pk,
+            self.depends_rating5.name: "1",
+            self.depends_string.name: "ABC",
+            self.depends_text.name: "XYZ",
+        })
+
+        self.options_form_helper(reg, data | {
+            self.depends_image.name: self.test_image2,
+            self.optional_image.name: self.test_image2,
+        }, check_data=data | {
+            self.required_image.name: self.test_image,
+            self.depends_image.name: self.test_image2,
+            self.optional_image.name: self.test_image2,
+        }, readonly_fields=unchangeable)
 
     @parameterized.expand(itertools.product(
         Registration.statuses.DRAFT | Registration.statuses.ACTIVE,

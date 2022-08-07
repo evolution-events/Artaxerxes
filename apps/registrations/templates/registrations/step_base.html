@@ -3,7 +3,11 @@
 {% load crispy_forms_filters %}
 
 {% block pagetitle %}
-{% blocktrans %}Registering for {{event}}{% endblocktrans %}
+{% if is_change %}
+  {% blocktrans %}Editing registration for {{event}}{% endblocktrans %}
+{% else %}
+  {% blocktrans %}Registering for {{event}}{% endblocktrans %}
+{% endif %}
 {% endblock pagetitle%}
 
 {% block content %}

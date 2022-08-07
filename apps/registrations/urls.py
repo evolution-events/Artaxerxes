@@ -5,6 +5,7 @@ from . import views
 app_name = 'registrations'
 urlpatterns = [
     path('<int:eventid>/', views.RegistrationStart.as_view(), name="registration_start"),
+    path('es/<int:pk>/', views.EditStart.as_view(), name="edit_start"),
     path('pd/<int:pk>/', views.PersonalDetailsStep.as_view(), name="step_personal_details"),
     path('md/<int:pk>/', views.MedicalDetailsStep.as_view(), name="step_medical_details"),
     path('ec/<int:pk>/', views.EmergencyContactsStep.as_view(), name="step_emergency_contacts"),
@@ -14,4 +15,5 @@ urlpatterns = [
     path('cr/<int:pk>/', views.ConflictingRegistrations.as_view(), name="conflicting_registrations"),
     path('ps/<int:pk>/', views.PaymentStatus.as_view(), name="payment_status"),
     path('pc/<int:pk>/', views.PaymentDone.as_view(), name="payment_done"),
+    path('ed/<int:pk>/', views.EditDone.as_view(), name="edit_done"),
 ]

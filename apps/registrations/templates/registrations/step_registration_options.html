@@ -13,13 +13,15 @@
   availability, indicated below only for completely full options.
   {% endblocktrans %}
   </p>
-  <p>
-  {% blocktrans %}
-  You can change some of these options after finalizing your
-  registration, subject to availability and any conditions specified on
-  the event website. To do so, contact the organization by email.
-  {% endblocktrans %}
-  </p>
+  {% if not is_change %}
+    <p>
+    {% blocktrans %}
+    You can change some of these options after finalizing your
+    registration, subject to availability and any conditions specified on
+    the event website. To do so, contact the organization by email.
+    {% endblocktrans %}
+    </p>
+  {% endif %}
 {% endblock beforeform %}
 
 {% block form %}

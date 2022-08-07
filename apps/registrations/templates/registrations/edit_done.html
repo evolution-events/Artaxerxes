@@ -1,0 +1,25 @@
+{% extends "registrations/step_base.html" %}
+{% load i18n %}
+{% load coretags %}
+
+{% block beforeform %}
+  <p>
+  {% blocktrans %}
+    Your registration has been changed.
+  {% endblocktrans %}
+  </p>
+  {% if not registration.payment_status.DONE %}
+  <p>
+  {% blocktrans %}
+  Your changes might need additional payment or a refund, see the payment status to check.
+  {% endblocktrans %}
+  </p>
+  <p>
+  {% url 'registrations:payment_status' registration.event.pk as pay_url %}
+  <a href="{{pay_url}}" class="btn btn-success">{% trans "Check payment status" %}</a>
+  </p>
+  {% endif %}
+{% endblock beforeform %}
+
+{% block buttons %}
+{% endblock buttons %}

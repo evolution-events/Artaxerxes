@@ -28,9 +28,15 @@ from .services import RegistrationNotifyService, RegistrationStatusService
 
 REGISTRATION_STEPS = [
     {
-        'title': _('Start'),
+        'title': _('Start registration'),
         'view': 'registrations:registration_start',
         'statuses': [],
+        'change': False,
+    }, {
+        'title': _('Edit registration'),
+        'view': 'registrations:edit_start',
+        'statuses': Registration.statuses.ACTIVE,
+        'change': True,
     }, {
         'title': _('Event options'),
         'view': 'registrations:step_registration_options',
@@ -52,10 +58,17 @@ REGISTRATION_STEPS = [
         'title': _('Final check'),
         'view': 'registrations:step_final_check',
         'statuses': [Registration.statuses.PREPARATION_COMPLETE],
+        'change': False,
     }, {
         'title': _('Registered'),
         'view': 'registrations:registration_confirmation',
         'statuses': Registration.statuses.ACTIVE,
+        'change': False,
+    }, {
+        'title': _('Done'),
+        'view': 'registrations:edit_done',
+        'statuses': Registration.statuses.ACTIVE,
+        'change': True,
     },
 ]
 
@@ -96,8 +109,16 @@ class RegistrationStepMixinBase(ContextMixin):
         raise Exception("Current step not listed in REGISTRATION_STEPS")
 
     @cached_property
+    def is_change(self):
+        # If change is not specified the registration status determines is_change
+        return self.current_step.get('change', self.registration and self.registration.status.ACTIVE)
+
+    @cached_property
     def steps(self):
-        return REGISTRATION_STEPS
+        return [
+            step for step in REGISTRATION_STEPS
+            if step.get('change', None) in (self.is_change, None)
+        ]
 
     def check_request(self):
         """
@@ -141,6 +162,11 @@ class RegistrationStepMixinBase(ContextMixin):
                 'back_text': _('Back'),
             })
 
+        if self.registration and self.current_step_num < len(self.steps) - 1:
+            kwargs.update({
+                'forward_url': self.get_success_url(),
+            })
+
         steps = [
             {
                 'url':
@@ -157,6 +183,7 @@ class RegistrationStepMixinBase(ContextMixin):
             'registration': self.registration,
             'event': self.event,
             'steps': steps,
+            'is_change': self.is_change,
         })
         return super().get_context_data(**kwargs)
 
@@ -234,6 +261,13 @@ class RegistrationOptionsStep(RegistrationStepMixin, FormView):
         if not self.event.registration_fields.all():
             return redirect(self.get_success_url())
         return super().check_request()
+
+
+class EditStart(RegistrationStepMixin, DetailView):
+    """ Start editing an active registration. """
+
+    context_object_name = 'registration'
+    template_name = 'registrations/edit_start.html'
 
 
 class PersonalDetailsStep(RegistrationStepMixin, FormView):
@@ -455,6 +489,13 @@ class RegistrationConfirmation(RegistrationStepMixin, DetailView):
 
     def get_queryset(self):
         return super().get_queryset().with_price()
+
+
+class EditDone(RegistrationStepMixin, DetailView):
+    """ View confirmation after editing registration. """
+
+    context_object_name = 'registration'
+    template_name = 'registrations/edit_done.html'
 
 
 class ConflictingRegistrations(LoginRequiredMixin, DetailView):

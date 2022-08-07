@@ -1,0 +1,44 @@
+{% extends "registrations/step_base.html" %}
+{% load i18n %}
+{% load coretags %}
+
+{% block beforeform %}
+  {% if not registration.event.allow_change %}
+    {% if registration.event.allow_change_until %}
+      <p>
+      {% blocktrans with registration.event.display_email|urlize as mail %}
+      Your registration can no longer be changed online. If you still need to make changes, please contact the organization at {{mail}}.
+      {% endblocktrans %}
+      </p>
+    {% else %}
+      <p>
+      {% blocktrans with e.display_email|urlize as mail %}
+      Your registration cannot be changed online. If you do need to make changes, please contact the organization at {{mail}}.
+      {% endblocktrans %}
+      </p>
+    {% endif %}
+  {% else %}
+    {# TODO make this message a bit more specific? I.e. check if allow_change_until is before event start, if any options are unchangeable, etc. #}
+    <p>
+    {% blocktrans with registration.event.allow_change_until as change_until %}
+    Changes to your registration can be made online until
+    {{ change_until }}. Some event options might become unchangeable
+    before then, because the organisation is making use of that
+    information already.
+    {% endblocktrans %}
+    </p>
+    <p>
+    {% blocktrans %}
+    Any changes you make on the following pages will be applied directly
+    when you click "Save" and (except for event options) will also apply
+    to your other current registrations for upcoming events (if any).
+    {% endblocktrans %}
+    </p>
+  {% endif %}
+{% endblock beforeform %}
+
+{% block buttons %}
+  {% if registration.event.allow_change %}
+    <a class="btn btn-success" href="{{ forward_url }}" role="button">{% trans "Continue" %}</a>
+  {% endif %}
+{% endblock buttons %}

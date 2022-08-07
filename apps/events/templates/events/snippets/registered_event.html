@@ -43,18 +43,6 @@
     </div>
     <div class="more-info more-info-collapsed collapse" id="collapse-event-{{e.id}}"  data-parent="#event-block-{{e.id}}">
       {% include 'events/snippets/event_detail.html' with e=e %}
-
-      <h3>{% trans "Cancel?" %}</h3>
-      <p>
-        {% url 'core:house_rules' as house_rules %}
-        {% blocktrans trimmed with event.url as event_url %}
-        If you want or have to cancel your registration, please contact us via e-mail (see above)
-        and make sure you have read <a href="{{house_rules}}">the house rules</a> and
-        <a href="{{event_url}}">event website</a> concerning cancellation because a fee may be
-        due, depending on the time left till the event.
-        {% endblocktrans %}
-      </p>
-
     </div>
     <div class="more-info more-info-collapsed collapse" id="collapse-event-registration-{{e.id}}" data-parent="#event-block-{{e.id}}">
 
@@ -79,6 +67,16 @@
 
       {# TODO betaalstatus nadat we het bijhouden daar van hebben geimplementeerd #}
 
+      <h3>{% trans "Cancel?" %}</h3>
+      <p>
+        {% url 'core:house_rules' as house_rules %}
+        {% blocktrans trimmed with event.url as event_url %}
+        If you want or have to cancel your registration, please contact us via e-mail (see above)
+        and make sure you have read <a href="{{house_rules}}">the house rules</a> and
+        <a href="{{event_url}}">event website</a> concerning cancellation because a fee may be
+        due, depending on the time left till the event.
+        {% endblocktrans %}
+      </p>
     </div>
   </div>
   </li>

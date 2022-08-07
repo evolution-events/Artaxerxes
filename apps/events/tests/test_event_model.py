@@ -1,11 +1,12 @@
-from django.test import TestCase
+from django.db.utils import IntegrityError
+from django.test import TestCase, skipUnlessDBFeature
 
 from apps.people.tests.factories import ArtaUserFactory, GroupFactory
 from apps.registrations.models import Registration
 from apps.registrations.tests.factories import RegistrationFactory
 
 from ..models import Event
-from .factories import EventFactory
+from .factories import EventFactory, SeriesFactory
 
 
 class TestQueryset(TestCase):
@@ -39,3 +40,20 @@ class TestQueryset(TestCase):
             qs = Event.objects.for_organizer(user)
             # Pass transform to prevent string conversion (TODO: remove in Django 3.2)
             self.assertQuerysetEqual(qs, events, transform=lambda o: o, ordered=False)
+
+
+class TestConstraints(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        pass
+
+    @skipUnlessDBFeature('supports_table_check_constraints')
+    def test_has_email_or_series_fail(self):
+        with self.assertRaises(IntegrityError):
+            EventFactory(email='')
+
+    def test_has_email_or_series_ok(self):
+        e = EventFactory()
+        e.email = ''
+        e.series = SeriesFactory()
+        e.save()

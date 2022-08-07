@@ -277,3 +277,6 @@ class Event(models.Model):
             # Index to speed up listing of all public, future events
             models.Index(fields=['public', 'start_date'], name='idx_public_start_date'),
         ]
+        constraints = [
+            models.CheckConstraint(check=~Q(email='') | ~Q(series=None), name='has_email_or_series'),
+        ]

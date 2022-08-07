@@ -181,6 +181,12 @@ class Event(models.Model):
         verbose_name=_('Public'), default=False,
         help_text=_('When checked, the event is visible to users. If registration is not open yet, they can prepare a '
                     'registration already.'))
+    allow_change_until = models.DateField(
+        null=True, blank=True,
+        help_text=_('Registrations for this event can be changed until (including) this date. If empty, registrations '
+                    'cannot be changed. This includes all registration details, including options, personal details, '
+                    'etc.'),
+    )
 
     admit_immediately = models.BooleanField(
         verbose_name=_('Admit registrations immediately (i.e. "first come, first served")'), default=True,
@@ -251,6 +257,10 @@ class Event(models.Model):
         When(~Q(email=""), then='email'),
         When(~Q(series__email=""), then='series__email'),
         default_value='')
+
+    @cached_property
+    def allow_change(self):
+        return self.allow_change_until and timezone.now().date() <= self.allow_change_until
 
     def __str__(self):
         return self.display_name()

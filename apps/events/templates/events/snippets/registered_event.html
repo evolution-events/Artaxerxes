@@ -13,7 +13,6 @@
       <div class="col-3 d-flex align-items-end flex-column">
         {# TODO: betaalstatus weergeven in kleur en tekst #}
         <div class="event-top-right registration-info registration-state-payed">
-          {% trans "Registration number" %}: {{reg.pk }}<br/>
           {% trans "Status" %}: {{ reg.status.label }}<br/>
           {% if reg.price is not None %}
             {% trans "Price" %}: {{ reg.price | moneyformat }}

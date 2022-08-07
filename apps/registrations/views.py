@@ -312,14 +312,15 @@ class EmergencyContactsStep(RegistrationStepMixin, FormView):
                 reversion.set_user(self.request.user)
                 reversion.set_comment(_("Emergency contacts updated via frontend."))
 
-        try:
-            with reversion.create_revision():
-                RegistrationStatusService.preparation_completed(self.registration)
-                reversion.set_user(self.request.user)
-                reversion.set_comment(_("Registration preparation completed via frontend."))
-        except ValidationError as ex:
-            [messages.error(self.request, m) for m in ex.messages]
-            return self.form_invalid(form)
+        if self.registration.status.PREPARATION_IN_PROGRESS:
+            try:
+                with reversion.create_revision():
+                    RegistrationStatusService.preparation_completed(self.registration)
+                    reversion.set_user(self.request.user)
+                    reversion.set_comment(_("Registration preparation completed via frontend."))
+            except ValidationError as ex:
+                [messages.error(self.request, m) for m in ex.messages]
+                return self.form_invalid(form)
 
         return super().form_valid(form)
 

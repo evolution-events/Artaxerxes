@@ -40,7 +40,11 @@ class RegistrationField(models.Model):
     depends = models.ForeignKey('registrations.RegistrationFieldOption', null=True, blank=True,
                                 on_delete=models.SET_NULL)
     invite_only = models.ForeignKey('auth.Group', null=True, blank=True, on_delete=models.SET_NULL)
-    allow_change_until = models.DateField(null=True, blank=True)
+    allow_change_until = models.DateField(
+        null=True, blank=True,
+        help_text=_('This field can be changed until (including) this date. If empty, registrations cannot be '
+                    'changed.'),
+    )
     required = models.BooleanField(default=True)
 
     created_at = models.DateTimeField(verbose_name=_('Creation timestamp'), auto_now_add=True)

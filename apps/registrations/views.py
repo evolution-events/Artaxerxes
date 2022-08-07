@@ -68,7 +68,7 @@ class RegistrationStepMixinBase(ContextMixin):
         return qs
 
     def get_success_url(self):
-        view = REGISTRATION_STEPS[self.step_num + 1].get('view')
+        view = self.steps[self.current_step_num + 1].get('view')
 
         return reverse(view, args=(self.registration.id,))
 
@@ -85,11 +85,19 @@ class RegistrationStepMixinBase(ContextMixin):
         return Event.objects.for_user(self.request.user).get(pk=self.registration.event_id)
 
     @cached_property
-    def step_num(self):
-        for (step, info) in enumerate(REGISTRATION_STEPS):
-            if info['view'] == self.request.resolver_match.view_name:
+    def current_step_num(self):
+        return self.steps.index(self.current_step)
+
+    @cached_property
+    def current_step(self):
+        for step in REGISTRATION_STEPS:
+            if step['view'] == self.request.resolver_match.view_name:
                 return step
         raise Exception("Current step not listed in REGISTRATION_STEPS")
+
+    @cached_property
+    def steps(self):
+        return REGISTRATION_STEPS
 
     def check_request(self):
         """
@@ -103,7 +111,7 @@ class RegistrationStepMixinBase(ContextMixin):
         if self.registration.has_conflicting_registrations:
             return redirect('registrations:conflicting_registrations', self.registration.id)
 
-        if self.registration.status not in REGISTRATION_STEPS[self.step_num]['statuses']:
+        if self.registration.status not in self.current_step['statuses']:
             if self.registration.status.PREPARATION_IN_PROGRESS:
                 view = 'registrations:step_registration_options'
             elif self.registration.status.PREPARATION_COMPLETE:
@@ -122,14 +130,14 @@ class RegistrationStepMixinBase(ContextMixin):
         return response
 
     def get_context_data(self, **kwargs):
-        if 'cancel_view' in REGISTRATION_STEPS[self.step_num]:
+        if 'cancel_view' in self.current_step:
             kwargs.update({
-                'back_url': reverse(REGISTRATION_STEPS[self.step_num]['cancel_view']),
+                'back_url': reverse(self.current_step['cancel_view']),
                 'back_text': _('Cancel'),
             })
-        elif self.step_num > 0:
+        elif self.current_step_num > 0:
             kwargs.update({
-                'back_url': reverse(REGISTRATION_STEPS[self.step_num - 1]['view'], args=(self.registration.pk,)),
+                'back_url': reverse(self.steps[self.current_step_num - 1]['view'], args=(self.registration.pk,)),
                 'back_text': _('Back'),
             })
 
@@ -140,14 +148,14 @@ class RegistrationStepMixinBase(ContextMixin):
                     if self.registration and self.registration.status in step['statuses']
                     else None,
                 'title': step['title'],
+                'current': num == self.current_step_num,
             }
-            for step in REGISTRATION_STEPS
+            for num, step in enumerate(self.steps)
         ]
 
         kwargs.update({
             'registration': self.registration,
             'event': self.event,
-            'step_num': self.step_num,
             'steps': steps,
         })
         return super().get_context_data(**kwargs)
@@ -343,7 +351,7 @@ class FinalCheck(RegistrationStepMixin, FormView):
     def get_modify_url(self):
         # TODO: This hardcodes skipping the first "start" step, but
         # maybe we can do this more elegantly?
-        return reverse(REGISTRATION_STEPS[1]['view'], args=(self.registration.pk,))
+        return reverse(self.steps[1]['view'], args=(self.registration.pk,))
 
     def form_valid(self, form):
         try:

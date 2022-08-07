@@ -12,7 +12,7 @@
       {% block steps %}
           <ul>
           {% for step in steps %}
-            <li {% if forloop.counter0 == step_num %}class="current"{%endif%}>
+            <li {% if step.current %}class="current"{%endif%}>
             {% if step.url %}
               <a href="{{ step.url }}">
             {% else %}

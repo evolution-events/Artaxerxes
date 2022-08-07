@@ -35,6 +35,10 @@
               <a class="toregistration" href="{% url 'registrations:registration_start' eventid=e.id %}" role="button">{% trans 'Register again' %}</a><br/>
             {% endif %}
           {% endif %}
+
+          {% if reg.status.ACTIVE %}
+          <a class="editregistration" href="{% url 'registrations:edit_start' pk=reg.pk %}" role="button">{% trans 'Edit registration' %}</a><br/>
+          {% endif %}
         </div>
         <div class="event-bottom-right mt-auto">
           <a class="details-link collapsed" data-toggle="collapse" data-target="#collapse-event-registration-{{e.id}}" href="#">{% trans "Registration details" %}</a>
@@ -64,6 +68,37 @@
 
       <h3>{% trans 'Options chosen for registration' %}</h3>
       {% include 'registrations/snippets/registration_options.html' with registration=reg %}
+
+      <h3>{% trans 'Making changes to your registration' %}</h3>
+      {% if not e.allow_change %}
+        {% if e.allow_change_until %}
+          <p>
+          {% blocktrans with e.display_email|urlize as mail %}
+          Your registration can no longer be changed online. If you still need to make changes, please contact the organization at {{mail}}.
+          {% endblocktrans %}
+          </p>
+        {% else %}
+          <p>
+          {% blocktrans with e.display_email|urlize as mail %}
+          Your registration cannot be changed online. If you do need to make changes, please contact the organization at {{mail}}.
+          {% endblocktrans %}
+          </p>
+        {% endif %}
+      {% else %}
+        {# TODO make this message a bit more specific? I.e. check if allow_change_until is before event start, if any options are unchangeable, etc. #}
+        <p>
+        {% blocktrans with e.allow_change_until as change_until %}
+        Changes to your registration can be made online until
+        {{ change_until }}. You can change all information you provided
+        during registration (event options, personal details, safety
+        information, emergency contacts, etc.), though some event
+        options might become unchangeable before then.
+        {% endblocktrans %}
+        </p>
+        <p>
+        <a class="btn btn-success" href="{% url 'registrations:edit_start' reg.pk %}">{% trans "Edit your registration" %}</a>
+        </p>
+      {% endif %}
 
       <h3>{% trans "Cancel?" %}</h3>
       <p>

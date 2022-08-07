@@ -66,13 +66,27 @@
   {% endif %}
 
   <h2>{% trans "Changes to your registration" %}</h2>
-  {% blocktrans trimmed with registration.event.display_email|urlize as mail %}
-  If you need to make changes to your registration (i.e. changing
-  registration options) or want to cancel your registration, please
-  contact the organisation at {{mail}}. In the future, you will be able
-  to make some changes yourself by logging in to Artaxerxes.
-  {% endblocktrans %}
-
+  {% if registration.event.allow_change_until %}
+    <p>
+    {% blocktrans trimmed %}
+    If you need to make changes to your registration (i.e. changing
+    registration options), you can do so online.
+    {% endblocktrans %}
+    </p>
+    <p>
+    {% blocktrans trimmed with registration.event.display_email|urlize as mail %}
+    For cancellations please contact the organisation at {{mail}}.
+    {% endblocktrans %}
+    </p>
+  {% else %}
+    <p>
+    {% blocktrans trimmed with registration.event.display_email|urlize as mail %}
+    If you need to make changes to your registration (i.e. changing
+    registration options) or want to cancel your registration, please
+    contact the organisation at {{mail}}.
+    {% endblocktrans %}
+    </p>
+  {% endif %}
 {% endblock beforeform %}
 
 {% block buttons %}

@@ -153,6 +153,7 @@ class RegistrationNotifyService:
             'registration': registration,
             'options': options,
             'house_rules_url': request.build_absolute_uri(reverse('core:house_rules')),
+            'edit_url': request.build_absolute_uri(reverse('registrations:edit_start', args=(registration.pk,))),
         }
         body = render_to_string('registrations/email/registration_confirmation.txt', context)
         subject = render_to_string('registrations/email/registration_confirmation_subject.txt', context).strip()

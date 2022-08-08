@@ -171,7 +171,8 @@ class Registration(models.Model):
         Constant(PAID='paid', label=_('Paid')),
         Constant(REFUNDABLE='refundable', label=_('(Partially) Refundable')),
         Constant(REFUNDED='refunded', label=_('Refunded')),
-        ConstantGroup("SUFFICIENT", ("NOT_DUE", "FREE", "PAID", "REFUNDABLE", "REFUNDED")),
+        ConstantGroup("DONE", ("NOT_DUE", "FREE", "PAID", "REFUNDED")),
+        ConstantGroup("SUFFICIENT", ("NOT_DUE", "FREE", "PAID", "REFUNDED", "REFUNDABLE")),
         ConstantGroup("PAYABLE", ("OPEN", "PARTIAL")),
     )
 

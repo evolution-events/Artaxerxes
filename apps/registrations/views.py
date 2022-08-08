@@ -103,10 +103,11 @@ class RegistrationStepMixinBase(ContextMixin):
 
     @cached_property
     def current_step(self):
+        view = self.request.resolver_match.view_name
         for step in REGISTRATION_STEPS:
-            if step['view'] == self.request.resolver_match.view_name:
+            if step['view'] == view:
                 return step
-        raise Exception("Current step not listed in REGISTRATION_STEPS")
+        raise Exception(f"Current step ({view}) not listed in REGISTRATION_STEPS")
 
     @cached_property
     def is_change(self):

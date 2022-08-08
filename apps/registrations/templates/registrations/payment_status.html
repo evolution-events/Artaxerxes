@@ -80,7 +80,7 @@
 
               <tr class="amount-due">
                 {% if registration.payment_status.REFUNDABLE %}
-                  <td class="label">{% trans 'Amount refundable' %}</td>
+                  <td class="label" colspan="2">{% trans 'Amount refundable' %}</td>
                   <td class="amount">{{ registration.amount_due | abs | moneyformat }}</td>
                 {% else %}
                   <td class="label" colspan="2">{% trans 'Amount due' %}</td>

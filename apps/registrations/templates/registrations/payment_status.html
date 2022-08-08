@@ -118,7 +118,9 @@
           <p>
           {# Note: This includes cancelled registrations that still need to be refunded. #}
           {% blocktrans with event=registration.event email='penningmeester@evolution-events.nl'|urlize %}
-          Your registration for {{event}} is eligable for a (partial) refund. You can contact {{email}} to request the refund.
+          Your registration for {{event}} is eligable for a (partial)
+          refund. All refunds will be processed after the event, but you
+          can contact {{email}} to request a refund sooner.
           {% endblocktrans %}
           </p>
         {% elif registration.payment_status.REFUNDED %}

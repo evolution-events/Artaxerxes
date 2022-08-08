@@ -26,17 +26,23 @@ from .factories import RegistrationFactory, RegistrationFieldFactory, Registrati
 
 
 class TestRegistrationForm(TestCase, AssertHTMLMixin):
-    registration_steps = (
+    common_steps = (
         'registrations:step_registration_options',
         'registrations:step_personal_details',
         'registrations:step_medical_details',
         'registrations:step_emergency_contacts',
+    )
+    registration_steps = common_steps + (
         'registrations:step_final_check',
+    )
+    edit_steps = common_steps + (
+        'registrations:edit_start',
+        'registrations:edit_done',
     )
 
     @classmethod
     def setUpTestData(cls):
-        cls.event = EventFactory(registration_opens_in_days=-1, public=True)
+        cls.event = EventFactory(registration_opens_in_days=-1, public=True, allow_change_days=1)
 
         cls.type = RegistrationFieldFactory(event=cls.event, name="type", allow_change_days=1)
         cls.player = RegistrationFieldOptionFactory(field=cls.type, title="Player")
@@ -768,6 +774,28 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
             self.assertEqual(response.status_code, 200)
             self.assertFalse(response.context['form'].is_valid())
             self.assertIn(self.required_choice.name, response.context['form'].errors)
+
+    @parameterized.expand(itertools.product(
+        # Test both never-changeable and expired changeable options
+        [None, timezone.now() - timedelta(days=1)],
+        edit_steps,
+        Registration.statuses.ACTIVE,
+    ))
+    def test_event_allow_change_until(self, until, viewname, status):
+        """ Check that allow_change_until on an event is respected. """
+
+        reg = RegistrationFactory(event=self.event, user=self.user, status=status)
+        reg.event.allow_change_until = until
+        reg.event.save()
+
+        start_url = reverse('registrations:edit_start', args=(reg.pk,))
+        url = reverse(viewname, args=(reg.pk,))
+        response = self.client.get(url)
+
+        if url == start_url:
+            self.assertEqual(response.status_code, 200)
+        else:
+            self.assertRedirects(response, start_url)
 
     def test_registration_sends_email(self):
         """ Register until the option slots are taken and the next registration ends up on the waiting list. """

@@ -132,6 +132,11 @@ class RegistrationStepMixinBase(ContextMixin):
         if self.registration.has_conflicting_registrations:
             return redirect('registrations:conflicting_registrations', self.registration.id)
 
+        if self.is_change and not self.event.allow_change:
+            start_view = 'registrations:edit_start'
+            if self.current_step['view'] != start_view:
+                return redirect(start_view, self.registration.id)
+
         if self.registration.status not in self.current_step['statuses']:
             if self.registration.status.PREPARATION_IN_PROGRESS:
                 view = 'registrations:step_registration_options'

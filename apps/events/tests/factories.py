@@ -14,6 +14,7 @@ class EventFactory(factory.django.DjangoModelFactory):
         duration_days = 3
         registration_opens_in_days = None
         registration_closes_in_days = None
+        allow_change_days = None
 
     name = factory.Sequence(lambda n: 'Event %d' % n)
     title = "Title of event"
@@ -34,6 +35,12 @@ class EventFactory(factory.django.DjangoModelFactory):
         if obj.registration_closes_in_days is None:
             return None
         return datetime.now(timezone.utc) + timedelta(days=obj.registration_closes_in_days)
+
+    @factory.lazy_attribute
+    def allow_change_until(obj):
+        if obj.allow_change_days is None:
+            return None
+        return datetime.now(timezone.utc) + timedelta(days=obj.allow_change_days)
 
 
 class SeriesFactory(factory.django.DjangoModelFactory):

@@ -205,6 +205,10 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
             self.assertFalse(response.context['form'].errors)
         self.assertRedirects(response, next_url)
 
+    def reverse_step(self, viewname, reg):
+        args = (reg.pk,)
+        return reverse(viewname, args=args)
+
     def test_full_registration(self):
         """ Run through an entire registration flow. """
         e = self.event
@@ -216,7 +220,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
 
         response = self.client.post(start_url)
         reg = Registration.objects.get()
-        next_url = reverse('registrations:step_registration_options', args=(reg.pk,))
+        next_url = self.reverse_step('registrations:step_registration_options', reg)
         self.assertFormRedirects(response, next_url)
 
         self.assertEqual(reg.status, Registration.statuses.PREPARATION_IN_PROGRESS)
@@ -240,7 +244,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
             self.required_text.name: "xyz",
         }
         response = self.options_form_helper(reg, data)
-        next_url = reverse('registrations:step_personal_details', args=(reg.pk,))
+        next_url = self.reverse_step('registrations:step_personal_details', reg)
         self.assertFormRedirects(response, next_url)
 
         reg = Registration.objects.get()
@@ -260,7 +264,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
             'address-country': 'Country',
         }
         response = self.client.post(next_url, data)
-        next_url = reverse('registrations:step_medical_details', args=(reg.pk,))
+        next_url = self.reverse_step('registrations:step_medical_details', reg)
         self.assertFormRedirects(response, next_url)
 
         reg = Registration.objects.get()
@@ -285,7 +289,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
             'consent': True,
         }
         response = self.client.post(next_url, data)
-        next_url = reverse('registrations:step_emergency_contacts', args=(reg.pk,))
+        next_url = self.reverse_step('registrations:step_emergency_contacts', reg)
         self.assertFormRedirects(response, next_url)
 
         reg = Registration.objects.get()
@@ -311,7 +315,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
             'emergency_contacts-1-remarks': '',
         }
         response = self.client.post(next_url, data)
-        next_url = reverse('registrations:step_final_check', args=(reg.pk,))
+        next_url = self.reverse_step('registrations:step_final_check', reg)
         self.assertFormRedirects(response, next_url)
 
         reg = Registration.objects.get()
@@ -333,7 +337,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
             self.client.get(next_url)
 
         response = self.client.post(next_url, {'agree': 1})
-        next_url = reverse('registrations:registration_confirmation', args=(reg.pk,))
+        next_url = self.reverse_step('registrations:registration_confirmation', reg)
         self.assertFormRedirects(response, next_url)
 
         reg = Registration.objects.get()
@@ -546,10 +550,10 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         if check_data is None:
             check_data = data
 
-        form_url = reverse('registrations:step_registration_options', args=(reg.pk,))
+        form_url = self.reverse_step('registrations:step_registration_options', reg)
         response = self.client.post(form_url, data)
 
-        next_url = reverse('registrations:step_personal_details', args=(reg.pk,))
+        next_url = self.reverse_step('registrations:step_personal_details', reg)
         self.assertFormRedirects(response, next_url)
 
         values = list(RegistrationFieldValue.objects.only_active().order_by('field__name'))
@@ -670,7 +674,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
             self.required_string.name: "abc",
             self.required_text.name: "xyz",
         }
-        next_url = reverse('registrations:step_registration_options', args=(reg.pk,))
+        next_url = self.reverse_step('registrations:step_registration_options', reg)
 
         for field_name in data:
             incomplete_data = data.copy()
@@ -817,7 +821,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
             self.required_string.name: "abc",
             self.required_text.name: "xyz",
         }
-        next_url = reverse('registrations:step_registration_options', args=(reg.pk,))
+        next_url = self.reverse_step('registrations:step_registration_options', reg)
 
         with self.subTest("Option that depends on non-selected option should fail validation"):
             response = self.client.post(next_url, {
@@ -851,8 +855,8 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         reg.event.allow_change_until = until
         reg.event.save()
 
-        start_url = reverse('registrations:edit_start', args=(reg.pk,))
-        url = reverse(viewname, args=(reg.pk,))
+        start_url = self.reverse_step('registrations:edit_start', reg)
+        url = self.reverse_step(viewname, reg)
         response = self.client.get(url)
 
         if url == start_url:
@@ -866,8 +870,8 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
 
         reg = RegistrationFactory(event=e, user=self.user, preparation_complete=True,
                                   options=[self.option_m, self.option_nl])
-        check_url = reverse('registrations:step_final_check', args=(reg.pk,))
-        confirm_url = reverse('registrations:registration_confirmation', args=(reg.pk,))
+        check_url = self.reverse_step('registrations:step_final_check', reg)
+        confirm_url = self.reverse_step('registrations:registration_confirmation', reg)
         response = self.client.post(check_url, {'agree': 1})
         self.assertFormRedirects(response, confirm_url)
 
@@ -891,8 +895,8 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         # Then register on the waiting list
         reg = RegistrationFactory(event=e, user=self.user, preparation_complete=True,
                                   options=[self.option_m, self.option_nl])
-        check_url = reverse('registrations:step_final_check', args=(reg.pk,))
-        confirm_url = reverse('registrations:registration_confirmation', args=(reg.pk,))
+        check_url = self.reverse_step('registrations:step_final_check', reg)
+        confirm_url = self.reverse_step('registrations:registration_confirmation', reg)
         response = self.client.post(check_url, {'agree': 1})
         self.assertFormRedirects(response, confirm_url)
 
@@ -915,8 +919,8 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
 
         reg = RegistrationFactory(event=e, user=self.user, preparation_complete=True,
                                   options=[self.option_m, self.option_nl])
-        check_url = reverse('registrations:step_final_check', args=(reg.pk,))
-        confirm_url = reverse('registrations:registration_confirmation', args=(reg.pk,))
+        check_url = self.reverse_step('registrations:step_final_check', reg)
+        confirm_url = self.reverse_step('registrations:registration_confirmation', reg)
         response = self.client.post(check_url, {'agree': 1})
         self.assertFormRedirects(response, confirm_url)
 
@@ -942,7 +946,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         response = self.client.post(start_url)
         self.assertEqual(Registration.objects.all().count(), 1)
         reg = Registration.objects.get(user=self.user, event=e)
-        first_step_url = reverse('registrations:step_registration_options', args=(reg.pk,))
+        first_step_url = self.reverse_step('registrations:step_registration_options', reg)
         self.assertRedirects(response, first_step_url)
         self.assertEqual(reg.status, Registration.statuses.PREPARATION_IN_PROGRESS)
 
@@ -961,7 +965,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         # One preparation is complete, getting it should redirect to finalcheck
         reg.status = Registration.statuses.PREPARATION_COMPLETE
         reg.save()
-        final_check_url = reverse('registrations:step_final_check', args=(reg.pk,))
+        final_check_url = self.reverse_step('registrations:step_final_check', reg)
         response = self.client.get(start_url)
         self.assertRedirects(response, final_check_url)
         self.assertEqual(Registration.objects.all().count(), 1)
@@ -978,7 +982,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         reg.status = Registration.statuses.REGISTERED
         reg.registered_at = timezone.now()
         reg.save()
-        confirmation_url = reverse('registrations:registration_confirmation', args=(reg.pk,))
+        confirmation_url = self.reverse_step('registrations:registration_confirmation', reg)
         response = self.client.get(start_url)
         self.assertRedirects(response, confirmation_url)
         self.assertEqual(Registration.objects.all().count(), 1)
@@ -996,7 +1000,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         """ Check that all registration steps fail with someone else's registration. """
         registration = RegistrationFactory(event=self.event)
 
-        url = reverse(viewname, args=(registration.pk,))
+        url = self.reverse_step(viewname, registration)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
 
@@ -1011,7 +1015,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         """ Check that all registration steps load with your own registration. """
         registration = RegistrationFactory(event=self.event, user=self.user, status=status)
 
-        url = reverse(viewname, args=(registration.pk,))
+        url = self.reverse_step(viewname, registration)
         response = self.client.get(url)
         expected_status = 200
         if not status.PREPARATION_COMPLETE and viewname == 'registrations:step_final_check':
@@ -1026,7 +1030,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         """ Check that all registration steps reject a canceled registration """
         registration = RegistrationFactory(event=self.event, user=self.user, cancelled=True)
 
-        url = reverse(viewname, args=(registration.pk,))
+        url = self.reverse_step(viewname, registration)
         # Follow, since some views redirect to final which 404s
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 404)
@@ -1041,8 +1045,8 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         viewname = 'registrations:step_final_check'
         registration = RegistrationFactory(event=self.event, user=self.user, status=status)
 
-        url = reverse(viewname, args=(registration.pk,))
-        confirm_url = reverse('registrations:registration_confirmation', args=(registration.pk,))
+        url = self.reverse_step(viewname, registration)
+        confirm_url = self.reverse_step('registrations:registration_confirmation', registration)
         # Follow, since some views redirect to final which 404s
         response = self.client.get(url, follow=True)
         self.assertRedirects(response, confirm_url)
@@ -1055,8 +1059,8 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
     ))
     def test_not_logged_in(self, status):
         """ Check that the registration steps redirect when not logged in. """
-        def test_view(view, args):
-            url = reverse(view, args=args)
+        def test_view(view, reg):
+            url = self.reverse_step(view, reg)
             with self.subTest(view=view, method='GET'):
                 # Follow to redirect to the login page so we can check resolver_match
                 response = self.client.get(url, follow=True)
@@ -1071,17 +1075,17 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         self.client.logout()
         registration = RegistrationFactory(event=self.event, user=self.user, status=status)
 
-        test_view('registrations:registration_start', args=(self.event.pk,))
+        test_view('registrations:registration_start', registration)
         for view in self.registration_steps:
-            test_view(view, args=(registration.pk,))
+            test_view(view, registration)
 
     def test_registration_opens(self):
         """ Check that finalcheck is closed until the right time and then opens. """
         reg = RegistrationFactory(event=self.event, user=self.user, preparation_complete=True)
         opens_at = self.event.registration_opens_at
         before_opens_at = opens_at - timedelta(seconds=1)
-        final_check_url = reverse('registrations:step_final_check', args=(reg.pk,))
-        confirm_url = reverse('registrations:registration_confirmation', args=(reg.pk,))
+        final_check_url = self.reverse_step('registrations:step_final_check', reg)
+        confirm_url = self.reverse_step('registrations:registration_confirmation', reg)
 
         with mock.patch('django.utils.timezone.now', return_value=before_opens_at):
             response = self.client.get(final_check_url)
@@ -1109,8 +1113,8 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         reg = RegistrationFactory(event=self.event, user=self.user, preparation_complete=True)
         start_date_midnight = timezone.make_aware(datetime.combine(self.event.start_date, dt_time.min))
         before_start_date = start_date_midnight - timedelta(seconds=1)
-        final_check_url = reverse('registrations:step_final_check', args=(reg.pk,))
-        confirm_url = reverse('registrations:registration_confirmation', args=(reg.pk,))
+        final_check_url = self.reverse_step('registrations:step_final_check', reg)
+        confirm_url = self.reverse_step('registrations:registration_confirmation', reg)
 
         with mock.patch('django.utils.timezone.now', return_value=before_start_date):
             response = self.client.get(final_check_url)
@@ -1143,8 +1147,8 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         RegistrationFactory(user=self.user, event=e2, registered=True)
         reg = RegistrationFactory(user=self.user, event=e, preparation_complete=True)
 
-        url = reverse(viewname, args=(reg.pk,))
-        conflict_url = reverse('registrations:conflicting_registrations', args=(reg.pk,))
+        url = self.reverse_step(viewname, reg)
+        conflict_url = self.reverse_step('registrations:conflicting_registrations', reg)
 
         with self.subTest(method='GET'):
             response = self.client.get(url)
@@ -1164,8 +1168,8 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         RegistrationFactory(user=self.user, event=e2, registered=True)
 
         reg = RegistrationFactory(user=self.user, event=e, preparation_complete=True)
-        final_check_url = reverse('registrations:step_final_check', args=(reg.pk,))
-        conflict_url = reverse('registrations:conflicting_registrations', args=(reg.pk,))
+        final_check_url = self.reverse_step('registrations:step_final_check', reg)
+        conflict_url = self.reverse_step('registrations:conflicting_registrations', reg)
 
         # Causes second registration to be refused on GET
         response = self.client.get(final_check_url)
@@ -1188,8 +1192,8 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         other_reg = RegistrationFactory(user=self.user, event=e2, registered=True)
 
         reg = RegistrationFactory(user=self.user, event=e, preparation_complete=True)
-        final_check_url = reverse('registrations:step_final_check', args=(reg.pk,))
-        conflict_url = reverse('registrations:conflicting_registrations', args=(reg.pk,))
+        final_check_url = self.reverse_step('registrations:step_final_check', reg)
+        conflict_url = self.reverse_step('registrations:conflicting_registrations', reg)
 
         # Make an existing registration just before the service finalizes. This should *not* run inside the services'
         # transaction, after the lock, since that would deadlock (that would need threading and more coordination (that
@@ -1224,8 +1228,8 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
 
         # Does not prevent another registration on GET
         reg = RegistrationFactory(user=self.user, event=e, preparation_complete=True)
-        final_check_url = reverse('registrations:step_final_check', args=(reg.pk,))
-        confirm_url = reverse('registrations:registration_confirmation', args=(reg.pk,))
+        final_check_url = self.reverse_step('registrations:step_final_check', reg)
+        confirm_url = self.reverse_step('registrations:registration_confirmation', reg)
         response = self.client.get(final_check_url)
         with self.subTest(msg="Should show finalcheck with form"):
             self.assertTemplateUsed(response, FinalCheck.template_name)

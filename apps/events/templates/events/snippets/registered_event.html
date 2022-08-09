@@ -36,7 +36,7 @@
             {% endif %}
           {% endif %}
 
-          {% if reg.status.ACTIVE %}
+          {% if reg.status.ACTIVE and not e.in_the_past %}
           <a class="editregistration" href="{% url 'registrations:edit_start' eventid=reg.event_id %}" role="button">{% trans 'Edit registration' %}</a><br/>
           {% endif %}
         </div>
@@ -69,7 +69,7 @@
       <h3>{% trans 'Options chosen for registration' %}</h3>
       {% include 'registrations/snippets/registration_options.html' with registration=reg %}
 
-      {% if reg.status.ACTIVE %}
+      {% if reg.status.ACTIVE and not e.in_the_past %}
         <h3>{% trans 'Making changes to your registration' %}</h3>
         {% if not e.allow_change %}
           {% if e.allow_change_until %}

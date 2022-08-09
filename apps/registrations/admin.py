@@ -41,8 +41,8 @@ class RegistrationFieldValueInline(admin.TabularInline):
     model = RegistrationFieldValue
     extra = 0
     # Disallow editing inline, because only the regular admin can properly limit the choices
-    readonly_fields = ('option', 'field', 'string_value', 'file_value')
-    fields = ('field', 'option', 'string_value', 'file_value')
+    readonly_fields = ('option', 'field', 'string_value', 'file_value', 'active')
+    fields = ('field', 'option', 'string_value', 'file_value', 'active')
     show_change_link = True
 
     # Disable add permission to defer adding to the AddRegistrationFieldValueInline below
@@ -239,7 +239,8 @@ class RegistratFieldOptionAdmin(LimitDependsMixin, VersionAdmin):
 
 @admin.register(RegistrationFieldValue)
 class RegistratFieldValueAdmin(LimitForeignKeyOptionsMixin, VersionAdmin):
-    fields = ('registration', 'field', 'option', 'string_value', 'file_value')
+    fields = ('registration', 'field', 'option', 'string_value', 'file_value', 'active')
+    # TODO: Instead of changing values directly, maybe old values should be made inactive and replaced by new values?
 
     def get_foreignkey_limits(self, fieldname):
         if fieldname == 'field':
@@ -250,6 +251,6 @@ class RegistratFieldValueAdmin(LimitForeignKeyOptionsMixin, VersionAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         if obj:
-            return ['field', 'registration']
+            return ['field', 'registration', 'active']
         else:
-            return []
+            return ['active']

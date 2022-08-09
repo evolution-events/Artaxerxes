@@ -23,13 +23,13 @@
             {% for value in priced_options %}
               <tr class="priced-option">
                 <td>
-                  {% if registration.status.CANCELLED %}<del>{% endif %}
+                  {% if registration.status.CANCELLED or not value.active %}<del>{% endif %}
                     {{ value.field.title }}: {{ value.display_value }}</td>
-                  {% if registration.status.CANCELLED %}</del>{% endif %}
+                  {% if registration.status.CANCELLED or not value.active %}</del>{% endif %}
                 <td class="amount">
-                  {% if registration.status.CANCELLED %}<del>{% endif %}
+                  {% if registration.status.CANCELLED or not value.active %}<del>{% endif %}
                     {{ value.price | moneyformat }}
-                  {% if registration.status.CANCELLED %}</del>{% endif %}
+                  {% if registration.status.CANCELLED or not value.active %}</del>{% endif %}
                 </td>
               </tr>
             {% endfor %}

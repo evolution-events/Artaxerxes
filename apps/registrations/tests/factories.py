@@ -35,16 +35,26 @@ class RegistrationFactory(factory.django.DjangoModelFactory):
 
     @factory.post_generation
     def options(obj, create, options, **kwargs):
+        RegistrationFactory.options_helper(obj, create, options, active=True)
 
+    @factory.post_generation
+    def inactive_options(obj, create, options, **kwargs):
+        RegistrationFactory.options_helper(obj, create, options, active=None)
+
+    @staticmethod
+    def options_helper(obj, create, options, active=True):
         if options:
             # Cannot add options when only building, since we will not have an id yet
             assert(create)
             for option in options:
+                kwargs = {'registration': obj, 'active': active}
+
                 if isinstance(option, RegistrationFieldOption):
-                    RegistrationFieldValueFactory.create(registration=obj, field=option.field, option=option)
+                    kwargs.update({'field': option.field, 'option': option})
                 else:
                     (field, value) = option
-                    RegistrationFieldValueFactory.create(registration=obj, field=field, value=value)
+                    kwargs.update({'field': field, 'value': value})
+                RegistrationFieldValueFactory.create(**kwargs)
 
 
 class RegistrationPriceCorrectionFactory(factory.django.DjangoModelFactory):

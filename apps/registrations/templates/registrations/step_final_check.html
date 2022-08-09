@@ -62,9 +62,9 @@
   </table>
   {% endif %}
 
-  {% if registration and options %}
+  {% if registration and options_by_section %}
   <h3>{% trans 'Event options' %}</h3>
-  {% include 'registrations/snippets/registration_options.html' with registration=registration options=options show_full=True %}
+  {% include 'registrations/snippets/registration_options.html' with registration=registration options_by_section=options_by_section show_full=True %}
   {% endif %}
 
   {% if any_is_full %}

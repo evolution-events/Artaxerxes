@@ -60,7 +60,7 @@
     </p>
   {% endif %}
 
-  {% if registration.options.all %}
+  {% if registration.active_options %}
     <h2>{% trans "Selected options" %}</h2>
     {% include 'registrations/snippets/registration_options.html' with registration=registration %}
   {% endif %}

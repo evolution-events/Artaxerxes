@@ -1,10 +1,10 @@
 {% load i18n %}
 {% load coretags %}
 
-{% with options=options|default:registration.options.select_related_option_and_field %}
+{% with options_by_section=options_by_section|default:registration.active_options_by_section %}
 {% with price_corrections=price_corrections|default:registration.price_corrections.with_active %}
 <table class="table registration-options">
-  {% for section, values in options.group_by_section %}
+  {% for section, values in options_by_section %}
     {% if section %}
       <tr>
           {% if registration.price is not None %}

@@ -36,37 +36,6 @@ class RegistrationFieldValueQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
         """ Wrapper for select_related, to be used from templates """
         return self.select_related('option', 'field')
 
-    def group_by_section(self):
-        """
-        Group the results of this query by the section of related field.
-
-        This resolves this queryset and returns a list of (section, values) tuples, where section is a
-        RegistrationField option, and values is a list of RegistrationFieldValue objects. The resulting values are
-        ordered based on the field ordering, but only values in this queryset are returned (but empty sections are
-        omitted).
-        """
-        our_options = {value.field_id: value for value in self}
-        if not our_options:
-            return
-        any_option = next(iter(our_options.values()))
-        event_id = any_option.field.event_id
-
-        all_fields = RegistrationField.objects.all().filter(event=event_id)
-        section = None
-        fields = []
-
-        for field in all_fields:
-            if field.field_type.SECTION:
-                if fields:
-                    yield (section, fields)
-                section = field
-                fields = []
-            elif field.id in our_options:
-                fields.append(our_options[field.pk])
-
-        if fields:
-            yield (section, fields)
-
     def only_active(self):
         """ Select active values only """
         # This is a simple filter, but exists in case we need to change the way this is stored later
@@ -148,6 +117,39 @@ class RegistrationFieldValue(models.Model):
         return None
     price.admin_order_field = 'option__price'
     price = property(price)
+
+    @classmethod
+    def group_by_section(self, values):
+        """
+        Group an iterable (or queryset) of active RegistrationFieldValue by the section of related field.
+
+        This returns a list of (section, values) tuples, where section is a RegistrationField option, and values is a
+        list of RegistrationFieldValue objects. The resulting values are ordered based on the field ordering, but only
+        values in the iterable passed are returned (and empty sections are omitted).
+
+        Each field should occur at most once in the passed iterable (i.e. passing active values for one registration).
+        """
+        our_options = {value.field_id: value for value in values}
+        if not our_options:
+            return
+        any_option = next(iter(our_options.values()))
+        event_id = any_option.field.event_id
+
+        all_fields = RegistrationField.objects.all().filter(event=event_id)
+        section = None
+        fields = []
+
+        for field in all_fields:
+            if field.field_type.SECTION:
+                if fields:
+                    yield (section, fields)
+                section = field
+                fields = []
+            elif field.id in our_options:
+                fields.append(our_options[field.pk])
+
+        if fields:
+            yield (section, fields)
 
     class Meta:
         verbose_name = _('registration field value')

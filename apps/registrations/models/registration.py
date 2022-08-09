@@ -108,12 +108,13 @@ class RegistrationQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
         # Disabled until this can be made more configurable
         return self.none()
 
-    def prefetch_options(self):
+    def prefetch_active_options(self):
         from . import RegistrationFieldValue
 
         return self.prefetch_related(Prefetch(
             'options',
-            queryset=RegistrationFieldValue.objects.select_related('field', 'option'),
+            queryset=RegistrationFieldValue.objects.select_related('field', 'option').only_active(),
+            to_attr='_active_options',
         ))
 
     def current_for(self, event, user):
@@ -200,14 +201,33 @@ class Registration(models.Model):
         return self.event.admit_immediately or self.options.filter(option__admit_immediately=True).exists()
 
     @cached_property
-    def options_by_name(self):
+    def active_options(self):
         """
-        Returns RegistrationFieldValue objects for this Registration by name.
+        Return a list of active RegistrationFieldValues for this registration.
+
+        More efficient when prefetch_active_options() was called on the queryset.
+        """
+        if hasattr(self, '_active_options'):
+            # Prefetched
+            return self._active_options
+        return list(self.options.select_related('field', 'option').only_active())
+
+    @cached_property
+    def active_options_by_section(self):
+        """ Returns active_options, but processed by RegistrationFieldValue.group_by_section. """
+        from . import RegistrationFieldValue
+
+        return RegistrationFieldValue.group_by_section(self.active_options)
+
+    @cached_property
+    def active_options_by_name(self):
+        """
+        Returns active RegistrationFieldValue objects for this Registration by name.
 
         Returns a dict from RegistrationField.name to RegistrationFieldValue for all fields with values. Works most
-        efficient when prefetch_options() was called on the queryset.
+        efficient when prefetch_active_options() was called on the queryset.
         """
-        return {value.field.name: value for value in self.options.all()}
+        return {value.field.name: value for value in self.active_options}
 
     def __str__(self):
         return _('%(user)s - %(event)s - %(status)s') % {

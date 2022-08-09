@@ -21,10 +21,10 @@ Registration for {{event}}
   {% endif %}
 </table>
 
-{% if registration.options.all %}
+{% if registration.active_options %}
 <h2>{% trans 'Event options' %}</h2>
 <table class="table">
-  {% for value in registration.options.all %}
+  {% for value in registration.active_options %}
   <tr><td>{{ value.field.title }}</td><td>{{ value.display_value }}</td></tr>
   {% endfor %}
 </table>

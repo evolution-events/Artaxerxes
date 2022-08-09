@@ -18,7 +18,7 @@ class RegistrationFieldValueField(import_export.fields.Field):
     """ Export field that takes its value from a RegistrationFieldValue. """
 
     def get_value(self, obj):
-        value = obj.options_by_name.get(self.attribute, None)
+        value = obj.active_options_by_name.get(self.attribute, None)
         if value is None:
             return None
         return value.display_value()
@@ -53,7 +53,7 @@ class EventRegistrationsResource(import_export.resources.ModelResource):
             super().get_queryset()
             .filter(event=self.event)
             .select_related('user')
-            .prefetch_options()
+            .prefetch_active_options()
             .order_by('created_at')
         )
 

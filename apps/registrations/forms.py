@@ -215,8 +215,7 @@ class RegistrationOptionsForm(forms.Form):
         # all fields have a value?
 
         values = {}
-        options = registration.options.select_related('field')
-        for option in options:
+        for option in registration.active_options:
             if option.field.field_type.CHOICE:
                 # TODO: In Django 3.0 this can just be option.option again, see
                 # https://code.djangoproject.com/ticket/30014

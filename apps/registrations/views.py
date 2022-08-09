@@ -466,7 +466,7 @@ class FinalCheck(RegistrationStepMixin, FormView):
         medical_details = MedicalDetails.objects.filter(user=self.request.user).first()
         emergency_contacts = self.request.user.emergency_contacts.all()
 
-        options = self.registration.options.all().select_related('option', 'field')
+        options = self.registration.active_options
         if not self.registration.admit_immediately:
             # Not relevent for pending registrations
             any_is_full = False
@@ -480,7 +480,7 @@ class FinalCheck(RegistrationStepMixin, FormView):
             'mdetails': medical_details,
             'emergency_contacts': emergency_contacts,
             'any_is_full': any_is_full,
-            'options': options,
+            'options_by_section': RegistrationFieldValue.group_by_section(options),
             'total_price': total_price,
             'modify_url': self.get_modify_url(),
         })

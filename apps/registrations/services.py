@@ -143,7 +143,6 @@ class RegistrationStatusService:
 class RegistrationNotifyService:
     @staticmethod
     def send_confirmation_email(request, registration):
-        options = registration.options.select_related('field', 'option')
         # Use request.user when possible, since that will already have been loaded.
         user = request.user
         if user.pk != registration.user_id:
@@ -151,7 +150,7 @@ class RegistrationNotifyService:
         context = {
             'user': user,
             'registration': registration,
-            'options': options,
+            'options': registration.active_options,
             'house_rules_url': request.build_absolute_uri(reverse('core:house_rules')),
             'edit_url': request.build_absolute_uri(reverse('registrations:edit_start', args=(registration.pk,))),
         }

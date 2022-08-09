@@ -172,7 +172,7 @@ class RegistrationAdmin(HijackRelatedAdminMixin, VersionAdmin):
     ]
 
     def get_queryset(self, *args, **kwargs):
-        return super().get_queryset(*args, **kwargs).prefetch_options().with_payment_status()
+        return super().get_queryset(*args, **kwargs).prefetch_active_options().with_payment_status()
 
     def registered_at_milliseconds(self, obj):
         tz = timezone.get_current_timezone()
@@ -209,7 +209,7 @@ class RegistrationAdmin(HijackRelatedAdminMixin, VersionAdmin):
         return obj.payment_status.label
 
     def selected_options(self, obj):
-        return format_html_join(mark_safe("<br>"), "{}={}", ((value.field, value) for value in obj.options.all()))
+        return format_html_join(mark_safe("<br>"), "{}={}", ((value.field, value) for value in obj.active_options))
     selected_options.short_description = _("Selected Options")
     selected_options.allow_tags = True
 

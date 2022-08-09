@@ -22,7 +22,8 @@ from apps.people.tests.factories import ArtaUserFactory
 from ..models import Registration, RegistrationField, RegistrationFieldOption, RegistrationFieldValue
 from ..services import RegistrationStatusService
 from ..views import FinalCheck
-from .factories import RegistrationFactory, RegistrationFieldFactory, RegistrationFieldOptionFactory
+from .factories import (RegistrationFactory, RegistrationFieldFactory, RegistrationFieldOptionFactory,
+                        RegistrationFieldValueFactory)
 
 
 class TestRegistrationForm(TestCase, AssertHTMLMixin):
@@ -345,6 +346,8 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         """ Test that you can set options and then change them to different values, including empty. """
         reg = RegistrationFactory(event=self.event, user=self.user, status=status)
 
+        history = {}
+
         # Set initial values for all fields
         data = {
             self.type.name: self.player.pk,
@@ -368,7 +371,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         self.options_form_helper(reg, data | {
             self.required_image.name: self.test_image,
             self.optional_image.name: self.test_image2,
-        })
+        }, history=history)
 
         # Then change all values (except for required checkboxes that have only one valid value)
         data.update({
@@ -388,8 +391,20 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         del data[self.optional_uncheckbox.name]
         self.options_form_helper(reg, data | {
             self.required_image.name: self.test_image2,
-            self.optional_image.name: self.test_image2,
-        })
+            self.optional_image.name: self.test_image,
+        }, history=history)
+
+        # Test re-uploading the same images with the same data
+        self.options_form_helper(reg, data | {
+            self.required_image.name: self.test_image2,
+            self.optional_image.name: self.test_image,
+        }, history=history)
+
+        # Test changing nothing
+        self.options_form_helper(reg, data, check_data=data | {
+            self.required_image.name: self.test_image2,
+            self.optional_image.name: self.test_image,
+        }, history=history)
 
         # Remove all optional values
         del data[self.optional_choice.name]
@@ -401,7 +416,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
             self.optional_image.name + "-clear": "on",
         }, check_data=data | {
             self.required_image.name: self.test_image2,
-        })
+        }, history=history)
 
         # Set type=crew to unlock options that depend on that, and change them
         data.update({
@@ -420,7 +435,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         }, check_data=data | depends_data | {
             self.required_image.name: self.test_image2,
             self.depends_image.name: self.test_image2,
-        })
+        }, history=history)
 
         # Set depends_choice=option2 to unlock depend_depend_string
         data.update({
@@ -432,7 +447,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         self.options_form_helper(reg, data | depends_data, check_data=data | depends_data | {
             self.required_image.name: self.test_image2,
             self.depends_image.name: self.test_image2,
-        })
+        }, history=history)
 
         # And reset type to assert the dependent options are removed again, even when we do supply values for them
         # (options_form_helper checks this based on the type value).
@@ -443,7 +458,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
             self.depends_image.name: self.test_image2,
         }, check_data=data | {
             self.required_image.name: self.test_image2,
-        })
+        }, history=history)
 
     def check_field_saved_helper(self, reg, value, data):
         """ Check that the given value is saved for the given registration and field, and value from the form data. """
@@ -526,7 +541,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
                         else:
                             self.assertIsNone(elem.get('checked'))
 
-    def options_form_helper(self, reg, data, check_data=None, readonly_fields=()):
+    def options_form_helper(self, reg, data, check_data=None, readonly_fields=(), history=None):
         """ Submits the given data to the options form, and checks that it is saved correctly. """
         if check_data is None:
             check_data = data
@@ -537,7 +552,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         next_url = reverse('registrations:step_personal_details', args=(reg.pk,))
         self.assertFormRedirects(response, next_url)
 
-        values = list(RegistrationFieldValue.objects.all().order_by('field__name'))
+        values = list(RegistrationFieldValue.objects.only_active().order_by('field__name'))
 
         nondepends_fields = {
             self.type, self.gender, self.origin,
@@ -574,6 +589,9 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         for value in values:
             self.check_field_saved_helper(reg, value, check_data)
 
+        if history is not None:
+            self.inactive_options_helper(reg, history, values)
+
         form_response = self.client.get(form_url)
         for value in values:
             self.check_field_rendered_helper(form_response, value, readonly=(value.field in readonly_fields))
@@ -590,6 +608,47 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
             )
 
         return response
+
+    def inactive_options_helper(self, reg, history, active_values):
+        """
+        Helper to check active status of values.
+
+        We need to check that editing active registrations produces new value objects (and makes the old ones
+        inactive), while draft registrations can edit existing value objects.
+
+        Since options_form_helper already checked the the list of active values contains the right fields and values,
+        we only need to check:
+         - that inactive values, and values of active registrations are never changed, and
+         - new values always start out active
+
+        The history object should be a dict (initially empty) that is passed to subsequent calls and will store some
+        data between calls.
+        """
+        current_values = {
+            v.pk: v
+            for v in RegistrationFieldValue.objects.filter(registration=reg).select_related('field')
+        }
+        new_values = current_values.copy()
+
+        for pk, prev in history.items():
+            current = new_values.pop(pk, None)
+
+            if reg.status.ACTIVE:
+                self.assertIsNotNone(current, msg=f"Value unexpectedly deleted: {prev.field.name}={prev}")
+
+            if reg.status.ACTIVE or not prev.active:
+                msg = f"Value unexpectedly changed in database: pk={pk} name={current.field.name}"
+                self.assertEqual(current.string_value, prev.string_value, msg=msg)
+                self.assertEqual(current.option, prev.option, msg=msg)
+                self.assertEqual(current.file_value, prev.file_value, msg=msg)
+                self.assertEqual(current.file_value.name, prev.file_value.name, msg=msg)
+
+        for new in new_values.values():
+            # Newly created items must always be active
+            self.assertEqual(new.active, True)
+
+        history.clear()
+        history.update(current_values)
 
     @parameterized.expand(itertools.product(
         Registration.statuses.DRAFT | Registration.statuses.ACTIVE,
@@ -639,6 +698,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         """ Check that allow_change_until on a field is respected. """
 
         reg = RegistrationFactory(event=self.event, user=self.user, status=status)
+        history = {}
 
         # Set initial values for all fields
         data = {
@@ -660,7 +720,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         self.options_form_helper(reg, data | {
             self.required_image.name: self.test_image,
             self.optional_image.name: self.test_image2,
-        })
+        }, history=history)
 
         # Make a lot of options unchangeable, but keep required_choice editable so we can test
         # required_choice_option_depends
@@ -708,12 +768,13 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         }, check_data=data | {
             self.required_image.name: self.test_image,
             self.optional_image.name: self.test_image2,
-        }, readonly_fields=unchangeable)
+        }, readonly_fields=unchangeable, history=history)
 
         # Set type=crew to unlock depends options
         type_value = reg.options.get(field=self.type)
-        type_value.option = self.crew
+        type_value.active = None
         type_value.save()
+        RegistrationFieldValueFactory(registration=reg, option=self.crew)
 
         # Then try to set all depends values
         data.update({
@@ -734,7 +795,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
             self.required_image.name: self.test_image,
             self.depends_image.name: self.test_image2,
             self.optional_image.name: self.test_image2,
-        }, readonly_fields=unchangeable)
+        }, readonly_fields=unchangeable, history=history)
 
     @parameterized.expand(itertools.product(
         Registration.statuses.DRAFT | Registration.statuses.ACTIVE,

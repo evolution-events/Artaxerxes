@@ -364,13 +364,31 @@ class RegistrationOptionsForm(forms.Form):
 
         fields = self.event.registration_fields.filter(Q(invite_only=None) | Q(invite_only__user=self.user))
         fields = fields.exclude(field_type=RegistrationField.types.SECTION)
+
         for field in fields:
-            # If the dependencies for this option are not satisfied, delete any values for it that might be present
-            if not self.depends_satisfied(d, field.depends):
-                RegistrationFieldValue.objects.filter(registration=registration, field=field).delete()
+            value = registration.active_options_by_name.get(field.name, None)
+            depends_satisfied = self.depends_satisfied(d, field.depends)
+
+            if value and depends_satisfied and field.name not in self.changed_data:
                 continue
 
-            (value, created) = RegistrationFieldValue.objects.get_or_create(registration=registration, field=field)
+            # For active registrations, keep history by marking the current value inactive (a new value will be created
+            # below, then). For draft, the existing value will just be reused.
+            if value and not registration.status.DRAFT:
+                value.active = None
+                value.save()
+                value = None
+
+            # If the dependencies for this option are not satisfied, delete any values for it that might be present
+            # (only for draft, no need to keep history there)
+            if not depends_satisfied:
+                if value and registration.status.DRAFT:
+                    value.delete()
+                continue
+
+            if value is None:
+                value = RegistrationFieldValue(registration=registration, field=field, active=True)
+
             if field.field_type.CHOICE:
                 value.option = d[field.name]
             elif field.field_type.IMAGE:

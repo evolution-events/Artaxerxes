@@ -14,7 +14,10 @@ class RegistrationFieldOptionQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
         return self.annotate(
             used_slots=Count(
                 'registrationfieldvalue',
-                filter=Q(registrationfieldvalue__registration__status=Registration.statuses.REGISTERED),
+                filter=Q(
+                    registrationfieldvalue__registration__status=Registration.statuses.REGISTERED,
+                    registrationfieldvalue__active=True,
+                ),
             ),
         )
 

@@ -14,10 +14,11 @@ from apps.people.tests.factories import AddressFactory, EmergencyContactFactory
 
 from ..models import Registration, RegistrationField, RegistrationFieldValue
 from ..services import RegistrationStatusService
-from .factories import RegistrationFactory, RegistrationFieldFactory, RegistrationFieldOptionFactory
+from .factories import (RegistrationFactory, RegistrationFieldFactory, RegistrationFieldOptionFactory,
+                        RegistrationFieldValueFactory)
 
 
-class TestRegistration(TestCase):
+class TestRegistrationStatusService(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.event = EventFactory(registration_opens_in_days=-1, public=True)
@@ -40,11 +41,13 @@ class TestRegistration(TestCase):
 
     def incomplete_registration_helper(
         self, empty_field=None, with_emergency_contact=True, with_address=True, options=True,
-        exception=ValidationError,
+        exception=ValidationError, inactive_options=(),
     ):
         if options is True:
             options = [self.player, self.option_m, self.option_nl]
-        reg = RegistrationFactory(event=self.event, preparation_in_progress=True, options=options)
+        reg = RegistrationFactory(
+            event=self.event, preparation_in_progress=True, options=options, inactive_options=inactive_options,
+        )
 
         if with_emergency_contact:
             EmergencyContactFactory(user=reg.user)
@@ -92,9 +95,17 @@ class TestRegistration(TestCase):
         """ Check that incomplete options prevent completing preparation """
         self.incomplete_registration_helper(options=[self.player])
 
+    def test_partial_with_inactive_options(self):
+        """ Check that an inactive option does not fulfill a required option """
+        self.incomplete_registration_helper(options=[self.player, self.option_nl], inactive_options=[self.option_f])
+
     def test_unsatisfied_dependency_options(self):
         """ Check that a omitting an option with missing dependency does not prevent completing preparation """
         self.incomplete_registration_helper(options=[self.crew], exception=None)
+
+    def test_inactive_dependency_options(self):
+        """ Check that an inactive option does not satisfy a dependency """
+        self.incomplete_registration_helper(inactive_options=[self.player], options=[self.crew], exception=None)
 
     def test_complete(self):
         """ Check that a complete registration can be completed """
@@ -384,6 +395,48 @@ class TestRegistration(TestCase):
 
         RegistrationStatusService.finalize_registration(reg)
         self.assertEqual(reg.status, Registration.statuses.PENDING)
+
+    def test_inactive_options_other_registration(self):
+        """ Check that inactive options on other registrations do not take up slots """
+        e = self.event
+
+        for _i in range(2):
+            reg = RegistrationFactory(
+                event=e, registered=True,
+                options=[self.player, self.option_m, self.option_nl],
+            )
+            for o in reg.options.all():
+                o.active = None
+                o.save()
+
+        reg = RegistrationFactory(
+            event=e, preparation_complete=True,
+            options=[self.player, self.option_m, self.option_nl],
+        )
+        RegistrationStatusService.finalize_registration(reg)
+        self.assertEqual(reg.status, Registration.statuses.REGISTERED)
+
+    def test_inactive_options_own_registration(self):
+        """ Check that inactive options on this registration do not take up slots """
+        # This should not normally occur (inactive options are only created on active registrations), but check anyway
+        # to be sure.
+        e = self.event
+
+        for _i in range(2):
+            reg = RegistrationFactory(
+                event=e, registered=True,
+                options=[self.player, self.option_m, self.option_nl],
+            )
+
+        # Simulate change from full to non-full option
+        reg = RegistrationFactory(
+            event=e, preparation_complete=True,
+            inactive_options=[self.option_nl],
+            options=[self.player, self.option_f, self.option_intl],
+        )
+
+        RegistrationStatusService.finalize_registration(reg)
+        self.assertEqual(reg.status, Registration.statuses.REGISTERED)
 
     @skipUnlessDBFeature('has_select_for_update')
     def test_finalize_locks(self):

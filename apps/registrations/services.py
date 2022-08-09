@@ -46,6 +46,7 @@ class RegistrationStatusService:
         # TODO: How about fields where all options do not have their dependencies fulfilled? Should those be omitted?
         selected_options = RegistrationFieldOption.objects.filter(
             registrationfieldvalue__registration=registration,
+            registrationfieldvalue__active=True,
         )
         all_fields = RegistrationField.objects.filter(
             event=registration.event_id,
@@ -58,6 +59,7 @@ class RegistrationStatusService:
         # TODO: In Django 3.0, the annotation can be removed and you can pass Exists directly to exclude
         missing_fields = required_fields.annotate(
             value_exists=Exists(RegistrationFieldValue.objects.with_satisfies_required().filter(
+                active=True,
                 registration=registration,
                 field=OuterRef('pk'),
                 satisfies_required=True,
@@ -118,7 +120,9 @@ class RegistrationStatusService:
                 # This selects all options that are associated with the current registration and that have non-null
                 # slots. annotated with the number of slots used.
                 options_with_slots = RegistrationFieldOption.objects.with_used_slots().filter(
-                    Q(registrationfieldvalue__registration=registration) & ~Q(slots=None),
+                    Q(registrationfieldvalue__registration=registration)
+                    & Q(registrationfieldvalue__active=True)
+                    & ~Q(slots=None),
                 )
 
                 # If the event has slots defined, we can treat it just like any option with slots

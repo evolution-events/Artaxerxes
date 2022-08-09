@@ -83,6 +83,8 @@ class RegistrationFieldValueFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = RegistrationFieldValue
 
+    field = factory.SelfAttribute('option.field')
+
     @factory.post_generation
     def value(obj, create, value, **kwargs):
         if value:

@@ -472,8 +472,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         self.assertEqual(value.string_value, string_value, msg=msg)
         self.assertEqual(value.option, option, msg=msg)
         if file_value:
-            file_value.seek(0)
-            self.assertEqual(value.file_value.read(), file_value.read(), msg=msg)
+            self.assertEqual(value.file_value.read(), file_value.getvalue(), msg=msg)
         else:
             self.assertEqual(value.file_value.name, "", msg=msg)
 

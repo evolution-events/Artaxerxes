@@ -28,7 +28,11 @@ class RegistrationQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
             is_cancelled=QExpr(status=Registration.statuses.CANCELLED),
             options_price=Case(
                 When(status=Registration.statuses.CANCELLED, then=0),
-                default=SubquerySum('options__option__price', output_field=MonetaryField()),
+                default=SubquerySum(
+                    'options__option__price', output_field=MonetaryField(),
+                    # Note that this filter is not automatically reversed, so applied to RegistrationFieldOption
+                    filter=Q(registrationfieldvalue__active=True),
+                ),
             ),
             corrections_price=SubquerySum(
                 'price_corrections__price',

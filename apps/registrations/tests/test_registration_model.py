@@ -61,9 +61,9 @@ class TestPaymentAnnotations(TestCase):
 
     def check_helper(self, options, price, amount_due, payments=(), corrections=(), cancelled_corrections=(),
                      paid=None, payment_status=Registration.payment_statuses.OPEN,
-                     status=Registration.statuses.REGISTERED):
+                     status=Registration.statuses.REGISTERED, inactive_options=()):
         """ Create a registration, payments and check the resulting annotations. """
-        reg = RegistrationFactory(event=self.event, options=options, status=status)
+        reg = RegistrationFactory(event=self.event, options=options, inactive_options=inactive_options, status=status)
 
         def create(info):
             if isinstance(info, tuple):
@@ -154,6 +154,24 @@ class TestPaymentAnnotations(TestCase):
             cancelled_corrections=[10],
             price=100,
             amount_due=100,
+        )
+
+    def test_inactive_options(self):
+        """ Test that inactive options are not used """
+        self.check_helper(
+            inactive_options=[self.donation_yes],
+            options=[self.player, self.donation_no],
+            price=100,
+            amount_due=100,
+        )
+
+    def test_reselect_inactive_optins(self):
+        """ Test that an option that was inactivated and then selected again are used """
+        self.check_helper(
+            inactive_options=[self.donation_no, self.donation_yes],
+            options=[self.player, self.donation_yes],
+            price=175,
+            amount_due=175,
         )
 
     @parameterized.expand(itertools.product([

@@ -33,8 +33,12 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         'registrations:step_medical_details',
         'registrations:step_emergency_contacts',
     )
-    registration_steps = common_steps + (
+    registration_steps_except_start = common_steps + (
         'registrations:step_final_check',
+    )
+
+    registration_steps = registration_steps_except_start + (
+        'registrations:registration_start',
     )
     edit_steps = common_steps + (
         'registrations:edit_start',
@@ -207,6 +211,8 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
 
     def reverse_step(self, viewname, reg):
         args = (reg.pk,)
+        if viewname == 'registrations:registration_start':
+            args = (reg.event_id,)
         return reverse(viewname, args=args)
 
     def test_full_registration(self):
@@ -995,7 +1001,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         self.assertEqual(Registration.objects.all().count(), 1)
         self.assertEqual(reg.status, Registration.statuses.REGISTERED)
 
-    @parameterized.expand(registration_steps)
+    @parameterized.expand(registration_steps_except_start)
     def test_others_registration(self, viewname):
         """ Check that all registration steps fail with someone else's registration. """
         registration = RegistrationFactory(event=self.event)
@@ -1020,12 +1026,14 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         expected_status = 200
         if not status.PREPARATION_COMPLETE and viewname == 'registrations:step_final_check':
             expected_status = 302
+        elif viewname == 'registrations:registration_start':
+            expected_status = 302
         self.assertEqual(response.status_code, expected_status)
 
         # Do not test POST, since that might not work reliably (e.g. the emergency contacts formset breaks for lack
         # of a management form).
 
-    @parameterized.expand(registration_steps)
+    @parameterized.expand(registration_steps_except_start)
     def test_canceled_registration(self, viewname):
         """ Check that all registration steps reject a canceled registration """
         registration = RegistrationFactory(event=self.event, user=self.user, cancelled=True)

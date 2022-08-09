@@ -69,47 +69,49 @@
       <h3>{% trans 'Options chosen for registration' %}</h3>
       {% include 'registrations/snippets/registration_options.html' with registration=reg %}
 
-      <h3>{% trans 'Making changes to your registration' %}</h3>
-      {% if not e.allow_change %}
-        {% if e.allow_change_until %}
+      {% if reg.status.ACTIVE %}
+        <h3>{% trans 'Making changes to your registration' %}</h3>
+        {% if not e.allow_change %}
+          {% if e.allow_change_until %}
+            <p>
+            {% blocktrans with e.display_email|urlize as mail %}
+            Your registration can no longer be changed online. If you still need to make changes, please contact the organization at {{mail}}.
+            {% endblocktrans %}
+            </p>
+          {% else %}
+            <p>
+            {% blocktrans with e.display_email|urlize as mail %}
+            Your registration cannot be changed online. If you do need to make changes, please contact the organization at {{mail}}.
+            {% endblocktrans %}
+            </p>
+          {% endif %}
+        {% else %}
+          {# TODO make this message a bit more specific? I.e. check if allow_change_until is before event start, if any options are unchangeable, etc. #}
           <p>
-          {% blocktrans with e.display_email|urlize as mail %}
-          Your registration can no longer be changed online. If you still need to make changes, please contact the organization at {{mail}}.
+          {% blocktrans with e.allow_change_until as change_until %}
+          Changes to your registration can be made online until
+          {{ change_until }}. You can change all information you provided
+          during registration (event options, personal details, safety
+          information, emergency contacts, etc.), though some event
+          options might become unchangeable before then.
           {% endblocktrans %}
           </p>
-        {% else %}
           <p>
-          {% blocktrans with e.display_email|urlize as mail %}
-          Your registration cannot be changed online. If you do need to make changes, please contact the organization at {{mail}}.
-          {% endblocktrans %}
+          <a class="btn btn-success" href="{% url 'registrations:edit_start' eventid=reg.event_id %}">{% trans "Edit your registration" %}</a>
           </p>
         {% endif %}
-      {% else %}
-        {# TODO make this message a bit more specific? I.e. check if allow_change_until is before event start, if any options are unchangeable, etc. #}
+
+        <h3>{% trans "Cancel?" %}</h3>
         <p>
-        {% blocktrans with e.allow_change_until as change_until %}
-        Changes to your registration can be made online until
-        {{ change_until }}. You can change all information you provided
-        during registration (event options, personal details, safety
-        information, emergency contacts, etc.), though some event
-        options might become unchangeable before then.
-        {% endblocktrans %}
-        </p>
-        <p>
-        <a class="btn btn-success" href="{% url 'registrations:edit_start' eventid=reg.event_id %}">{% trans "Edit your registration" %}</a>
+          {% url 'core:house_rules' as house_rules %}
+          {% blocktrans trimmed with event.url as event_url %}
+          If you want or have to cancel your registration, please contact us via e-mail (see above)
+          and make sure you have read <a href="{{house_rules}}">the house rules</a> and
+          <a href="{{event_url}}">event website</a> concerning cancellation because a fee may be
+          due, depending on the time left till the event.
+          {% endblocktrans %}
         </p>
       {% endif %}
-
-      <h3>{% trans "Cancel?" %}</h3>
-      <p>
-        {% url 'core:house_rules' as house_rules %}
-        {% blocktrans trimmed with event.url as event_url %}
-        If you want or have to cancel your registration, please contact us via e-mail (see above)
-        and make sure you have read <a href="{{house_rules}}">the house rules</a> and
-        <a href="{{event_url}}">event website</a> concerning cancellation because a fee may be
-        due, depending on the time left till the event.
-        {% endblocktrans %}
-      </p>
     </div>
   </div>
   </li>

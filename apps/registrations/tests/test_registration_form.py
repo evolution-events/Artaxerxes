@@ -44,6 +44,8 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         'registrations:edit_start',
         'registrations:edit_done',
     )
+    all_steps_except_start = set(registration_steps_except_start + edit_steps)
+    all_steps = all_steps_except_start | {'registrations:registration_start'}
 
     @classmethod
     def setUpTestData(cls):
@@ -1001,7 +1003,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         self.assertEqual(Registration.objects.all().count(), 1)
         self.assertEqual(reg.status, Registration.statuses.REGISTERED)
 
-    @parameterized.expand(registration_steps_except_start)
+    @parameterized.expand(all_steps_except_start)
     def test_others_registration(self, viewname):
         """ Check that all registration steps fail with someone else's registration. """
         registration = RegistrationFactory(event=self.event)
@@ -1014,7 +1016,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         self.assertEqual(response.status_code, 404)
 
     @parameterized.expand(itertools.product(
-        registration_steps,
+        all_steps,
         Registration.statuses.DRAFT | Registration.statuses.ACTIVE,
     ))
     def test_own_registration(self, viewname, status):
@@ -1028,12 +1030,14 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
             expected_status = 302
         elif viewname == 'registrations:registration_start':
             expected_status = 302
+        if not status.ACTIVE and viewname in self.edit_steps and viewname not in self.registration_steps:
+            expected_status = 302
         self.assertEqual(response.status_code, expected_status)
 
         # Do not test POST, since that might not work reliably (e.g. the emergency contacts formset breaks for lack
         # of a management form).
 
-    @parameterized.expand(registration_steps_except_start)
+    @parameterized.expand(all_steps_except_start)
     def test_canceled_registration(self, viewname):
         """ Check that all registration steps reject a canceled registration """
         registration = RegistrationFactory(event=self.event, user=self.user, cancelled=True)
@@ -1084,7 +1088,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         registration = RegistrationFactory(event=self.event, user=self.user, status=status)
 
         test_view('registrations:registration_start', registration)
-        for view in self.registration_steps:
+        for view in self.all_steps:
             test_view(view, registration)
 
     def test_registration_opens(self):

@@ -691,7 +691,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
 
     @parameterized.expand(itertools.product(
         # Test both never-changeable and expired changeable options
-        [None, timezone.now() - timedelta(days=1)],
+        [None, (timezone.now() - timedelta(days=1)).date()],
         Registration.statuses.ACTIVE,
     ))
     def test_allow_change_until(self, until, status):
@@ -840,7 +840,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
 
     @parameterized.expand(itertools.product(
         # Test both never-changeable and expired changeable options
-        [None, timezone.now() - timedelta(days=1)],
+        [None, (timezone.now() - timedelta(days=1)).date()],
         edit_steps,
         Registration.statuses.ACTIVE,
     ))

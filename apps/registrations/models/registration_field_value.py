@@ -67,6 +67,11 @@ class RegistrationFieldValueQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
         if fields:
             yield (section, fields)
 
+    def only_active(self):
+        """ Select active values only """
+        # This is a simple filter, but exists in case we need to change the way this is stored later
+        return self.filter(active=True)
+
     def priced_only(self):
         return self.exclude(option=None).exclude(option__price=None)
 
@@ -94,6 +99,11 @@ class RegistrationFieldValue(models.Model):
     # TODO: When used with arbitrary files, instead of images (verified by forms.ImageField), additionaly measures are
     # needed to prevent security issues.
     file_value = models.FileField(blank=True, upload_to=file_value_path)
+
+    active = models.BooleanField(
+        null=True, default=True,
+        help_text=_('Set to null when this value is replaced by a new value'),
+    )
 
     created_at = models.DateTimeField(verbose_name=_('Creation timestamp'), auto_now_add=True)
     updated_at = models.DateTimeField(verbose_name=_('Last update timestamp'), auto_now=True)
@@ -146,7 +156,14 @@ class RegistrationFieldValue(models.Model):
         base_manager_name = 'objects'
 
         constraints = [
-            models.UniqueConstraint(fields=['registration', 'field'], name='one_value_per_field_per_registration'),
+            # We would like to use a condition of active=True on this constraint (so only the active registrations have
+            # to be unique), but Mysql/Mariadb does not support this. So instead we use active=None for old entried,
+            # which count as unique entries. This is enforced by forbidding active=False.
+            models.UniqueConstraint(
+                fields=['registration', 'field', 'active'],
+                name='one_active_value_per_field_per_registration',
+            ),
+            models.CheckConstraint(check=~Q(active=False), name='active_cannot_be_false'),
         ]
         indexes = [
             # Index to speed up lookups from option through here to registration (e.g. get all registrations that use a
@@ -154,4 +171,7 @@ class RegistrationFieldValue(models.Model):
             # just these indices.
             models.Index(fields=['option', 'registration'], name='idx_option_registration'),
             models.Index(fields=['registration', 'option'], name='idx_registration_option'),
+            # And another pair to filter only active ones
+            models.Index(fields=['active', 'option', 'registration'], name='idx_active_option_registration'),
+            models.Index(fields=['active', 'registration', 'option'], name='idx_active_registration_option'),
         ]

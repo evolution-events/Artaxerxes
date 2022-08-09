@@ -1,4 +1,5 @@
-from django.test import TestCase
+from django.db.utils import IntegrityError
+from django.test import TestCase, skipUnlessDBFeature
 
 from apps.events.tests.factories import EventFactory
 
@@ -96,3 +97,25 @@ class TestSatisfiesRequiredAnnotation(TestCase):
                 with_satisfies = RegistrationFieldValue.objects.with_satisfies_required().get(pk=value_obj.pk)
                 self.assertEqual(with_satisfies.satisfies_required, satisfies)
             field.delete()
+
+
+class TestConstraints(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        pass
+
+    @skipUnlessDBFeature('supports_table_check_constraints')
+    def test_active_cannot_be_false(self):
+        with self.assertRaises(IntegrityError):
+            reg = RegistrationFactory()
+            field = RegistrationFieldFactory(event=reg.event)
+            RegistrationFieldValueFactory(active=False, registration=reg, field=field)
+
+    def test_one_active_value_per_field_per_registration(self):
+        reg = RegistrationFactory()
+        field = RegistrationFieldFactory(event=reg.event)
+        RegistrationFieldValueFactory(registration=reg, field=field)
+        RegistrationFieldValueFactory(active=None, registration=reg, field=field)
+        RegistrationFieldValueFactory(active=None, registration=reg, field=field)
+        with self.assertRaises(IntegrityError):
+            RegistrationFieldValueFactory(field=field, registration=reg)

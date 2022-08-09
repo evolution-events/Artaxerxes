@@ -12,7 +12,7 @@
       </p>
     {% else %}
       <p>
-      {% blocktrans with e.display_email|urlize as mail %}
+      {% blocktrans with registration.event.display_email|urlize as mail %}
       Your registration cannot be changed online. If you do need to make changes, please contact the organization at {{mail}}.
       {% endblocktrans %}
       </p>

@@ -262,6 +262,10 @@ class Event(models.Model):
     def allow_change(self):
         return self.allow_change_until and timezone.now().date() <= self.allow_change_until
 
+    @cached_property
+    def in_the_past(self):
+        return self.end_date < timezone.now().date()
+
     def __str__(self):
         return self.display_name()
 

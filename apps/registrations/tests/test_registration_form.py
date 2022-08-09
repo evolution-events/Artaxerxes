@@ -213,7 +213,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
 
     def reverse_step(self, viewname, reg):
         args = (reg.pk,)
-        if viewname == 'registrations:registration_start':
+        if viewname in ('registrations:registration_start', 'registrations:edit_start'):
             args = (reg.event_id,)
         return reverse(viewname, args=args)
 

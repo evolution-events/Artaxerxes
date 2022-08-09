@@ -32,11 +32,13 @@ REGISTRATION_STEPS = [
         'view': 'registrations:registration_start',
         'statuses': [],
         'change': False,
+        'view_arg_attr': 'event_id',
     }, {
         'title': _('Edit registration'),
         'view': 'registrations:edit_start',
         'statuses': Registration.statuses.ACTIVE,
         'change': True,
+        'view_arg_attr': 'event_id',
     }, {
         'title': _('Event options'),
         'view': 'registrations:step_registration_options',
@@ -176,7 +178,7 @@ class RegistrationStepMixinBase(ContextMixin):
         steps = [
             {
                 'url':
-                    reverse(step['view'], args=(self.registration.pk,))
+                    reverse(step['view'], args=(getattr(self.registration, step.get('view_arg_attr', 'pk')),))
                     if self.registration and self.registration.status in step['statuses']
                     else None,
                 'title': step['title'],
@@ -269,11 +271,23 @@ class RegistrationOptionsStep(RegistrationStepMixin, FormView):
         return super().check_request()
 
 
-class EditStart(RegistrationStepMixin, DetailView):
+class EditStart(RegistrationStepMixin, TemplateView):
     """ Start editing an active registration. """
 
-    context_object_name = 'registration'
     template_name = 'registrations/edit_start.html'
+
+    @cached_property
+    def registration(self):
+        return get_object_or_404(
+            self.get_queryset(),
+            event=self.event,
+            user=self.request.user,
+            is_current=True,
+        )
+
+    @cached_property
+    def event(self):
+        return get_object_or_404(Event.objects.for_user(self.request.user), pk=self.kwargs['eventid'])
 
 
 class PersonalDetailsStep(RegistrationStepMixin, FormView):

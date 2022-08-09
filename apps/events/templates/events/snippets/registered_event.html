@@ -37,7 +37,7 @@
           {% endif %}
 
           {% if reg.status.ACTIVE %}
-          <a class="editregistration" href="{% url 'registrations:edit_start' pk=reg.pk %}" role="button">{% trans 'Edit registration' %}</a><br/>
+          <a class="editregistration" href="{% url 'registrations:edit_start' eventid=reg.event_id %}" role="button">{% trans 'Edit registration' %}</a><br/>
           {% endif %}
         </div>
         <div class="event-bottom-right mt-auto">
@@ -96,7 +96,7 @@
         {% endblocktrans %}
         </p>
         <p>
-        <a class="btn btn-success" href="{% url 'registrations:edit_start' reg.pk %}">{% trans "Edit your registration" %}</a>
+        <a class="btn btn-success" href="{% url 'registrations:edit_start' eventid=reg.event_id %}">{% trans "Edit your registration" %}</a>
         </p>
       {% endif %}
 

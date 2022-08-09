@@ -35,10 +35,10 @@ class RegisteredEventList(LoginRequiredMixin, ListView):
         future = []
         past = []
         for e in self.object_list:
-            if e.start_date > date.today():
-                future.append(e)
-            else:
+            if e.in_the_past:
                 past.append(e)
+            else:
+                future.append(e)
 
         future.reverse()
 

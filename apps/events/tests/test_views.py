@@ -108,10 +108,10 @@ class TestRegisteredEventsView(TestCase):
         future = self.makeRegistrationsForEvents(user=self.user, status=status, titles=[
             'future_public_open_now',
             'future_public_closed_again',
+            'future_public_open_now_starts_today',
         ])
 
         past = self.makeRegistrationsForEvents(user=self.user, status=status, titles=[
-            'future_public_open_now_starts_today',
             'past_public_open_now',
             'past_public_closed',
             'past_public_closed_again',

@@ -406,16 +406,18 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         # Set type=crew to unlock options that depend on that, and change them
         data.update({
             self.type.name: self.crew.pk,
+        })
+        depends_data = {
             self.depends_uncheckbox.name: "on",
             self.depends_checkbox.name: "on",
             self.depends_choice.name: self.depends_choice_option.pk,
             self.depends_rating5.name: "1",
             self.depends_string.name: "ABC",
             self.depends_text.name: "XYZ",
-        })
-        self.options_form_helper(reg, data | {
+        }
+        self.options_form_helper(reg, data | depends_data | {
             self.depends_image.name: self.test_image2,
-        }, check_data=data | {
+        }, check_data=data | depends_data | {
             self.required_image.name: self.test_image2,
             self.depends_image.name: self.test_image2,
         })
@@ -423,9 +425,11 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         # Set depends_choice=option2 to unlock depend_depend_string
         data.update({
             self.depends_choice.name: self.depends_choice_option2.pk,
+        })
+        depends_data.update({
             self.depends_depends_string.name: "def",
         })
-        self.options_form_helper(reg, data, check_data=data | {
+        self.options_form_helper(reg, data | depends_data, check_data=data | depends_data | {
             self.required_image.name: self.test_image2,
             self.depends_image.name: self.test_image2,
         })
@@ -439,7 +443,6 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
             self.depends_image.name: self.test_image2,
         }, check_data=data | {
             self.required_image.name: self.test_image2,
-            self.depends_image.name: self.test_image2,
         })
 
     def check_field_saved_helper(self, reg, value, data):

@@ -256,11 +256,13 @@ class RegistrationOptionsForm(forms.Form):
                 'required': field.required,
             }
 
+            has_initial = (field.name in self.initial)
+
             if self.is_change:
                 # Make fields that can no longer be changed read-only
                 if not field.field_type.SECTION and not field.allow_change:
                     # Except for fields that do not have a value yet, just skip those entirely
-                    if field.name not in self.initial:
+                    if not has_initial:
                         continue
                     kwargs['disabled'] = True
                     kwargs['widget'] = SpanWidget
@@ -297,7 +299,7 @@ class RegistrationOptionsForm(forms.Form):
 
                 options = FakeQueryset(field.available_options, RegistrationFieldOption)
 
-                empty_label = None if field.required else '-'
+                empty_label = None if has_initial else _('Select one...')
                 form_field = RegistrationOptionField(queryset=options, empty_label=empty_label, **kwargs)
             elif field.field_type.RATING5:
                 choices = ((str(n), str(n)) for n in range(1, 6))

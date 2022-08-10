@@ -553,7 +553,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
                         else:
                             self.assertIsNone(elem.get('checked'))
 
-    def options_form_helper(self, reg, data, check_data=None, readonly_fields=(), history=None):
+    def options_form_helper(self, reg, data, check_data=None, readonly_fields=(), missing_fields=(), history=None):
         """ Submits the given data to the options form, and checks that it is saved correctly. """
         if check_data is None:
             check_data = data
@@ -587,6 +587,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
 
             if check_data.get(self.depends_choice.name, None) == self.depends_choice_option2.pk:
                 expected_values.update(depends_depends_fields)
+        expected_values -= set(missing_fields)
 
         # Fields that depend on another option should be hidden when it is not selected and readonly
         expected_form_fields = set(nondepends_fields)
@@ -595,6 +596,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         if not (self.depends_choice in readonly_fields
                 and check_data[self.depends_choice.name] != self.depends_choice_option2.pk):
             expected_form_fields.update(depends_depends_fields)
+        expected_form_fields -= set(missing_fields)
 
         self.assertEqual({v.field for v in values}, expected_values)
 
@@ -782,6 +784,17 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
             self.optional_image.name: self.test_image2,
         }, readonly_fields=unchangeable, history=history)
 
+        # Make two unchangeable values inactive (including required), and check that the form still submits
+        missing = (self.required_string, self.optional_string)
+        for value in reg.options.filter(field__in=missing):
+            value.active = None
+            value.save()
+
+        self.options_form_helper(reg, data, check_data=data | {
+            self.required_image.name: self.test_image,
+            self.optional_image.name: self.test_image2,
+        }, readonly_fields=unchangeable, history=history, missing_fields=missing)
+
         # Set type=crew to unlock depends options
         type_value = reg.options.get(field=self.type, active=True)
         type_value.active = None
@@ -807,7 +820,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
             self.required_image.name: self.test_image,
             self.depends_image.name: self.test_image2,
             self.optional_image.name: self.test_image2,
-        }, readonly_fields=unchangeable, history=history)
+        }, readonly_fields=unchangeable, history=history, missing_fields=missing)
 
     @parameterized.expand(itertools.product(
         Registration.statuses.DRAFT | Registration.statuses.ACTIVE,

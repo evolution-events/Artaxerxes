@@ -259,6 +259,9 @@ class RegistrationOptionsForm(forms.Form):
             if self.is_change:
                 # Make fields that can no longer be changed read-only
                 if not field.field_type.SECTION and not field.allow_change:
+                    # Except for fields that do not have a value yet, just skip those entirely
+                    if field.name not in self.initial:
+                        continue
                     kwargs['disabled'] = True
                     kwargs['widget'] = SpanWidget
                     kwargs['help_text'] = _('This option can no longer be changed — contact organization if needed')
@@ -369,7 +372,12 @@ class RegistrationOptionsForm(forms.Form):
             value = registration.active_options_by_name.get(field.name, None)
             depends_satisfied = self.depends_satisfied(d, field.depends)
 
+            # Skip fields whose value was not changed (relative to the db, not relative to the form defaults)
             if value and depends_satisfied and field.name not in self.changed_data:
+                continue
+
+            # Never change unchangeable fields
+            if not field.allow_change:
                 continue
 
             # For active registrations, keep history by marking the current value inactive (a new value will be created

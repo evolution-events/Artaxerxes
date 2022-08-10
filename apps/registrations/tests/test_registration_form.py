@@ -783,7 +783,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         }, readonly_fields=unchangeable, history=history)
 
         # Set type=crew to unlock depends options
-        type_value = reg.options.get(field=self.type)
+        type_value = reg.options.get(field=self.type, active=True)
         type_value.active = None
         type_value.save()
         RegistrationFieldValueFactory(registration=reg, option=self.crew)

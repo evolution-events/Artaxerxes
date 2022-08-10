@@ -379,7 +379,7 @@ class RegistrationOptionsForm(forms.Form):
                 continue
 
             # Never change unchangeable fields
-            if not field.allow_change:
+            if self.is_change and not field.allow_change:
                 continue
 
             # For active registrations, keep history by marking the current value inactive (a new value will be created

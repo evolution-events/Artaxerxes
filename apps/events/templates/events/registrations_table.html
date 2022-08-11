@@ -9,5 +9,7 @@
 
 {% block content %}
     <a class="btn btn-primary" href="{{ download_url }}">{% trans "Download spreadsheet" %}</a>
-    {{ data.html | safe }}
+    <div class="registrations-table">
+        {{ data.html | safe }}
+    </div>
 {% endblock content%}

@@ -345,3 +345,12 @@ table.registration-payments tr.amount-due td.subtract {
 .account-settings-menu li.current {
     font-weight: bold;
 }
+
+/*** Organized events ***/
+.registrations-table table tr {
+    border-bottom: 2px solid var(--dark-gray);
+}
+
+.registrations-table table td {
+    padding: 0 0.3em;
+}

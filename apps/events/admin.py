@@ -8,6 +8,7 @@ from django.contrib import admin, messages
 from django.http import HttpResponse
 from reversion.admin import VersionAdmin
 
+from apps.core.templatetags.coretags import moneyformat
 from apps.registrations.admin import RegistrationFieldInline
 from apps.registrations.models import Registration, RegistrationField
 
@@ -24,6 +25,12 @@ class RegistrationFieldValueField(import_export.fields.Field):
         return value.display_value()
 
 
+# TODO: Move this somewhere more generic?
+class MonetaryWidet(import_export.widgets.DecimalWidget):
+    def render(value, obj=None):
+        return moneyformat(value)
+
+
 class EventRegistrationsResource(import_export.resources.ModelResource):
     """ Resource that can export registrations for a single event, with event-specific RegistrationFields. """
 
@@ -33,6 +40,9 @@ class EventRegistrationsResource(import_export.resources.ModelResource):
     email = import_export.fields.Field(attribute='user__email')
     status = import_export.fields.Field(attribute='get_status_display')
     registered_at = import_export.fields.Field(attribute='registered_at')
+    payment_status = import_export.fields.Field(attribute='payment_status')
+    price = import_export.fields.Field(attribute='price', widget=MonetaryWidet)
+    paid = import_export.fields.Field(attribute='paid', widget=MonetaryWidet)
 
     def __init__(self, event):
         super().__init__()
@@ -54,6 +64,7 @@ class EventRegistrationsResource(import_export.resources.ModelResource):
             .filter(event=self.event)
             .select_related('user')
             .prefetch_active_options()
+            .with_payment_status()
             .order_by('created_at')
         )
 

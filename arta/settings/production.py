@@ -98,3 +98,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # TODO: A day is probably too long already, in Django (the upcoming) 3.1 this can be
 # specified in seconds instead.
 PASSWORD_RESET_TIMEOUT_DAYS = 1
+
+# Add extra protection for passwords, partially to work around https://code.djangoproject.com/ticket/33090 but also to
+# add even a bit more protection. Must be first to maximise coverage.
+MIDDLEWARE.append(0, 'arta.common.middleware.HideSensitiveMiddleware')

@@ -14,8 +14,7 @@ from apps.people.tests.factories import AddressFactory, EmergencyContactFactory
 
 from ..models import Registration, RegistrationField, RegistrationFieldValue
 from ..services import RegistrationStatusService
-from .factories import (RegistrationFactory, RegistrationFieldFactory, RegistrationFieldOptionFactory,
-                        RegistrationFieldValueFactory)
+from .factories import RegistrationFactory, RegistrationFieldFactory, RegistrationFieldOptionFactory
 
 
 class TestRegistrationStatusService(TestCase):

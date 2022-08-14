@@ -123,6 +123,10 @@ class RegistrationStepMixinBase(ContextMixin):
             if step.get('change', None) in (self.is_change, None)
         ]
 
+    def get_object(self):
+        # In case our subclasses are also DetailView, prevent doing the same query twice
+        return self.registration
+
     def check_request(self):
         """
         Called at the start of dispatch (so for all HTTP methods) to check if the registration is in the right state.

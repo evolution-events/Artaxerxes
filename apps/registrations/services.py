@@ -154,7 +154,7 @@ class RegistrationNotifyService:
         context = {
             'user': user,
             'registration': registration,
-            'options': registration.active_options,
+            'options_by_section': registration.active_options_by_section,
             'house_rules_url': request.build_absolute_uri(reverse('core:house_rules')),
             'edit_url': request.build_absolute_uri(reverse('registrations:edit_start', args=(registration.pk,))),
         }

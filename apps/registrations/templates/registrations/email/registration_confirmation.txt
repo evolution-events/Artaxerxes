@@ -40,10 +40,10 @@ For details, see our house rules at: {{ house_rules_url }}.
 {% endblocktrans %}
 {% endif %}
 .
-{% if options %}
+{% if options_by_section %}
 {% trans "Selected options" %}
 ====
-{% for section, values in options.group_by_section %}
+{% for section, values in options_by_section %}
 {% if section %}
 {% if forloop.counter0 > 0 %}
 .

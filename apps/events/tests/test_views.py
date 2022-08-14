@@ -1,12 +1,14 @@
+import itertools
 from datetime import datetime, timedelta, timezone
 
 from django.test import TestCase
 from django.urls import reverse
 from parameterized import parameterized
 
-from apps.people.tests.factories import ArtaUserFactory, GroupFactory
+from apps.people.tests.factories import ArtaUserFactory, GroupFactory, MedicalDetailsFactory
 from apps.registrations.models import Registration
-from apps.registrations.tests.factories import RegistrationFactory
+from apps.registrations.tests.factories import (RegistrationFactory, RegistrationFieldFactory,
+                                                RegistrationFieldOptionFactory)
 
 from ..models import Event
 from .factories import EventFactory
@@ -287,3 +289,71 @@ class TestEventRegistrationInfo(TestCase):
 
         e = self.events_for_organizers[0]
         self.get(view, template, content_type, e, status_code=302)
+
+
+class TestKitchenInfo(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.organizer = ArtaUserFactory()
+        cls.organizer_group = GroupFactory(users=[cls.organizer])
+        cls.event = EventFactory(organizer_group=cls.organizer_group)
+
+        cls.type = RegistrationFieldFactory(event=cls.event, name="type", allow_change_days=1)
+        cls.player = RegistrationFieldOptionFactory(field=cls.type, title="Player")
+        cls.npc = RegistrationFieldOptionFactory(field=cls.type, title="NPC")
+
+        cls.food = RegistrationFieldFactory(event=cls.event, name="food", is_kitchen_info=True)
+        cls.meat = RegistrationFieldOptionFactory(field=cls.food, title="meat")
+        cls.vegetarian = RegistrationFieldOptionFactory(field=cls.food, title="veggie")
+
+    def setUp(self):
+        self.client.force_login(self.organizer)
+
+    def get(self, expected_registrations):
+        view = 'events:kitchen_info'
+        response = self.client.get(reverse(view, args=(self.event.pk,)))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'events/printable/kitchen_info.html')
+
+        # Pass transform to prevent string conversion (TODO: remove in Django 3.2)
+        self.assertQuerysetEqual(
+            response.context['registration_list'],
+            expected_registrations,
+            ordered=False, transform=lambda o: o,
+        )
+        return response
+
+    def test_registrations_with_info(self):
+        """ Test that only registrations with info are included. """
+        # Registration with allergy info (should be included)
+        reg_allergy = RegistrationFactory(event=self.event, options=[self.player], registered=True)
+        MedicalDetailsFactory(user=reg_allergy.user, food_allergies="foo")
+
+        # Registration with empty allergy info (should be omitted)
+        reg_empty_allergy = RegistrationFactory(event=self.event, options=[self.player], registered=True)
+        MedicalDetailsFactory(user=reg_empty_allergy.user, food_allergies="")
+
+        # Registration with kitchen info field (should be included)
+        reg_kitchen_field = RegistrationFactory(
+            event=self.event, options=[self.player, self.vegetarian], registered=True)
+
+        # Registration with neither (should be omitted)
+        RegistrationFactory(event=self.event, options=[self.player], registered=True)
+
+        response = self.get(expected_registrations=[reg_allergy, reg_kitchen_field])
+
+        render_allergy, render_kitchen_field = response.context['registration_list'].order_by('created_at')
+        self.assertEqual([render_allergy.pk, render_kitchen_field.pk], [reg_allergy.pk, reg_kitchen_field.pk])
+
+        self.assertEqual(render_allergy.kitchen_options, [])
+        kitchen_fields = [option.field for option in render_kitchen_field.kitchen_options]
+        self.assertEqual(kitchen_fields, [self.food])
+
+    @parameterized.expand(itertools.product(Registration.statuses.constants))
+    def test_only_registered(self, status):
+        """ Test that only REGISTERED registrations are included. """
+
+        reg = RegistrationFactory(event=self.event, options=[self.player, self.vegetarian], status=status)
+
+        expected_registrations = [reg] if status.REGISTERED else []
+        self.get(expected_registrations)

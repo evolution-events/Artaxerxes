@@ -48,6 +48,7 @@ class RegistrationField(models.Model):
                     'changed.'),
     )
     required = models.BooleanField(default=True)
+    is_kitchen_info = models.BooleanField(default=False, help_text=_("This field should appear in the kitchen info."))
 
     created_at = models.DateTimeField(verbose_name=_('Creation timestamp'), auto_now_add=True)
     updated_at = models.DateTimeField(verbose_name=_('Last update timestamp'), auto_now=True)

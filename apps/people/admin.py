@@ -1,6 +1,7 @@
 import import_export.admin
 import import_export.fields
 import import_export.resources
+from allauth.account.models import EmailAddress
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.http import HttpResponse
@@ -22,6 +23,11 @@ class EmergencyContactInline(admin.StackedInline):
     model = EmergencyContact
     can_delete = True
     max_num = EmergencyContact.MAX_PER_USER
+    extra = 0
+
+
+class EmailAddressInline(admin.TabularInline):
+    model = EmailAddress
     extra = 0
 
 
@@ -47,7 +53,7 @@ class ArtaUserResource(import_export.resources.ModelResource):
 
 @admin.register(ArtaUser)
 class ArtaUserAdmin(import_export.admin.ExportMixin, UserAdmin, HijackUserAdminMixin, VersionAdmin):
-    inlines = (AddressInline, EmergencyContactInline)
+    inlines = (AddressInline, EmergencyContactInline, EmailAddressInline)
     list_display = ('email', 'first_name', 'last_name', 'is_staff', 'is_active', 'hijack_field')
     search_fields = ('first_name', 'last_name', 'email')
     list_filter = UserAdmin.list_filter + ('consent_announcements_nl', 'consent_announcements_en')

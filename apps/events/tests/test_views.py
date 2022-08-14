@@ -218,7 +218,7 @@ class TestOrganizedEventsList(TestCase):
         self.get(status_code=302)
 
 
-class EventRegistrationInfo(TestCase):
+class TestEventRegistrationInfo(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.organizers = ArtaUserFactory.create_batch(2)
@@ -233,14 +233,14 @@ class EventRegistrationInfo(TestCase):
         cls.other_event = EventFactory()
 
     views = [
-        ('events:registration_forms', 'events/registration_forms.html', 'text/html'),
-        ('events:printable_registration_forms', 'events/registration_forms.html', 'application/pdf'),
-        ('events:kitchen_info', 'events/kitchen_info.html', 'text/html'),
-        ('events:printable_kitchen_info', 'events/kitchen_info.html', 'application/pdf'),
-        ('events:safety_reference', 'events/safety_info.html', 'text/html'),
-        ('events:printable_safety_reference', 'events/safety_info.html', 'application/pdf'),
-        ('events:safety_info', 'events/safety_info.html', 'text/html'),
-        ('events:registrations_table', 'events/registrations_table.html', 'text/html'),
+        ('events:registration_forms', 'events/printable/registration_forms.html', 'text/html; charset=utf-8'),
+        ('events:printable_registration_forms', 'events/printable/registration_forms.html', 'application/pdf'),
+        ('events:kitchen_info', 'events/printable/kitchen_info.html', 'text/html; charset=utf-8'),
+        ('events:printable_kitchen_info', 'events/printable/kitchen_info.html', 'application/pdf'),
+        ('events:safety_reference', 'events/printable/safety_info.html', 'text/html; charset=utf-8'),
+        ('events:printable_safety_reference', 'events/printable/safety_info.html', 'application/pdf'),
+        ('events:safety_info', 'events/printable/safety_info.html', 'text/html; charset=utf-8'),
+        ('events:registrations_table', 'events/registrations_table.html', 'text/html; charset=utf-8'),
         ('events:registrations_table_download', None, 'application/vnd.oasis.opendocument.spreadsheet'),
     ]
 
@@ -251,12 +251,19 @@ class EventRegistrationInfo(TestCase):
         if status_code == 200:
             if template:
                 self.assertTemplateUsed(response, template)
-            self.assertEqual(response.content_type, content_type)
+            self.assertEqual(response['Content-Type'], content_type)
 
         return response
 
     # TODO: Add actualy participants (with different variations of address/medical details set/unset) and test that all
     # views return the expected registrations (and no others, especially not of other events).
+    @parameterized.expand(views)
+    def test_correct_organizer(self, view, template, content_type):
+        """ Check that you get no error when you are the organizer for the event. """
+
+        self.client.force_login(self.organizers[0])
+        e = self.events_for_organizers[0]
+        self.get(view, template, content_type, e)
 
     @parameterized.expand(views)
     def test_other_organizer(self, view, template, content_type):

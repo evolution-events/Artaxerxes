@@ -38,6 +38,7 @@ class EventRegistrationsResource(import_export.resources.ModelResource):
     first_name = import_export.fields.Field(attribute='user__first_name')
     last_name = import_export.fields.Field(attribute='user__last_name')
     email = import_export.fields.Field(attribute='user__email')
+    phone_number = import_export.fields.Field(attribute='user__address__phone_number')
     status = import_export.fields.Field(attribute='get_status_display')
     registered_at = import_export.fields.Field(attribute='registered_at')
     payment_status = import_export.fields.Field(attribute='payment_status')

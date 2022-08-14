@@ -2,7 +2,7 @@ from datetime import date, datetime
 
 import import_export.formats.base_formats
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Count, Q
+from django.db.models import Count, Prefetch, Q
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -10,7 +10,7 @@ from django.utils.functional import cached_property
 from django.views.generic.list import ListView
 from django_weasyprint import WeasyTemplateResponseMixin
 
-from apps.registrations.models import Registration
+from apps.registrations.models import Registration, RegistrationFieldValue
 from arta.common.db import QExpr
 
 from .admin import EventRegistrationsResource
@@ -119,8 +119,15 @@ class KitchenInfo(EventRegistrationInfoBase):
         return (
             super().get_queryset()
             .select_related('user', 'user__medical_details')
-            .filter(user__medical_details__isnull=False)
-            .exclude(user__medical_details__food_allergies="")
+            .prefetch_related(Prefetch(
+                'options', to_attr='kitchen_options',
+                queryset=RegistrationFieldValue.objects
+                .filter(field__is_kitchen_info=True)
+                .select_related('field', 'option')))
+            .filter(
+                (Q(user__medical_details__isnull=False) & ~Q(user__medical_details__food_allergies=""))
+                | Q(options__field__is_kitchen_info=True),
+            ).distinct()
         )
 
 

@@ -84,13 +84,18 @@
       <h2 class="name">{{ reg.user.full_name }}</h2>
       <div class="content">
 	<table>
-	  {# TODO: More info, like vegatarian preferences #}
 	  {% if reg.user.medical_details.food_allergies %}
 	    <tr>
 	      <td class="desc">{% trans "Food allergies" %}</td>
 	      <td class="val">{{ reg.user.medical_details.food_allergies }}</td>
 	    </tr>
 	  {% endif %}
+	  {% for option in reg.kitchen_options %}
+	    <tr>
+	      <td class="desc">{{ option.field.title }}</td>
+	      <td class="val">{{ option.display_value }}</td>
+	    </tr>
+	  {% endfor %}
 	</table>
       </div>
     </div>

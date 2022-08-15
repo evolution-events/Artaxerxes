@@ -2,6 +2,7 @@ import reversion
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
+from django.db.models import F, Value
 from django.db.models.functions import Concat
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -12,7 +13,10 @@ from arta.common.db import UpdatedAtQuerySetMixin
 
 
 class ArtaUserQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
-    pass
+    def with_full_name(self):
+        return self.annotate(
+            full_name=Concat(F('first_name'), Value(' '), F('last_name')),
+        )
 
 
 class ArtaUserManager(models.Manager.from_queryset(ArtaUserQuerySet)):

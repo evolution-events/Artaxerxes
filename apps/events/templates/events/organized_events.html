@@ -26,6 +26,10 @@
                 <a href="{{ privacy_url }}">privacy policy</a> for
                 details).</p>
 
+                <h3>Recent changes</h2>
+                <p>This is a listing of recent changes to the event itself, its registrations or the details of registered users.</p>
+                <p><a class="btn btn-primary" href="{% url 'events:event_registrations_history' pk=e.pk %}">{% trans 'View' %}</a></p>
+
                 <h3>Registration forms</h3>
                 <p>These are registration forms and are intended to be printed and signed by participants during participant check-in.</p>
                 <p><a class="btn btn-primary" href="{% url 'events:printable_registration_forms' pk=e.pk %}">{% trans 'Download' %}</a></p>

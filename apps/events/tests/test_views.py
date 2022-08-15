@@ -244,6 +244,7 @@ class TestEventRegistrationInfo(TestCase):
         ('events:safety_info', 'events/printable/safety_info.html', 'text/html; charset=utf-8'),
         ('events:registrations_table', 'events/registrations_table.html', 'text/html; charset=utf-8'),
         ('events:registrations_table_download', None, 'application/vnd.oasis.opendocument.spreadsheet'),
+        ('events:event_registrations_history', 'events/event_registrations_history.html', 'text/html; charset=utf-8'),
     ]
 
     def get(self, view, template, content_type, event, status_code=200):

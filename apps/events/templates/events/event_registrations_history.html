@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block pagetitle %}
+    {% blocktrans %}
+    Changes to registrations for {{ event }}
+    {% endblocktrans %}
+{% endblock %}
+
+{% block content %}
+    <p>
+    {% trans 'Note this only shows changes for admitted registrations, not pending, waitinglist or cancelled registrations.' %}
+    </p>
+
+    <table class="event-registrations-history">
+        <tr>
+            <th>{% trans 'Registration' %}</th>
+            <th>{% trans 'Change' %}</th>
+        </tr>
+        {% for rev in object_list %}
+            <tr>
+                <td>{{rev.participant}}</td>
+                <td>
+                    <span class="comment">{{rev.comment}}</span>
+                    <span class="byat">
+                    {% blocktrans with by=rev.user.full_name at=rev.date_created %}
+                    by {{by}} at {{at}}
+                    {% endblocktrans %}
+                    </span>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+    {% include 'core/snippets/pagination.html' %}
+{% endblock content%}

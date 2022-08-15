@@ -354,3 +354,16 @@ table.registration-payments tr.amount-due td.subtract {
 .registrations-table table td {
     padding: 0 0.3em;
 }
+
+.event-registrations-history tr {
+    border-bottom: 2px solid var(--dark-gray);
+}
+
+.event-registrations-history .comment {
+    display:block;
+}
+
+.event-registrations-history .byat {
+    font-size: 80%;
+    font-style: italic;
+}

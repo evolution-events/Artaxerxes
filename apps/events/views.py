@@ -2,14 +2,17 @@ from datetime import date, datetime
 
 import import_export.formats.base_formats
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Count, Prefetch, Q
+from django.contrib.contenttypes.models import ContentType
+from django.db.models import CharField, Count, OuterRef, Prefetch, Q, Subquery
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.functional import cached_property
 from django.views.generic.list import ListView
 from django_weasyprint import WeasyTemplateResponseMixin
+from reversion.models import Revision, Version
 
+from apps.people.models import ArtaUser
 from apps.registrations.models import Registration, RegistrationFieldValue
 from arta.common.db import QExpr
 
@@ -204,3 +207,53 @@ class RegistrationsTableDownload(RegistrationsTable):
             self.event.name, datetime.now().strftime('%Y-%m-%d'), file_format.get_extension(),
         )
         return response
+
+
+class EventRegistrationsHistory(EventRegistrationInfoBase):
+    """ History about changes to registrations for a given event. """
+
+    template_name = 'events/event_registrations_history.html'
+    paginate_by = 25
+
+    def get_queryset(self):
+        # This replaces the event queryset from our super with a revision queryset, but ListView does not seem to care
+        registrations = super().get_queryset()
+        users = ArtaUser.objects.filter(registrations__in=registrations)
+
+        # This gets all revisions that are associated with the current event (via registration or user), and then
+        # annotates them with the name of the user for which the edit was done (by looking up the user included in ther
+        # revision directly, or through the registration included in the revision).
+        revisions = Revision.objects.filter(
+            Q(
+                version__content_type=ContentType.objects.get_for_model(Registration),
+                version__object_id__in=registrations,
+            ) | Q(
+                version__content_type=ContentType.objects.get_for_model(ArtaUser),
+                version__object_id__in=users,
+            ),
+        ).distinct().annotate(
+            # These queries assume there is exactly one user associated to a revision (which should be the case, but
+            # it is unsure how things will be handled if not).
+            #
+            # This needs a nested subquery because there is no direct relation between Version and
+            # ArtaUser/Registration.
+            participant=Subquery(
+                ArtaUser.objects.filter(
+                    Q(pk=Subquery(
+                        Version.objects.filter(
+                            revision=OuterRef(OuterRef('id')),
+                            content_type=ContentType.objects.get_for_model(ArtaUser),
+                        ).values('object_id'),
+                    )) | Q(registrations__pk=Subquery(
+                        Version.objects.filter(
+                            revision=OuterRef(OuterRef('id')),
+                            content_type=ContentType.objects.get_for_model(Registration),
+                        ).values('object_id'),
+                    )))
+                .with_full_name()
+                .values("full_name"),
+                output_field=CharField(),
+            ),
+        ).order_by('-date_created').select_related('user')
+
+        return revisions

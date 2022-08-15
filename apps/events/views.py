@@ -122,11 +122,11 @@ class KitchenInfo(EventRegistrationInfoBase):
             .prefetch_related(Prefetch(
                 'options', to_attr='kitchen_options',
                 queryset=RegistrationFieldValue.objects
-                .filter(field__is_kitchen_info=True)
+                .filter(field__is_kitchen_info=True, active=True)
                 .select_related('field', 'option')))
             .filter(
                 (Q(user__medical_details__isnull=False) & ~Q(user__medical_details__food_allergies=""))
-                | Q(options__field__is_kitchen_info=True),
+                | Q(options__field__is_kitchen_info=True, options__active=True),
             ).distinct()
         )
 

@@ -333,9 +333,9 @@ class TestKitchenInfo(TestCase):
         reg_empty_allergy = RegistrationFactory(event=self.event, options=[self.player], registered=True)
         MedicalDetailsFactory(user=reg_empty_allergy.user, food_allergies="")
 
-        # Registration with kitchen info field (should be included)
+        # Registration with kitchen info field (should be included, but inactive option omitted)
         reg_kitchen_field = RegistrationFactory(
-            event=self.event, options=[self.player, self.vegetarian], registered=True)
+            event=self.event, options=[self.player, self.vegetarian], inactive_options=[self.meat], registered=True)
 
         # Registration with neither (should be omitted)
         RegistrationFactory(event=self.event, options=[self.player], registered=True)

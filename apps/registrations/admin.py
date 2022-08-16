@@ -169,6 +169,7 @@ class RegistrationAdmin(HijackRelatedAdminMixin, VersionAdmin):
         change_status_action(Registration.statuses.PENDING, Registration.statuses.REGISTERED),
         change_status_action(Registration.statuses.PENDING, Registration.statuses.CANCELLED),
         change_status_action(Registration.statuses.PENDING, Registration.statuses.WAITINGLIST),
+        change_status_action(Registration.statuses.WAITINGLIST, Registration.statuses.CANCELLED),
     ]
 
     def get_queryset(self, *args, **kwargs):

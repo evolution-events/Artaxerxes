@@ -52,6 +52,9 @@ class GroupFactory(factory.django.DjangoModelFactory):
 
     name = factory.Faker('name')
 
+    class Params:
+        users = []
+
     @factory.post_generation
     def users(self, create, value, **kwargs):
         assert(create)  # Need id

@@ -19,7 +19,7 @@
         </tr>
         {% for rev in object_list %}
             <tr>
-                <td>{{rev.participant}}</td>
+                <td>{{rev.registrations|linebreaks}}</td>
                 <td>
                     <span class="comment">{{rev.comment}}</span>
                     <span class="byat">

@@ -1,6 +1,7 @@
 import itertools
 from datetime import datetime, timedelta, timezone
 
+import reversion
 from django.test import TestCase
 from django.urls import reverse
 from parameterized import parameterized
@@ -358,3 +359,88 @@ class TestKitchenInfo(TestCase):
 
         expected_registrations = [reg] if status.REGISTERED else []
         self.get(expected_registrations)
+
+
+class TestEventRegistrationsHistory(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.organizer = ArtaUserFactory()
+        cls.organizer_group = GroupFactory(users=[cls.organizer])
+        cls.event = EventFactory(organizer_group=cls.organizer_group)
+
+    def setUp(self):
+        self.client.force_login(self.organizer)
+
+    def get(self, expected_revisions):
+        view = 'events:event_registrations_history'
+        response = self.client.get(reverse(view, args=(self.event.pk,)))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'events/event_registrations_history.html')
+
+        # Pass transform to prevent string conversion (TODO: remove in Django 3.2)
+        self.assertQuerysetEqual(
+            response.context['object_list'],
+            [rev for (rev, _) in expected_revisions],
+            transform=lambda o: o,
+        )
+
+        regs_per_rev = {
+            rev.pk: regs
+            for (rev, regs) in expected_revisions
+        }
+
+        for rev in response.context['object_list']:
+            regs = regs_per_rev.pop(rev.pk)
+
+            self.assertCountEqual(
+                [reg.user.full_name for reg in regs],
+                rev.registrations.split('\n'),
+            )
+
+        return response
+
+    def test_multiple_registrations_in_revision(self):
+        """ Test that multiple registrations in a single revision are handled as expected. """
+
+        players = ArtaUserFactory.create_batch(2)
+        regs = [
+            RegistrationFactory(user=player, event=self.event, pending=True)
+            for player in players
+        ]
+
+        # Create a single revision containing two registrations (this can happen e.g. when using admin actions to bulk
+        # change registration status).
+        with reversion.create_revision():
+            for reg in regs:
+                reg.status = Registration.statuses.REGISTERED
+                reg.save()
+
+        revision = reversion.models.Revision.objects.get()
+
+        self.get(expected_revisions=[
+            (revision, regs),
+        ])
+
+    def test_other_event_in_revision(self):
+        """ Test that registration for another event in the revision is ignored. """
+
+        regs = [
+            RegistrationFactory(event=self.event, pending=True),
+            RegistrationFactory(pending=True),
+        ]
+
+        # Create a single revision containing two registrations for different events (only one should be shown)
+        with reversion.create_revision():
+            for reg in regs:
+                reg.status = Registration.statuses.REGISTERED
+                reg.save()
+
+        # Create another revision containing just one registration for another event (should be omitted entirely)
+        with reversion.create_revision():
+            RegistrationFactory(registered=True)
+
+        double_rev, single_rev = reversion.models.Revision.objects.all().order_by('date_created')
+
+        self.get(expected_revisions=[
+            (double_rev, [regs[0]]),
+        ])

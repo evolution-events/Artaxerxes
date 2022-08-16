@@ -3,7 +3,7 @@ from datetime import date, datetime
 import import_export.formats.base_formats
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import CharField, Count, OuterRef, Prefetch, Q, Subquery
+from django.db.models import Count, F, OuterRef, Prefetch, Q, Subquery, Value
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -14,7 +14,7 @@ from reversion.models import Revision, Version
 
 from apps.people.models import ArtaUser
 from apps.registrations.models import Registration, RegistrationFieldValue
-from arta.common.db import QExpr
+from arta.common.db import GroupConcat, QExpr
 
 from .admin import EventRegistrationsResource
 from .models import Event
@@ -232,27 +232,43 @@ class EventRegistrationsHistory(EventRegistrationInfoBase):
                 version__object_id__in=users,
             ),
         ).distinct().annotate(
-            # These queries assume there is exactly one user associated to a revision (which should be the case, but
-            # it is unsure how things will be handled if not).
-            #
-            # This needs a nested subquery because there is no direct relation between Version and
-            # ArtaUser/Registration.
-            participant=Subquery(
+            # This quite a horrible stack of subqueries that is hopefully more performant than a ton of separate
+            # queries that seems to have been the alternative...
+            # TODO: Maybe GenericRelation could help, but that seems to insist deleting the referencing object
+            # (Version) when the referenced object (user, registration) is deleted, which is not what we want.
+            registrations=Subquery(
                 ArtaUser.objects.filter(
-                    Q(pk=Subquery(
-                        Version.objects.filter(
-                            revision=OuterRef(OuterRef('id')),
-                            content_type=ContentType.objects.get_for_model(ArtaUser),
-                        ).values('object_id'),
-                    )) | Q(registrations__pk=Subquery(
-                        Version.objects.filter(
-                            revision=OuterRef(OuterRef('id')),
-                            content_type=ContentType.objects.get_for_model(Registration),
-                        ).values('object_id'),
-                    )))
+                    # This uses a nested subquery to ensure each user is returned only once (since distinct() does not
+                    # seem to work together with the GroupConcat aggregation)
+                    pk__in=Subquery(
+                        ArtaUser.objects.filter(
+                            # This needs nested subqueries because there is no direct relation between Version and
+                            # ArtaUser/Registration.
+                            Q(pk__in=Subquery(
+                                Version.objects.filter(
+                                    revision=OuterRef(OuterRef(OuterRef('id'))),
+                                    content_type=ContentType.objects.get_for_model(ArtaUser),
+                                ).values('object_id'),
+                            )) | Q(
+                                registrations__in=Subquery(
+                                    # TODO: filter event?
+                                    Version.objects.filter(
+                                        revision=OuterRef(OuterRef(OuterRef('id'))),
+                                        content_type=ContentType.objects.get_for_model(Registration),
+                                    ).values('object_id'),
+                                ), registrations__event=self.event,
+                            ),
+                        ).values('id'),
+                    ))
                 .with_full_name()
-                .values("full_name"),
-                output_field=CharField(),
+                # This applies the trick documented to group *all* of the results of this subquery and return the names
+                # concatenated, so this always returns a single result that can be annotated. See:
+                # https://docs.djangoproject.com/en/4.1/ref/models/expressions/#using-aggregates-within-a-subquery-expression
+                .order_by()
+                .annotate(dummy=Value(0))
+                .values('dummy')
+                .annotate(concat_names=GroupConcat(Value('\n'), F('full_name')))
+                .values("concat_names"),
             ),
         ).order_by('-date_created').select_related('user')
 

@@ -458,7 +458,7 @@ class TestRegistrationStatusService(TestCase):
             self.assertRegex(queries[1]["sql"], match)
         with self.subTest("Must lock user"):
             # This ensures that FOR UPDATE is used and that *only* the event is locked (i.e. no joins)
-            match = ' FROM {table} WHERE {table}.{id_field} = {id} FOR UPDATE$'.format(
+            match = ' FROM {table} WHERE {table}.{id_field} = {id} ORDER BY .* FOR UPDATE$'.format(
                 table=re.escape(connection.ops.quote_name(ArtaUser._meta.db_table)),
                 id_field=re.escape(connection.ops.quote_name(ArtaUser._meta.pk.column)),
                 id=reg.user.id,

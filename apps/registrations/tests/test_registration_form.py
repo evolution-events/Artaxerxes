@@ -104,7 +104,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
             allow_change_days=1,
         )
         cls.depends_depends_string = RegistrationFieldFactory(
-            event=cls.event, name="depends_depends_string", field_type=RegistrationField.types.STRING,
+            event=cls.event, name="depends_depends_str", field_type=RegistrationField.types.STRING,
             depends=cls.depends_choice_option2, allow_change_days=1,
         )
 

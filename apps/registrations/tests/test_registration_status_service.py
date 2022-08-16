@@ -10,7 +10,7 @@ from django.utils import timezone
 from apps.events.models import Event
 from apps.events.tests.factories import EventFactory
 from apps.people.models import ArtaUser
-from apps.people.tests.factories import AddressFactory, EmergencyContactFactory
+from apps.people.tests.factories import AddressFactory, EmergencyContactFactory, GroupFactory
 
 from ..models import Registration, RegistrationField, RegistrationFieldValue
 from ..services import RegistrationStatusService
@@ -22,9 +22,14 @@ class TestRegistrationStatusService(TestCase):
     def setUpTestData(cls):
         cls.event = EventFactory(registration_opens_in_days=-1, public=True)
 
+        cls.crew_invite_group = GroupFactory()
+        cls.invite_field_group = GroupFactory()
+
         cls.type = RegistrationFieldFactory(event=cls.event, name="type")
         cls.player = RegistrationFieldOptionFactory(field=cls.type, title="Player")
         cls.crew = RegistrationFieldOptionFactory(field=cls.type, title="Crew")
+        cls.crew_invite = RegistrationFieldOptionFactory(
+            field=cls.type, title="Crew invite", invite_only=cls.crew_invite_group)
 
         cls.section = RegistrationFieldFactory(
             event=cls.event, name="section", depends=cls.player, field_type=RegistrationField.types.SECTION,
@@ -34,21 +39,32 @@ class TestRegistrationStatusService(TestCase):
         cls.option_m = RegistrationFieldOptionFactory(field=cls.gender, title="M", slots=2)
         cls.option_f = RegistrationFieldOptionFactory(field=cls.gender, title="F", slots=2)
 
-        cls.origin = RegistrationFieldFactory(event=cls.event, name="origin", depends=cls.player)
+        cls.origin = RegistrationFieldFactory(event=cls.event, name="origin", depends=cls.player, required=False)
         cls.option_nl = RegistrationFieldOptionFactory(field=cls.origin, title="NL", slots=2)
         cls.option_intl = RegistrationFieldOptionFactory(field=cls.origin, title="INTL", slots=2)
 
-        cls.default_options = [cls.player, cls.option_m, cls.option_nl]
+        cls.extra_nights = RegistrationFieldFactory(event=cls.event, name="nights")
+        cls.one_night = RegistrationFieldOptionFactory(field=cls.extra_nights, title="one")
+        cls.two_nights = RegistrationFieldOptionFactory(field=cls.extra_nights, title="two", depends=cls.crew)
+
+        cls.invite = RegistrationFieldFactory(event=cls.event, name="invite", invite_only=cls.invite_field_group)
+        cls.invite_opt = RegistrationFieldOptionFactory(field=cls.invite, title="invite_opt")
+
+        cls.default_options = [cls.player, cls.option_m, cls.option_nl, cls.one_night]
 
     def incomplete_registration_helper(
         self, empty_field=None, with_emergency_contact=True, with_address=True, options=True,
-        exception=ValidationError, inactive_options=(),
+        exception=ValidationError, inactive_options=(), group=None,
     ):
         if options is True:
             options = self.default_options
         reg = RegistrationFactory(
             event=self.event, preparation_in_progress=True, options=options, inactive_options=inactive_options,
         )
+
+        if group:
+            reg.user.groups.add(group)
+            reg.user.save()
 
         if with_emergency_contact:
             EmergencyContactFactory(user=reg.user)
@@ -98,15 +114,47 @@ class TestRegistrationStatusService(TestCase):
 
     def test_partial_with_inactive_options(self):
         """ Check that an inactive option does not fulfill a required option """
-        self.incomplete_registration_helper(options=[self.player, self.option_nl], inactive_options=[self.option_f])
+        self.incomplete_registration_helper(
+            options=[self.player, self.option_nl, self.one_night], inactive_options=[self.option_f])
 
-    def test_unsatisfied_dependency_options(self):
-        """ Check that a omitting an option with missing dependency does not prevent completing preparation """
-        self.incomplete_registration_helper(options=[self.crew], exception=None)
+    def test_unsatisfied_dependency_field_missing(self):
+        """ Check that a omitting a field with missing dependency does not prevent completing preparation """
+        self.incomplete_registration_helper(options=[self.crew, self.one_night], exception=None)
 
-    def test_inactive_dependency_options(self):
+    def test_inactive_dependency_field(self):
         """ Check that an inactive option does not satisfy a dependency """
-        self.incomplete_registration_helper(inactive_options=[self.player], options=[self.crew], exception=None)
+        self.incomplete_registration_helper(
+            inactive_options=[self.player], options=[self.crew, self.one_night], exception=None)
+
+    def test_unsatisfied_dependency_option(self):
+        """ Check that a selecting an option whose dependency is not satisfied prevents completing preparation """
+        self.incomplete_registration_helper(options=[self.player, self.option_f, self.option_nl, self.two_nights])
+
+    def test_satisfied_dependency_option(self):
+        """ Check that a selecting an option whose dependency is satisfied does not prevent completing preparation """
+        self.incomplete_registration_helper(options=[self.crew, self.two_nights], exception=None)
+
+    def test_satisfied_invite_option(self):
+        """ Check that an option with satisfied invite does not prevent completion when it is present """
+        self.incomplete_registration_helper(
+            options=[self.crew_invite, self.one_night], exception=None, group=self.crew_invite_group)
+
+    def test_unsatisfied_invite_option_missing(self):
+        """ Check that an option with unsatisfied invite prevents completion when it is chosen """
+        self.incomplete_registration_helper(options=[self.crew_invite, self.one_night])
+
+    def test_satisfied_invite_field(self):
+        """ Check that a field with satisfied invite does not prevent completion when it is present """
+        self.incomplete_registration_helper(
+            options=[self.crew, self.invite_opt, self.one_night], group=self.invite_field_group, exception=None)
+
+    def test_satisfied_invite_field_missing(self):
+        """ Check that a field with satisfied invite does prevent completion when it is missing """
+        self.incomplete_registration_helper(options=[self.crew, self.one_night], group=self.invite_field_group)
+
+    def test_unsatisfied_invite_field_missing(self):
+        """ Check that a field with unsatisfied invite does not prevent completion when it is missing """
+        self.incomplete_registration_helper(options=[self.crew, self.one_night], exception=None)
 
     def test_complete(self):
         """ Check that a complete registration can be completed """
@@ -175,7 +223,7 @@ class TestRegistrationStatusService(TestCase):
                 )
 
                 with self.subTest("Missing value is ok"):
-                    self.incomplete_registration_helper()
+                    self.incomplete_registration_helper(exception=None)
 
                 if field.field_type.CHECKBOX or field.field_type.UNCHECKBOX:
                     with self.subTest("Arbitrary non-zero value is not ok"):

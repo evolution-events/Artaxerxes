@@ -53,23 +53,51 @@ class RegistrationStatusService:
         ).exclude(
             field_type=RegistrationField.types.SECTION,
         )
-        required_fields = all_fields.filter(
+        available_fields = all_fields.filter(
             Q(depends=None) | Q(depends__in=selected_options),
+            Q(invite_only=None) | Q(invite_only__user=user),
         )
+        required_fields = available_fields.filter(required=True)
+        supplied_values = RegistrationFieldValue.objects.filter(
+            active=True,
+            registration=registration,
+        )
+
+        # These values are completely invalid, or required and empty
+        invalid_values = supplied_values.with_satisfies_required().filter(satisfies_required=False)
+        invalid_names = [name for (name, ) in invalid_values.values_list('field__name')]
+        if invalid_names:
+            raise ValidationError(_("Invalid registration options: {}".format(", ".join(invalid_names))))
+
+        # These values use an option that is not available
+        available_options = RegistrationFieldOption.objects.filter(
+            Q(field__event=registration.event_id),
+            Q(depends=None) | Q(depends__in=selected_options),
+            Q(invite_only=None) | Q(invite_only__user=user),
+        )
+        unavailable_values = (
+            supplied_values
+            .exclude(option=None)
+            .exclude(option__in=available_options)
+        )
+        unavailable_names = [name for (name, ) in unavailable_values.values_list('field__name')]
+        if unavailable_names:
+            raise ValidationError(_("Unavailable registration options: {}".format(", ".join(unavailable_names))))
+
         # TODO: In Django 3.0, the annotation can be removed and you can pass Exists directly to exclude
         missing_fields = required_fields.annotate(
-            value_exists=Exists(RegistrationFieldValue.objects.with_satisfies_required().filter(
-                active=True,
-                registration=registration,
+            value_exists=Exists(supplied_values.with_satisfies_required().filter(
                 field=OuterRef('pk'),
-                satisfies_required=True,
             )),
         ).exclude(value_exists=True)
-
         missing_names = [name for (name, ) in missing_fields.values_list('name')]
-
         if missing_names:
             raise ValidationError(_("Missing registration options: {}".format(", ".join(missing_names))))
+
+        extra_values = supplied_values.exclude(field__in=available_fields)
+        extra_names = [name for (name, ) in extra_values.values_list('field__name')]
+        if extra_names:
+            raise ValidationError(_("Extra registration options: {}".format(", ".join(extra_names))))
 
         registration.status = Registration.statuses.PREPARATION_COMPLETE
         registration.save()

@@ -27,3 +27,34 @@ class UpdatedAtQuerySetMixin:
         # TODO: This should be implemented if we need QuerySet.update, but for now just raise
         # See https://code.djangoproject.com/ticket/26239
         raise NotImplementedError("Update does not set updated_at / auto_now fields")
+
+
+# Based on https://stackoverflow.com/a/38017535/740048
+class GroupConcat(models.Aggregate):
+    function = 'GROUP_CONCAT'
+    template = '%(function)s(%(expressions)s)'
+
+    def __init__(self, separator, expression, **kwargs):
+        super().__init__(
+            expression,
+            separator,
+            output_field=models.CharField(),
+            **kwargs,
+        )
+
+    # This is a hack to prevent triggering the check fixed by
+    # https://github.com/django/django/commit/cbb6531e5bef7ffe0c46d6c44d598d7bcdf9029e
+    # TODO: Remove when upgrading to Django 3.1
+    def as_sql(self, compiler, connection, **kwargs):
+        old_check = connection.ops.check_expression_support
+        try:
+            connection.ops.check_expression_support = lambda self: None
+            return super().as_sql(compiler, connection, **kwargs)
+        finally:
+            connection.ops.check_expression_support = old_check
+
+    def as_mysql(self, *args, **kwargs):
+        # This is a bit of a hack, but by replacing the normal comma arg_joiner we can make this work on mysql (which
+        # needs the SEPARATOR keyword instead of comma-separated arguments like Sqlite). This relies on the fact that
+        # we have only two expressions.
+        return self.as_sql(*args, arg_joiner=' SEPARATOR ')

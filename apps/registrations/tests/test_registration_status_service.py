@@ -38,12 +38,14 @@ class TestRegistrationStatusService(TestCase):
         cls.option_nl = RegistrationFieldOptionFactory(field=cls.origin, title="NL", slots=2)
         cls.option_intl = RegistrationFieldOptionFactory(field=cls.origin, title="INTL", slots=2)
 
+        cls.default_options = [cls.player, cls.option_m, cls.option_nl]
+
     def incomplete_registration_helper(
         self, empty_field=None, with_emergency_contact=True, with_address=True, options=True,
         exception=ValidationError, inactive_options=(),
     ):
         if options is True:
-            options = [self.player, self.option_m, self.option_nl]
+            options = self.default_options
         reg = RegistrationFactory(
             event=self.event, preparation_in_progress=True, options=options, inactive_options=inactive_options,
         )
@@ -124,42 +126,34 @@ class TestRegistrationStatusService(TestCase):
                 field = RegistrationFieldFactory(event=self.event, name="extra_field", field_type=field_type)
 
                 with self.subTest("Missing value is not ok"):
-                    self.incomplete_registration_helper(
-                        options=[self.player, self.option_m, self.option_nl],
-                    )
+                    self.incomplete_registration_helper()
 
                 with self.subTest("Empty is not ok"):
-                    self.incomplete_registration_helper(
-                        options=[self.player, self.option_m, self.option_nl, (field, "")],
-                    )
+                    self.incomplete_registration_helper(options=self.default_options + [(field, "")])
 
                 if field.field_type.CHECKBOX or field.field_type.UNCHECKBOX:
                     with self.subTest("Arbitrary non-zero value is not ok"):
-                        self.incomplete_registration_helper(
-                            options=[self.player, self.option_m, self.option_nl, (field, "123")],
-                        )
+                        self.incomplete_registration_helper(options=self.default_options + [(field, "123")])
 
                     with self.subTest("Unchecked is not ok"):
-                        self.incomplete_registration_helper(
-                            options=[self.player, self.option_m, self.option_nl, (field, UNCHECKED)],
-                        )
+                        self.incomplete_registration_helper(options=self.default_options + [(field, UNCHECKED)])
 
                     with self.subTest("Checked is ok"):
                         self.incomplete_registration_helper(
-                            options=[self.player, self.option_m, self.option_nl, (field, CHECKED)],
+                            options=self.default_options + [(field, CHECKED)],
                             exception=None,
                         )
                 elif field.field_type.CHOICE:
                     option = RegistrationFieldOptionFactory(field=field, title="Foo")
                     with self.subTest("Option is ok"):
                         self.incomplete_registration_helper(
-                            options=[self.player, self.option_m, self.option_nl, option],
+                            options=self.default_options + [(field, option)],
                             exception=None,
                         )
                 else:
                     with self.subTest("Arbitrary non-empty value is ok"):
                         self.incomplete_registration_helper(
-                            options=[self.player, self.option_m, self.option_nl, (field, "123")],
+                            options=self.default_options + [(field, "123")],
                             exception=None,
                         )
 
@@ -180,32 +174,28 @@ class TestRegistrationStatusService(TestCase):
                     event=self.event, name="extra_field", field_type=field_type, required=False,
                 )
 
-                with self.subTest("Missing value is not ok"):
-                    self.incomplete_registration_helper(
-                        options=[self.player, self.option_m, self.option_nl],
-                    )
+                with self.subTest("Missing value is ok"):
+                    self.incomplete_registration_helper()
 
                 if field.field_type.CHECKBOX or field.field_type.UNCHECKBOX:
                     with self.subTest("Arbitrary non-zero value is not ok"):
-                        self.incomplete_registration_helper(
-                            options=[self.player, self.option_m, self.option_nl, (field, "123")],
-                        )
+                        self.incomplete_registration_helper(options=self.default_options + [(field, "123")])
 
                     with self.subTest("Unchecked is ok"):
                         self.incomplete_registration_helper(
-                            options=[self.player, self.option_m, self.option_nl, (field, UNCHECKED)],
+                            options=self.default_options + [(field, UNCHECKED)],
                             exception=None,
                         )
 
                     with self.subTest("Checked is ok"):
                         self.incomplete_registration_helper(
-                            options=[self.player, self.option_m, self.option_nl, (field, CHECKED)],
+                            options=self.default_options + [(field, CHECKED)],
                             exception=None,
                         )
                 else:
                     with self.subTest("Empty is ok"):
                         self.incomplete_registration_helper(
-                            options=[self.player, self.option_m, self.option_nl, (field, "")],
+                            options=self.default_options + [(field, "")],
                             exception=None,
                         )
 
@@ -213,13 +203,13 @@ class TestRegistrationStatusService(TestCase):
                         option = RegistrationFieldOptionFactory(field=field, title="Foo")
                         with self.subTest("Option is ok"):
                             self.incomplete_registration_helper(
-                                options=[self.player, self.option_m, self.option_nl, option],
+                                options=self.default_options + [(field, option)],
                                 exception=None,
                             )
                     else:
                         with self.subTest("Arbitrary non-empty value is ok"):
                             self.incomplete_registration_helper(
-                                options=[self.player, self.option_m, self.option_nl, (field, "123")],
+                                options=self.default_options + [(field, "123")],
                                 exception=None,
                             )
 
@@ -232,14 +222,14 @@ class TestRegistrationStatusService(TestCase):
         for _i in range(2):
             reg = RegistrationFactory(
                 event=e, preparation_complete=True,
-                options=[self.player, self.option_m, self.option_nl],
+                options=self.default_options,
             )
             RegistrationStatusService.finalize_registration(reg)
             self.assertEqual(reg.status, Registration.statuses.REGISTERED)
 
         reg = RegistrationFactory(
             event=e, preparation_complete=True,
-            options=[self.player, self.option_m, self.option_nl],
+            options=self.default_options,
         )
         RegistrationStatusService.finalize_registration(reg)
         self.assertEqual(reg.status, Registration.statuses.WAITINGLIST)

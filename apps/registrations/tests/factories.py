@@ -32,6 +32,7 @@ class RegistrationFactory(factory.django.DjangoModelFactory):
         cancelled = factory.Trait(status=Registration.statuses.CANCELLED)
         preparation_in_progress = factory.Trait(status=Registration.statuses.PREPARATION_IN_PROGRESS)
         preparation_complete = factory.Trait(status=Registration.statuses.PREPARATION_COMPLETE)
+        pending = factory.Trait(status=Registration.statuses.PENDING)
 
     @factory.post_generation
     def options(obj, create, options, **kwargs):

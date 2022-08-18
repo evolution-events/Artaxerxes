@@ -6,7 +6,7 @@
 <html>
 <head>
   <title>
-    {% blocktrans with event=event.name %}
+    {% blocktrans %}
     Safety info for {{ event }}
     {% endblocktrans %}
   </title>
@@ -101,7 +101,7 @@
       @bottom-center {
         text-align: center;
         {% now "SHORT_DATETIME_FORMAT" as exported %}
-        {% blocktrans trimmed with event=event.name|safe now=exported|safe asvar footer %}
+        {% blocktrans trimmed with event=event|safe now=exported|safe asvar footer %}
         Safety info for {{ event }} — exported at {{now}}
         {% endblocktrans %}
         content: "{{ footer | addslashes | safe }}";

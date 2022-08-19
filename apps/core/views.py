@@ -31,7 +31,7 @@ class Dashboard(LoginRequiredMixin, View):
             with_registration=True,
         ).filter(
             ~Q(registration_has_closed=True) | Q(registration_status__in=Registration.statuses.FINALIZED),
-            start_date__gt=date.today(),
+            end_date__gte=date.today(),
             is_visible=True,
         ).order_by(
             'start_date',

@@ -52,12 +52,10 @@ class GroupFactory(factory.django.DjangoModelFactory):
 
     name = factory.Faker('name')
 
-    class Params:
-        users = []
-
     @factory.post_generation
     def users(self, create, value, **kwargs):
         assert(create)  # Need id
 
-        for user in value:
-            self.user_set.add(user)
+        if value is not None:
+            for user in value:
+                self.user_set.add(user)

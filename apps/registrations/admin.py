@@ -12,7 +12,7 @@ from konst.models.fields import ConstantChoiceCharField
 from reversion.admin import VersionAdmin
 
 from apps.events.models import Event
-from apps.payments.admin import PaymentInline
+from apps.payments.admin import AddPaymentInline, PaymentInline
 from apps.people.models import ArtaUser
 from arta.common.admin import LimitForeignKeyOptionsMixin
 
@@ -160,7 +160,7 @@ class RegistrationAdmin(HijackRelatedAdminMixin, VersionAdmin):
     ]
 
     inlines = [
-        PaymentInline, RegistrationFieldValueInline, AddRegistrationFieldValueInline,
+        PaymentInline, AddPaymentInline, RegistrationFieldValueInline, AddRegistrationFieldValueInline,
         RegistrationPriceCorrectionInline,
     ]
 

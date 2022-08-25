@@ -7,21 +7,8 @@ from apps.registrations.models import Registration
 from .models import Payment
 
 
-@admin.register(Payment)
-class PaymentAdmin(VersionAdmin):
-    list_display = ('registration', 'created_at', 'timestamp', 'type', 'amount', 'status', 'mollie_status')
-
-    def get_readonly_fields(self, request, obj=None):
-        fields = ['mollie_id', 'mollie_status', 'created_at', 'updated_at']
-        if obj and obj.mollie_id:
-            fields += ['amount', 'status', 'timestamp']
-        return fields
-
-    def has_delete_permission(self, request, obj=None):
-        # Disallow deleting mollie payments
-        if obj and obj.mollie_id:
-            return False
-        return super().has_delete_permission(request, obj)
+class PaymentAdminMixin:
+    """ Methods shared between regular and inline admin. """
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         # Ensure this dropdown is rendered with appropriate select_related's as used by the  __str__ method
@@ -49,6 +36,23 @@ class PaymentAdmin(VersionAdmin):
 
         return super().formfield_for_dbfield(db_field, **kwargs)
 
+
+@admin.register(Payment)
+class PaymentAdmin(PaymentAdminMixin, VersionAdmin):
+    list_display = ('registration', 'created_at', 'timestamp', 'type', 'amount', 'status', 'mollie_status')
+
+    def get_readonly_fields(self, request, obj=None):
+        fields = ['mollie_id', 'mollie_status', 'created_at', 'updated_at']
+        if obj and obj.mollie_id:
+            fields += ['amount', 'status', 'timestamp']
+        return fields
+
+    def has_delete_permission(self, request, obj=None):
+        # Disallow deleting mollie payments
+        if obj and obj.mollie_id:
+            return False
+        return super().has_delete_permission(request, obj)
+
     def get_queryset(self, *args, **kwargs):
         qs = super().get_queryset(*args, **kwargs)
         qs.select_related('registration', 'registration__user', 'registration__event')
@@ -75,4 +79,19 @@ class PaymentInline(admin.TabularInline):
     # TODO: Can we make this work anyway? Maybe only make existing objects readonly, or only make amount/status
     # readonly on objects with mollie_id?
     def has_add_permission(self, *args, **kwargs):
+        return False
+
+
+class AddPaymentInline(PaymentAdminMixin, admin.TabularInline):
+    # Extra inline just for adding new values, which does not have all values readonly.
+    model = Payment
+    extra = 0
+    fields = ['created_at', 'timestamp', 'amount', 'status', 'mollie_id', 'mollie_status']
+    readonly_fields = ['mollie_id', 'mollie_status', 'created_at', 'updated_at']
+
+    # Disable change/view permission to prevent displaying existing items here
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_view_permission(self, request, obj=None):
         return False

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block pagetitle %}
+    {% blocktrans %}
+    Payment info for {{ registration }}
+    {% endblocktrans %}
+{% endblock %}
+
+{% block content %}
+    {% if not registration.payment_status.FREE %}
+      {% include 'registrations/snippets/price_payment_table.html' %}
+    {% endif %}
+{% endblock content%}

@@ -15,6 +15,7 @@ from .models import Payment
 class EventPaymentsResource(import_export.resources.ModelResource):
     """ Resource that can export payments for a single event. """
 
+    type = import_export.fields.Field(attribute='type')
     id = import_export.fields.Field(attribute='pk')
     registration_id = import_export.fields.Field(attribute='registration__id')
     name = import_export.fields.Field(attribute='registration__user__full_name')

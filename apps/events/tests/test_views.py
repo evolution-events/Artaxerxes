@@ -222,6 +222,8 @@ class TestOrganizedEventsList(TestCase):
 
 
 class TestEventRegistrationInfo(TestCase):
+    SPREADSHEET_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+
     @classmethod
     def setUpTestData(cls):
         cls.organizers = ArtaUserFactory.create_batch(2)
@@ -244,7 +246,7 @@ class TestEventRegistrationInfo(TestCase):
         ('events:printable_safety_reference', 'events/printable/safety_info.html', 'application/pdf'),
         ('events:safety_info', 'events/printable/safety_info.html', 'text/html; charset=utf-8'),
         ('events:registrations_table', 'events/registrations_table.html', 'text/html; charset=utf-8'),
-        ('events:registrations_table_download', None, 'application/vnd.oasis.opendocument.spreadsheet'),
+        ('events:registrations_table_download', None, SPREADSHEET_TYPE),
         ('events:event_registrations_history', 'events/event_registrations_history.html', 'text/html; charset=utf-8'),
     ]
 

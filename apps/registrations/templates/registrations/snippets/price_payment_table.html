@@ -1,0 +1,83 @@
+{% load i18n %}
+{% load coretags %}
+{% load mathfilters %}
+
+        <div class="price-and-payments col-sm-auto order-sm-last">
+          {% if completed_payments %}
+          <h2>{% trans "Price & previous payments" %}</h2>
+          {% else %}
+          <h2>{% trans "Price" %}</h2>
+          {% endif %}
+          <table class="registration-payments">
+            {# TODO: Sum price and payment separately and then subtract totals #}
+            {% for value in priced_options %}
+              <tr class="priced-option">
+                <td>
+                  {% if registration.status.CANCELLED or not value.active %}<del>{% endif %}
+                    {{ value.field.title }}: {{ value.display_value }}</td>
+                  {% if registration.status.CANCELLED or not value.active %}</del>{% endif %}
+                <td class="amount">
+                  {% if registration.status.CANCELLED or not value.active %}<del>{% endif %}
+                    {{ value.price | moneyformat }}
+                  {% if registration.status.CANCELLED or not value.active %}</del>{% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+            {% for value in price_corrections %}
+              <tr class="price-correction">
+                <td>
+                  {% if not value.active %}<del>{% endif %}
+                    {{ value.description }}</td>
+                  {% if not value.active %}</del>{% endif %}
+                <td class="amount">
+                  {% if not value.active %}<del>{% endif %}
+                    {{ value.price | moneyformat }}</td>
+                  {% if not value.active %}</del>{% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+            {% if priced_options.count > 1 or not registration.payment_status.NOT_DUE %}
+            <tr class="total-price">
+              <td class="label" colspan="2">{% trans "Total price" %}</td>
+              <td class="amount">{{ registration.price | moneyformat }}</td>
+            </tr>
+            {% endif %}
+
+            {% if completed_payments %}
+              {% for payment in completed_payments %}
+                <tr class="payment">
+                  <td>
+                    {% if payment.amount > 0 %}
+                      {% blocktrans with date=payment.timestamp|date %}
+                      Payment on {{ date }}
+                      {% endblocktrans %}
+                    {% else %}
+                      <i>
+                      {% blocktrans with date=payment.timestamp|date %}
+                      Refund on {{ date }}
+                      {% endblocktrans %}
+                      </i>
+                    {% endif %}
+                  </td>
+                  <td class="amount">{{ payment.amount | moneyformat }}</td>
+                </tr>
+              {% endfor %}
+              <tr class="total-payments">
+                <td class="label" colspan="2">{% trans "Total payments" %}</td>
+                <td class="amount">{{ registration.paid | moneyformat }}</td>
+                <td class="subtract">-</td>
+              </tr>
+
+              <tr class="amount-due">
+                {% if registration.payment_status.REFUNDABLE %}
+                  <td class="label" colspan="2">{% trans 'Amount refundable' %}</td>
+                  <td class="amount">{{ registration.amount_due | abs | moneyformat }}</td>
+                {% else %}
+                  <td class="label" colspan="2">{% trans 'Amount due' %}</td>
+                  <td class="amount">{{ registration.amount_due | moneyformat }}</td>
+                {% endif %}
+                <td class="subtract"></td>
+              </tr>
+            {% endif %}
+          </table>
+        </div>

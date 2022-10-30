@@ -8,6 +8,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.functional import cached_property
+from django.utils.html import escape
 from django.views.generic.list import ListView
 from django_weasyprint import WeasyTemplateResponseMixin
 from reversion.models import Revision, Version
@@ -15,6 +16,7 @@ from reversion.models import Revision, Version
 from apps.payments.admin import EventPaymentsResource
 from apps.people.models import ArtaUser
 from apps.registrations.models import Registration, RegistrationFieldValue
+from arta.common.admin import MonetaryResourceWidget
 from arta.common.db import GroupConcat, QExpr
 
 from .admin import EventRegistrationsResource
@@ -177,13 +179,23 @@ class SafetyInfo(EventRegistrationInfoBase):
         return super().get_context_data(omit_contacts=True, **kwargs)
 
 
+class PaymentDetailsLinkWidget(MonetaryResourceWidget):
+    def render(self, value, obj):
+        rendered = super().render(value, obj)
+        url = reverse('registrations:registration_payment_details', args=(obj.pk,))
+        return '<a href="{}">{}</a>'.format(escape(url), escape(rendered))
+
+
 class RegistrationsTable(EventRegistrationInfoBase):
     """ Show a table of active registrations """
 
     template_name = 'events/registrations_table.html'
 
     def get_resource(self):
-        return EventRegistrationsResource(self.event)
+        resource = EventRegistrationsResource(self.event)
+        resource.fields['price'].widget = PaymentDetailsLinkWidget()
+        resource.fields['paid'].widget = PaymentDetailsLinkWidget()
+        return resource
 
     @cached_property
     def data(self):

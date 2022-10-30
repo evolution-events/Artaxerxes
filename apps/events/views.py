@@ -186,7 +186,7 @@ class RegistrationsTable(EventRegistrationInfoBase):
         resource = EventRegistrationsResource(self.event)
         return resource.export(
             resource.get_queryset()
-            .filter(status__in=Registration.statuses.ACTIVE)
+            .filter(status__in=Registration.statuses.FINALIZED)
             .order_by('status', 'registered_at'))
 
     def get_context_data(self, **kwargs):

@@ -247,6 +247,8 @@ class TestEventRegistrationInfo(TestCase):
         ('events:safety_info', 'events/printable/safety_info.html', 'text/html; charset=utf-8'),
         ('events:registrations_table', 'events/registrations_table.html', 'text/html; charset=utf-8'),
         ('events:registrations_table_download', None, SPREADSHEET_TYPE),
+        ('events:payments_table', 'events/payments_table.html', 'text/html; charset=utf-8'),
+        ('events:payments_table_download', None, SPREADSHEET_TYPE),
         ('events:event_registrations_history', 'events/event_registrations_history.html', 'text/html; charset=utf-8'),
     ]
 

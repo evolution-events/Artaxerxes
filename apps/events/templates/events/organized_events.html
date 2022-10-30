@@ -15,6 +15,8 @@
             <div class="actions">
                 <a class="btn btn-primary" href="{% url 'events:registrations_table' pk=e.pk %}">{% trans 'Show registrations' %}</a>
                 &nbsp;
+                <a class="btn btn-primary" href="{% url 'events:payments_table' pk=e.pk %}">{% trans 'Show payments' %}</a>
+                &nbsp;
                 <a class="btn btn-primary" href="{% url 'events:event_registrations_history' pk=e.pk %}">{% trans 'Recent changes' %}</a>
             </div>
             <p></p>

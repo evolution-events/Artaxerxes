@@ -18,5 +18,8 @@ urlpatterns = [
     path('organized/<int:pk>/registrations', views.RegistrationsTable.as_view(), name='registrations_table'),
     path('organized/<int:pk>/registrations/download', views.RegistrationsTableDownload.as_view(),
          name='registrations_table_download'),
+    path('organized/<int:pk>/payment_info', views.PaymentsTable.as_view(), name='payments_table'),
+    path('organized/<int:pk>/payment_info/download', views.PaymentsTableDownload.as_view(),
+         name='payments_table_download'),
     path('organized/<int:pk>/history', views.EventRegistrationsHistory.as_view(), name='event_registrations_history'),
 ]

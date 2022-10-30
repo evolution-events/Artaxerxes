@@ -12,6 +12,7 @@ from django.views.generic.list import ListView
 from django_weasyprint import WeasyTemplateResponseMixin
 from reversion.models import Revision, Version
 
+from apps.payments.admin import EventPaymentsResource
 from apps.people.models import ArtaUser
 from apps.registrations.models import Registration, RegistrationFieldValue
 from arta.common.db import GroupConcat, QExpr
@@ -208,6 +209,49 @@ class RegistrationsTableDownload(RegistrationsTable):
         # between viewing and exporting data...
         resource.fields['price'].widget = import_export.widgets.DecimalWidget()
         resource.fields['paid'].widget = import_export.widgets.DecimalWidget()
+        return resource
+
+    def get(self, *args, **kwargs):
+        # TODO: Switch back to ODS once this is fixed: https://github.com/jazzband/tablib/issues/527
+        file_format = import_export.formats.base_formats.XLSX()
+        export_data = file_format.export_data(self.data)
+        response = HttpResponse(export_data, content_type=file_format.get_content_type())
+        response['Content-Disposition'] = 'attachment; filename="{}-{}.{}"'.format(
+            self.event.name, datetime.now().strftime('%Y-%m-%d'), file_format.get_extension(),
+        )
+        return response
+
+
+class PaymentsTable(EventRegistrationInfoBase):
+    """ Show a table of payments """
+
+    template_name = 'events/payments_table.html'
+
+    def get_resource(self):
+        return EventPaymentsResource(self.event)
+
+    @cached_property
+    def data(self):
+        resource = self.get_resource()
+        return resource.export(
+            resource.get_queryset()
+            .order_by('timestamp'))
+
+    def get_context_data(self, **kwargs):
+        kwargs['data'] = self.data
+        kwargs['download_url'] = reverse('events:payments_table_download', args=(self.event.pk,))
+
+        return super().get_context_data(**kwargs)
+
+
+class PaymentsTableDownload(PaymentsTable):
+    """ Download a spreadsheet of payments """
+
+    def get_resource(self):
+        resource = super().get_resource()
+        # XXX: This is a bit of a hack, but import_export does not offer enough context to widgets to distinguish
+        # between viewing and exporting data...
+        resource.fields['amount'].widget = import_export.widgets.DecimalWidget()
         return resource
 
     def get(self, *args, **kwargs):

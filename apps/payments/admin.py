@@ -1,10 +1,48 @@
+import import_export.admin
+import import_export.fields
+import import_export.formats.base_formats
+import import_export.resources
 from django.contrib import admin
 from django.forms.fields import DateTimeField
 from reversion.admin import VersionAdmin
 
 from apps.registrations.models import Registration
+from arta.common.admin import MonetaryResourceWidget
 
 from .models import Payment
+
+
+class EventPaymentsResource(import_export.resources.ModelResource):
+    """ Resource that can export payments for a single event. """
+
+    id = import_export.fields.Field(attribute='pk')
+    registration_id = import_export.fields.Field(attribute='registration__id')
+    name = import_export.fields.Field(attribute='registration__user__full_name')
+    amount = import_export.fields.Field(attribute='amount', widget=MonetaryResourceWidget)
+    status = import_export.fields.Field(attribute='get_status_display')
+
+    mollie_id = import_export.fields.Field(attribute='mollie_id')
+    mollie_status = import_export.fields.Field(attribute='mollie_status')
+
+    created_at = import_export.fields.Field(attribute='created_at')
+    updated_at = import_export.fields.Field(attribute='updated_at')
+    timestamp = import_export.fields.Field(attribute='timestamp')
+
+    def __init__(self, event):
+        super().__init__()
+        self.event = event
+
+    def get_queryset(self):
+        return (
+            super().get_queryset()
+            .filter(registration__event=self.event)
+            .select_related('registration__user')
+            .order_by('created_at')
+        )
+
+    class Meta:
+        model = Payment
+        fields = ()  # No additional fields to auto-import from model
 
 
 class PaymentAdminMixin:

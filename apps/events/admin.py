@@ -36,8 +36,8 @@ class EventRegistrationsResource(import_export.resources.ModelResource):
     status = import_export.fields.Field(attribute='get_status_display')
     registered_at = import_export.fields.Field(attribute='registered_at')
     payment_status = import_export.fields.Field(attribute='payment_status')
-    price = import_export.fields.Field(attribute='price', widget=MonetaryResourceWidget)
-    paid = import_export.fields.Field(attribute='paid', widget=MonetaryResourceWidget)
+    price = import_export.fields.Field(attribute='price', widget=MonetaryResourceWidget())
+    paid = import_export.fields.Field(attribute='paid', widget=MonetaryResourceWidget())
 
     def __init__(self, event):
         super().__init__()

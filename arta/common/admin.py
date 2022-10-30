@@ -63,5 +63,5 @@ class LimitForeignKeyOptionsMixin:
 
 
 class MonetaryResourceWidget(import_export.widgets.DecimalWidget):
-    def render(value, obj=None):
+    def render(self, value, obj=None):
         return moneyformat(value)

@@ -18,7 +18,7 @@ class EventPaymentsResource(import_export.resources.ModelResource):
     id = import_export.fields.Field(attribute='pk')
     registration_id = import_export.fields.Field(attribute='registration__id')
     name = import_export.fields.Field(attribute='registration__user__full_name')
-    amount = import_export.fields.Field(attribute='amount', widget=MonetaryResourceWidget)
+    amount = import_export.fields.Field(attribute='amount', widget=MonetaryResourceWidget())
     status = import_export.fields.Field(attribute='get_status_display')
 
     mollie_id = import_export.fields.Field(attribute='mollie_id')

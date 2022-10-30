@@ -12,7 +12,11 @@
             <div class="eventdate">{{e.start_date}} - {{e.end_date}}</div>
             <div class="numregistrations">Registrations: {{ e.num_registered }} (plus {{ e.num_waitinglist }} on the waiting list and {{ e.num_cancelled }} cancelled).</div>
             <p></p>
-            <div class="registration_table"><a class="btn btn-primary" href="{% url 'events:registrations_table' pk=e.pk %}">{% trans 'Show registrations' %}</a></p>
+            <div class="actions">
+                <a class="btn btn-primary" href="{% url 'events:registrations_table' pk=e.pk %}">{% trans 'Show registrations' %}</a>
+                &nbsp;
+                <a class="btn btn-primary" href="{% url 'events:event_registrations_history' pk=e.pk %}">{% trans 'Recent changes' %}</a>
+            </div>
             <p></p>
             {% if e.show_registration_details %}
                 {% url 'core:privacy_policy' as privacy_url %}
@@ -25,10 +29,6 @@
                 only when needed and only among organizers and crew (see the
                 <a href="{{ privacy_url }}">privacy policy</a> for
                 details).</p>
-
-                <h3>Recent changes</h2>
-                <p>This is a listing of recent changes to the event itself, its registrations or the details of registered users.</p>
-                <p><a class="btn btn-primary" href="{% url 'events:event_registrations_history' pk=e.pk %}">{% trans 'View' %}</a></p>
 
                 <h3>Registration forms</h3>
                 <p>These are registration forms and are intended to be printed and signed by participants during participant check-in.</p>

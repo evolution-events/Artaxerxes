@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block pagetitle %}
+    {% blocktrans %}
+    Payments for {{ event }}
+    {% endblocktrans %}
+{% endblock %}
+
+{% block content %}
+    <a class="btn btn-primary" href="{{ download_url }}">{% trans "Download spreadsheet" %}</a>
+    <div class="payments-table">
+        {{ data.html | safe }}
+    </div>
+{% endblock content%}

@@ -1,3 +1,8 @@
+import import_export
+
+from apps.core.templatetags.coretags import moneyformat
+
+
 class LimitForeignKeyOptionsMixin:
     """
     Mixin intended to limit the choices for a ForeignKey field in the admin based on another field.
@@ -55,3 +60,8 @@ class LimitForeignKeyOptionsMixin:
             objects = db_field.remote_field.model.objects
             kwargs['queryset'] = objects.filter(**{filter_path: value})
         return super().formfield_for_foreignkey(db_field, request=request, **kwargs)
+
+
+class MonetaryResourceWidget(import_export.widgets.DecimalWidget):
+    def render(value, obj=None):
+        return moneyformat(value)

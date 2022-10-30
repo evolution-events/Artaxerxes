@@ -8,9 +8,9 @@ from django.contrib import admin, messages
 from django.http import HttpResponse
 from reversion.admin import VersionAdmin
 
-from apps.core.templatetags.coretags import moneyformat
 from apps.registrations.admin import RegistrationFieldInline
 from apps.registrations.models import Registration, RegistrationField
+from arta.common.admin import MonetaryResourceWidget
 
 from .models import Event, Series
 
@@ -25,12 +25,6 @@ class RegistrationFieldValueField(import_export.fields.Field):
         return value.display_value()
 
 
-# TODO: Move this somewhere more generic?
-class MonetaryWidet(import_export.widgets.DecimalWidget):
-    def render(value, obj=None):
-        return moneyformat(value)
-
-
 class EventRegistrationsResource(import_export.resources.ModelResource):
     """ Resource that can export registrations for a single event, with event-specific RegistrationFields. """
 
@@ -42,8 +36,8 @@ class EventRegistrationsResource(import_export.resources.ModelResource):
     status = import_export.fields.Field(attribute='get_status_display')
     registered_at = import_export.fields.Field(attribute='registered_at')
     payment_status = import_export.fields.Field(attribute='payment_status')
-    price = import_export.fields.Field(attribute='price', widget=MonetaryWidet)
-    paid = import_export.fields.Field(attribute='paid', widget=MonetaryWidet)
+    price = import_export.fields.Field(attribute='price', widget=MonetaryResourceWidget)
+    paid = import_export.fields.Field(attribute='paid', widget=MonetaryResourceWidget)
 
     def __init__(self, event):
         super().__init__()

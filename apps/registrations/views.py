@@ -617,3 +617,34 @@ class PaymentDone(LoginRequiredMixin, SingleObjectMixin, TemplateView):
         if self.object.status.PENDING:
             PaymentStatusService.update_payment_status(self.object)
         return super().get(request, pk)
+
+
+class RegistrationPaymentDetails(LoginRequiredMixin, DetailView):
+    """ Show the payment details of a given registration for organizers. """
+
+    template_name = 'registrations/registration_payment_details.html'
+    model = Registration
+    context_object_name = 'registration'
+
+    def get_queryset(self):
+        return Registration.objects.with_payment_status().filter(event__organizer_group__user=self.request.user)
+
+    @cached_property
+    def registration(self):
+        return Registration.objects.current_for(
+            event=self.kwargs['pk'], user=self.request.user,
+        ).with_payment_status().get()
+
+    def get_context_data(self, **kwargs):
+        registration = self.object
+        options = registration.options.select_related('field', 'option')
+        priced_options = options.exclude(option=None).exclude(option__price=None)
+        price_corrections = registration.price_corrections.with_active().order_by('created_at')
+        completed_payments = registration.payments.filter(status=Payment.statuses.COMPLETED).order_by('timestamp')
+
+        kwargs.update({
+            'priced_options': priced_options,
+            'price_corrections': price_corrections,
+            'completed_payments': completed_payments,
+        })
+        return super().get_context_data(**kwargs)

@@ -16,4 +16,6 @@ urlpatterns = [
     path('ps/<int:pk>/', views.PaymentStatus.as_view(), name="payment_status"),
     path('pc/<int:pk>/', views.PaymentDone.as_view(), name="payment_done"),
     path('ed/<int:pk>/', views.EditDone.as_view(), name="edit_done"),
+    path('registration/<int:pk>/payment_details', views.RegistrationPaymentDetails.as_view(),
+         name="registration_payment_details"),
 ]

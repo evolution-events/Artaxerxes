@@ -241,7 +241,7 @@ class RegistrationsTable(EventRegistrationInfoBase):
             if reg.status.REGISTERED:
                 for value in reg.options.all():
                     # This uses option_id to prevent having to (pre)fetch the option for each registration field value
-                    if value.active and value.option_id != 0:
+                    if value.active and value.option_id is not None:
                         option = options[value.option_id]
                         option_counts[option] += 1
                         if option.price:

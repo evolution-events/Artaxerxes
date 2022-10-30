@@ -15,7 +15,7 @@ from reversion.models import Revision, Version
 
 from apps.payments.admin import EventPaymentsResource
 from apps.people.models import ArtaUser
-from apps.registrations.models import Registration, RegistrationFieldValue
+from apps.registrations.models import Registration, RegistrationFieldValue, RegistrationPriceCorrection
 from arta.common.admin import MonetaryResourceWidget
 from arta.common.db import GroupConcat, QExpr
 
@@ -198,16 +198,83 @@ class RegistrationsTable(EventRegistrationInfoBase):
         return resource
 
     @cached_property
+    def resource(self):
+        return self.get_resource()
+
+    @cached_property
+    def registrations(self):
+        """ Returns a list of registrations instead of a queryset, to allow iterating twice. """
+        return list(self.resource.get_queryset()
+                    .filter(status__in=Registration.statuses.FINALIZED)
+                    .order_by('status', 'registered_at')
+                    .with_payment_status()
+                    .prefetch_related('options')
+                    .prefetch_related(Prefetch(
+                        'price_corrections',
+                        queryset=RegistrationPriceCorrection.objects.with_active(),
+                    )))
+
+    @cached_property
     def data(self):
-        resource = self.get_resource()
-        return resource.export(
-            resource.get_queryset()
-            .filter(status__in=Registration.statuses.FINALIZED)
-            .order_by('status', 'registered_at'))
+        return self.resource.export(self.registrations)
 
     def get_context_data(self, **kwargs):
         kwargs['data'] = self.data
         kwargs['download_url'] = reverse('events:registrations_table_download', args=(self.event.pk,))
+
+        payable = 0
+        refundable = 0
+        price_sum = 0
+        paid_sum = 0
+        price_check = 0
+        options_sum = 0
+        corrections_sum = 0
+        corrections = []
+        options = {
+            option.pk: option
+            for field in self.event.registration_fields.all().prefetch_related('options')
+            for option in field.options.all()
+        }
+        option_counts = {option: 0 for option in options.values()}
+
+        for reg in self.registrations:
+            if reg.status.REGISTERED:
+                for value in reg.options.all():
+                    # This uses option_id to prevent having to (pre)fetch the option for each registration field value
+                    if value.active and value.option_id != 0:
+                        option = options[value.option_id]
+                        option_counts[option] += 1
+                        if option.price:
+                            price_check += option.price
+                            options_sum += option.price
+
+            if reg.status.REGISTERED or reg.status.CANCELLED:
+                price = reg.price if reg.price is not None else 0
+                paid = reg.paid if reg.paid is not None else 0
+
+                price_sum += price
+                paid_sum += paid
+
+                if price > paid:
+                    payable += (price - paid)
+                else:
+                    refundable += (paid - price)
+
+                for correction in reg.price_corrections.all():
+                    if correction.active:
+                        corrections.append((reg, correction))
+                        price_check += correction.price
+                        corrections_sum += correction.price
+
+        kwargs['option_counts'] = option_counts
+        kwargs['payable'] = payable
+        kwargs['refundable'] = refundable
+        kwargs['price_sum'] = price_sum
+        kwargs['paid_sum'] = paid_sum
+        kwargs['options_sum'] = options_sum
+        kwargs['corrections_sum'] = corrections_sum
+        kwargs['price_check'] = price_check
+        kwargs['corrections'] = corrections
 
         return super().get_context_data(**kwargs)
 

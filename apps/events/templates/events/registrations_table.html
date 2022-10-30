@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load coretags %}
+{% load mathfilters %}
 
 {% block pagetitle %}
     {% blocktrans %}
@@ -12,4 +14,97 @@
     <div class="registrations-table">
         {{ data.html | safe }}
     </div>
+
+    <h2>Selected options & pricing</h2>
+        <p>
+        {% blocktrans %}
+        This table shows a summary of options for REGISTERED
+        registrations only (i.e. those who are actually expected to
+        participate). Corrections also include CANCELLED registrations
+        (since those might still owe some amount through corrections).
+        {% endblocktrans %}
+        </p>
+        <table class="total-options-and-pricing">
+            <tr class="header">
+                <th class="option">Option / correction</th>
+                <th class="count">Count</th>
+                <th class="price">Price each</th>
+                <th class="amount">Total price</th>
+            </tr>
+            {% for option, count in option_counts.items %}
+                <tr class="priced-option">
+                    <td class="option">{{ option.field.title }}: {{ option.title }}</td>
+                    <td class="count">{{ count }}×</td>
+                    <td class="price">
+                        {% if option.price %}
+                            {{ option.price | moneyformat }}
+                        {% endif %}
+                    </td>
+                    <td class="amount">
+                        {% if option.price %}
+                        {{ count|mul:option.price|moneyformat }}
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            <tr class="total-options">
+              <td class="label" colspan="4">{% trans "Options total" %}</td>
+              <td class="amount">{{ options_sum | moneyformat }}</td>
+            </tr>
+            {% for reg, correction in corrections %}
+                <tr class="correction">
+                    <td class="correction" colspan="3">
+                        <span class="reg">{{reg.user.full_name}}</span><span class="sep"> &mdash; </span><span class="correction">{{correction.description}}</span>
+                    </td>
+                    <td class="amount">{{ correction.price|moneyformat }}</td>
+                </tr>
+            {% endfor %}
+            <tr class="total-corrections">
+              <td class="label" colspan="4">{% trans "Corrections total" %}</td>
+              <td class="amount">{{ corrections_sum | moneyformat }}</td>
+            </tr>
+            <tr class="total-price">
+              <td class="label" colspan="4">{% trans "Total price" %}</td>
+              <td class="amount">{{ price_check | moneyformat }}</td>
+            </tr>
+        </table>
+        {% if price_sum != price_check %}
+        <div class="alert alert-warning">
+            {% trans 'WARNING: Sum of registration prices does not match sum of option prices!' %}
+        </div>
+        {% endif %}
+
+    <h2>Registration totals</h2>
+        <p>
+        {% blocktrans %}
+        This table sums values for REGISTERED and CANCELLED
+        registrations (i.e. the only statuses that may owe an amount or
+        have payments), all other statuses are left out.
+        {% endblocktrans %}
+        </p>
+        <table class="registrations-totals">
+            <tr class="total-price">
+                <td>{% trans 'Total price' %}</td>
+                <td>{{ price_sum | moneyformat }}</td>
+            </tr>
+            <tr class="total-paid">
+                <td>{% trans 'Total paid' %}</td>
+                <td>{{ paid_sum  | moneyformat }}</td>
+            </tr>
+            <tr class="total-payable">
+                <td>{% trans 'Total payable' %}</td>
+                <td>{{ payable | moneyformat }}</td>
+            </tr>
+            <tr class="total-refundable">
+                <td>{% trans 'Total refundable' %}</td>
+                <td>{{ refundable | moneyformat }}</td>
+            </tr>
+        </table>
+        {% if price_sum|sub:paid_sum|add:refundable|sub:payable  != 0 %}
+        <div class="alert alert-warning">
+            {% trans 'WARNING: Sum of price, paid, payable and refundable is not 0!' %}
+        </div>
+        {% endif %}
+    </div>
+
 {% endblock content%}

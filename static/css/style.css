@@ -326,6 +326,39 @@ table.registration-payments tr.amount-due td.subtract {
     border-top: double var(--line) 3px;
 }
 
+/*** Options and pricing table for an event */
+table.total-options-and-pricing {
+    width: auto;
+}
+
+table.total-options-and-pricing tr.total-options td.label,
+table.total-options-and-pricing tr.total-corrections td.label,
+table.total-options-and-pricing tr.total-price td.label {
+    text-align: right;
+}
+
+table.total-options-and-pricing td.amount,
+table.total-options-and-pricing td.price,
+table.total-options-and-pricing td.count {
+    text-align: right;
+}
+
+table.total-options-and-pricing td,
+table.total-options-and-pricing th {
+    padding: 0.5rem;
+}
+
+table.total-options-and-pricing tr.total-options td.label,
+table.total-options-and-pricing tr.total-corrections td.label,
+table.total-options-and-pricing tr.total-price td.label,
+table.total-options-and-pricing tr.total-price td.amount {
+    border-top: double var(--line) 3px;
+}
+
+table.registrations-totals td {
+    padding: 0.5rem;
+}
+
 /*** Account settings menu  ***/
 .account-settings-menu ul {
     list-style: none;

@@ -51,7 +51,7 @@ def human_readable(value, arg):
 @register.filter()
 def moneyformat(value):
     """ Properly format a numeric value as a monetary value. """
-    if value is None:
+    if value is None or value == '':
         return settings.MONETARY_CURRENCY + '-'
     sign = '-' if value < 0 else ''
     return sign + settings.MONETARY_CURRENCY + number_format(abs(value), decimal_pos=settings.MONETARY_DECIMAL_PLACES)

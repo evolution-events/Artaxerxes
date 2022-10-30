@@ -14,8 +14,9 @@
               <tr class="priced-option">
                 <td>
                   {% if registration.status.CANCELLED or not value.active %}<del>{% endif %}
-                    {{ value.field.title }}: {{ value.display_value }}</td>
+                    {{ value.field.title }}: {{ value.display_value }}
                   {% if registration.status.CANCELLED or not value.active %}</del>{% endif %}
+                </td>
                 <td class="amount">
                   {% if registration.status.CANCELLED or not value.active %}<del>{% endif %}
                     {{ value.price | moneyformat }}
@@ -27,11 +28,12 @@
               <tr class="price-correction">
                 <td>
                   {% if not value.active %}<del>{% endif %}
-                    {{ value.description }}</td>
+                    {{ value.description }}
                   {% if not value.active %}</del>{% endif %}
+                </td>
                 <td class="amount">
                   {% if not value.active %}<del>{% endif %}
-                    {{ value.price | moneyformat }}</td>
+                    {{ value.price | moneyformat }}
                   {% if not value.active %}</del>{% endif %}
                 </td>
               </tr>

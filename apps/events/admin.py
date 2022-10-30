@@ -58,6 +58,7 @@ class EventRegistrationsResource(import_export.resources.ModelResource):
             super().get_queryset()
             .filter(event=self.event)
             .select_related('user')
+            .select_related('user__address')
             .prefetch_active_options()
             .with_payment_status()
             .order_by('created_at')

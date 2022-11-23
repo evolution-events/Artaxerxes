@@ -31,8 +31,8 @@ class Dashboard(LoginRequiredMixin, View):
             with_registration=True,
         ).filter(
             ~Q(registration_has_closed=True) | Q(registration_status__in=Registration.statuses.FINALIZED),
+            Q(is_visible=True) | Q(can_preview=True),
             end_date__gte=date.today(),
-            is_visible=True,
         ).order_by(
             'start_date',
         )
@@ -42,6 +42,8 @@ class Dashboard(LoginRequiredMixin, View):
                 return 'active'
             elif e.registration_is_open or e.preregistration_is_open:
                 return 'open'
+            elif not e.is_visible and e.can_preview:
+                return 'preview'
             else:
                 return 'upcoming'
 

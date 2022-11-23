@@ -27,6 +27,19 @@
   </ul>
 {% endif %}
 
+{% if events.preview %}
+<h2>{% trans "Preview events" %}</h2>
+  <p>
+  {% blocktrans %}
+  Events shown here are not public yet, but can be previewed because you are an organizer.
+  {% endblocktrans %}
+  <ul class="event-list">
+  {% for e in events.preview %}
+    {% include 'events/snippets/open_event.html' with e=e %}
+  {% endfor %}
+  </ul>
+{% endif %}
+
 <h2>{% trans "(Pre)Registration open" %}</h2>
 {% if not events.open %}
   <p>{% trans "No open registrations" %}</p>

@@ -2,7 +2,7 @@ import reversion
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.db import models
-from django.db.models import Case, Count, Exists, F, OuterRef, Q, When
+from django.db.models import Case, Count, Exists, F, OuterRef, Q, Subquery, When
 from django.db.models.functions import Concat
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -29,6 +29,9 @@ class EventQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
            registration is current. Current is the one non-cancelled registration, or most recent cancelled
            registration.
         """
+        from apps.people.models import ArtaUser
+        user_pk = user.pk if isinstance(user, ArtaUser) else user
+
         now = timezone.now()
         # This does not use the user yet, but this makes it easier to change that later
         # This essentially duplicates the similarly-named methods on the model below.
@@ -57,6 +60,23 @@ class EventQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
                 & Q(registration_has_closed=False),
             ),
         ).annotate(
+            # This does a subquery instead of using user.is_superuser in the filter directly, to allow passing user pk
+            # instead of object
+            user_is_superuser=Subquery(ArtaUser.objects.filter(pk=user_pk).values('is_superuser')),
+            # This does a subquery instead of just a normal filter inline below, since that creates a join that
+            # duplicates results.
+            user_is_organizer=Exists(Event.objects.filter(pk=OuterRef('pk'), organizer_group__user=user_pk)),
+        ).annotate(
+            can_preview=QExpr(
+                Q(preregistration_is_open=False)
+                & Q(registration_is_open=False)
+                & Q(registration_has_closed=False)
+                & (
+                    Q(user_is_organizer=True)
+                    | Q(user_is_superuser=True)
+                ),
+            ),
+        ).annotate(
             # TODO: Ideally we would skip this annotation and do F('full') | Exists(...) directly, but django does not
             # support logical or on expression (only on Q objects). Adding this extra annotation here works, but ends
             # up duplicating the generated subquery (but hopefully the database driver realizes this...).
@@ -72,7 +92,7 @@ class EventQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
                         # which means it cannot be generally solved in SQL, but maybe we can limit to one or two levels
                         # deep?
                         filter=(
-                            (Q(options__invite_only=None) | Q(options__invite_only__user=user))
+                            (Q(options__invite_only=None) | Q(options__invite_only__user=user_pk))
                             & Q(options__full=False)
                         ),
                     ),
@@ -90,7 +110,7 @@ class EventQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
             qs = qs.annotate(registration_id=models.Subquery(
                 Registration.objects.current_for(
                     event=models.OuterRef('pk'),
-                    user=user,
+                    user=user_pk,
                 ).values('pk'),
             ))
             # Also annotate the status, to allow filtering on that.
@@ -100,7 +120,7 @@ class EventQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
             qs = qs.annotate(registration_status=models.Subquery(
                 Registration.objects.current_for(
                     event=models.OuterRef('pk'),
-                    user=user,
+                    user=user_pk,
                 ).values('status'),
             ))
         return qs

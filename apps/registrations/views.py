@@ -148,6 +148,7 @@ class RegistrationStepMixinBase(ContextMixin):
             self.is_change
             or self.event.registration_is_open
             or self.event.preregistration_is_open
+            or self.event.can_preview
         ):
             raise Http404("Registration not open (anymore)")
 

@@ -32,14 +32,15 @@
             {% trans 'Prepare registration' %}
           {% endif %}
           </a><br/>
-        {% endif %}
         {# Show registration button if it is open #}
-        {% if e.registration_is_open %}
+        {% elif e.registration_is_open %}
           {% if e.is_full %}
             <a class="toregistration" href="{% url 'registrations:registration_start' eventid=e.id %}" role="button">{% trans 'Register on waiting list' %}</a><br/>
           {% else %}
             <a class="toregistration" href="{% url 'registrations:registration_start' eventid=e.id %}" role="button">{% trans 'Register now' %}</a><br/>
           {% endif %}
+        {% elif e.can_preview %}
+            <a class="preview" href="{% url 'registrations:registration_start' eventid=e.id %}" role="button">{% trans 'Preview registration' %}</a><br/>
         {% endif %}
       </div>
     </div>

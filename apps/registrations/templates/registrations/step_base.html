@@ -30,6 +30,14 @@
       {% endblock steps %}
     </div>
     <div class="registration_main col">
+      {% if event.can_preview %}
+        <div class="alert alert-primary">
+          {% blocktrans %}
+            NOTE: This page is only visible because you are organizer of this event.
+          {% endblocktrans %}
+        </div>
+      {% endif %}
+
       {% block beforeform %}
       {% endblock beforeform %}
 

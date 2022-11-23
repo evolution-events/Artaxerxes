@@ -68,9 +68,17 @@ class TestOpenedAnnotations(TestCase):
                      registration_opens_in_days=-8, registration_closes_in_days=-7)
 
         # Check uniqueness of titles. Cannot use unittests asserts since we are not in a testcase yet.
-        events = Event.objects.all()
+        events = list(Event.objects.all())
         titles = {e.title for e in events}
         assert(len(titles) == len(events))
+
+        cls.organizer = ArtaUserFactory(last_name="Organizer")
+        cls.organizer_group = GroupFactory(users=[cls.organizer])
+        for e in events:
+            e.organizer_group = cls.organizer_group
+            e.save()
+
+        cls.admin = ArtaUserFactory(is_superuser=True, last_name="Admin")
 
     def assertEventsWithTitles(self, events, titles):
         """ Assert the titles of the given events exactly match the given titles. """
@@ -78,23 +86,45 @@ class TestOpenedAnnotations(TestCase):
 
     def test_is_visible(self):
         """ Test is_visible annotation. """
+        for user in (None, self.organizer):
+            with self.subTest(user=user):
+                annotated = Event.objects.for_user(None)
+                visible = set(annotated.filter(is_visible=True))
+                self.assertEventsWithTitles(visible, {
+                    'future_public_closed',
+                    'future_public_open_now',
+                    'future_public_open_now_with_close',
+                    'future_public_closed_again',
+                    'future_public_opens_soon',
+                    'future_pending_public_closed',
+                    'future_pending_public_open_now',
+                    'future_pending_public_opens_soon',
+                    'past_public_closed',
+                    'past_public_opens_soon',
+                    'past_public_open_now',
+                    'past_public_closed_again',
+                    'past_public_closes_after_start',
+                })
+
+    def test_organizer_can_preview(self):
+        """ Test can_preview annotation for organizers. """
+        for user in (self.organizer, self.admin):
+            with self.subTest(user=user):
+                annotated = Event.objects.for_user(user)
+                can_preview = set(annotated.filter(can_preview=True))
+                self.assertEventsWithTitles(can_preview, {
+                    'future_hidden_closed',
+                    'future_hidden_open_now',
+                    'future_hidden_opens_soon',
+                    'future_pending_public_opens_soon',
+                    'future_pending_public_closed',
+                })
+
+    def test_others_can_preview(self):
+        """ Test can_preview annotation for other users. """
         annotated = Event.objects.for_user(None)
-        visible = set(annotated.filter(is_visible=True))
-        self.assertEventsWithTitles(visible, {
-            'future_public_closed',
-            'future_public_open_now',
-            'future_public_open_now_with_close',
-            'future_public_closed_again',
-            'future_public_opens_soon',
-            'future_pending_public_closed',
-            'future_pending_public_open_now',
-            'future_pending_public_opens_soon',
-            'past_public_closed',
-            'past_public_opens_soon',
-            'past_public_open_now',
-            'past_public_closed_again',
-            'past_public_closes_after_start',
-        })
+        can_preview = set(annotated.filter(can_preview=True))
+        self.assertEventsWithTitles(can_preview, set())
 
     def test_registration_is_open(self):
         """ Test registration_is_open annotation. """

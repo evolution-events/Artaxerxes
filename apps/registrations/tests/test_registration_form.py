@@ -1212,16 +1212,29 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         else:
             registration = RegistrationFactory(event=self.event, user=user, status=status)
 
+        allowed = False
+        if user_type in (UserType.ADMIN, UserType.ORGANIZER) and event_state != EventState.CLOSED_AGAIN:
+            allowed = True
+
         url = self.reverse_step(viewname, registration)
         response = self.client.get(url, follow=True)
-        self.assertEqual(response.status_code, 404, msg=str(response))
-
-        response = self.client.post(url)
-        self.assertEqual(response.status_code, 404)
-        if registration:
-            self.assertEqual(Registration.objects.all().count(), 1)
+        if allowed:
+            self.assertEqual(response.status_code, 200, msg=str(response))
         else:
-            self.assertEqual(Registration.objects.all().count(), 0)
+            self.assertEqual(response.status_code, 404, msg=str(response))
+
+        # TODO: Also test post for other steps? Requires valid form data...
+        if viewname in self.start_steps or not allowed:
+            response = self.client.post(url)
+            if allowed:
+                self.assertEqual(response.status_code, 302)
+                self.assertEqual(Registration.objects.all().count(), 1)
+            else:
+                self.assertEqual(response.status_code, 404)
+                if registration:
+                    self.assertEqual(Registration.objects.all().count(), 1)
+                else:
+                    self.assertEqual(Registration.objects.all().count(), 0)
 
     def test_registration_closes(self):
         """ Check that finalcheck regenerates a response after registration opens. """

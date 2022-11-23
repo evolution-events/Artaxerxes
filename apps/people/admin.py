@@ -3,7 +3,8 @@ import import_export.fields
 import import_export.resources
 from allauth.account.models import EmailAddress
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.admin import GroupAdmin, UserAdmin
+from django.contrib.auth.models import Group
 from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
 from hijack_admin.admin import HijackUserAdminMixin
@@ -81,3 +82,16 @@ class ArtaUserAdmin(import_export.admin.ExportMixin, UserAdmin, HijackUserAdminM
             "\n".join("{} <{}>,".format(u.full_name, u.email) for u in queryset),
             content_type="text/plain; charset=utf-8",
         )
+
+
+class GroupMemberInline(admin.TabularInline):
+    model = ArtaUser.groups.through
+
+
+# Replace the original Group admin.
+admin.site.unregister(Group)
+
+
+@admin.register(Group)
+class CustomGroupAdmin(GroupAdmin):
+    inlines = (GroupMemberInline,)

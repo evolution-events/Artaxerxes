@@ -4,6 +4,7 @@ import re
 from datetime import datetime
 from datetime import time as dt_time
 from datetime import timedelta
+from enum import Enum, auto
 from unittest import mock, skip
 
 from django.conf import settings
@@ -15,15 +16,32 @@ from django.utils.translation import ugettext as _
 from parameterized import parameterized
 from with_asserts.mixin import AssertHTMLMixin
 
+from apps.events.models import Event
 from apps.events.tests.factories import EventFactory
 from apps.people.models import Address, EmergencyContact, MedicalDetails
-from apps.people.tests.factories import ArtaUserFactory
+from apps.people.tests.factories import ArtaUserFactory, GroupFactory
 
 from ..models import Registration, RegistrationField, RegistrationFieldOption, RegistrationFieldValue
 from ..services import RegistrationStatusService
 from ..views import FinalCheck
 from .factories import (RegistrationFactory, RegistrationFieldFactory, RegistrationFieldOptionFactory,
                         RegistrationFieldValueFactory)
+
+
+class UserType(Enum):
+    NORMAL = auto()
+    ORGANIZER = auto()
+    ADMIN = auto()
+
+
+class EventState(Enum):
+    """ Some different states an event can be in, to be used as part of parameterization. """
+
+    HIDDEN = auto()
+    NOT_OPEN_YET = auto()
+    NOT_OPEN_YET_PENDING = auto()
+    OPEN = auto()
+    CLOSED_AGAIN = auto()
 
 
 class TestRegistrationForm(TestCase, AssertHTMLMixin):
@@ -50,7 +68,13 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
 
     @classmethod
     def setUpTestData(cls):
-        cls.event = EventFactory(registration_opens_in_days=-1, public=True, allow_change_days=1)
+        cls.organizer = ArtaUserFactory(last_name="Organizer")
+        cls.admin = ArtaUserFactory(is_superuser=True, last_name="Admin")
+
+        cls.event = EventFactory(
+            registration_opens_in_days=-1, public=True, allow_change_days=1,
+            organizer_group=GroupFactory(users=[cls.organizer]),
+        )
 
         cls.type = RegistrationFieldFactory(event=cls.event, name="type", allow_change_days=1)
         cls.player = RegistrationFieldOptionFactory(field=cls.type, title="Player")
@@ -213,10 +237,44 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         self.assertRedirects(response, next_url)
 
     def reverse_step(self, viewname, reg):
-        args = (reg.pk,)
         if viewname in self.start_steps:
-            args = (reg.event_id,)
+            args = (reg.event_id,) if reg else (self.event.pk,)
+        else:
+            args = (reg.pk,)
         return reverse(viewname, args=args)
+
+    def login_user_helper(self, user_type: UserType):
+        """ Logs in the given type of user and returns it. """
+        if user_type == UserType.NORMAL:
+            user = self.user
+        elif user_type == UserType.ORGANIZER:
+            user = self.organizer
+        elif user_type == UserType.ADMIN:
+            user = self.admin
+        else:
+            raise ValueError()
+
+        self.client.force_login(user)
+        return user
+
+    def set_event_state_helper(self, state):
+        """ Update event to the given state. """
+        e = Event.objects.get(pk=self.event.pk)
+        if state == EventState.HIDDEN:
+            e.public = False
+        elif state == EventState.NOT_OPEN_YET:
+            e.registration_opens_at = timezone.now() + timedelta(days=1)
+        elif state == EventState.NOT_OPEN_YET_PENDING:
+            e.registration_opens_at = timezone.now() + timedelta(days=1)
+            e.admit_immediately = False
+        elif state == EventState.OPEN:
+            pass
+        elif state == EventState.CLOSED_AGAIN:
+            e.registration_closes_at = timezone.now() - timedelta(days=1)
+        else:
+            raise ValueError()
+
+        e.save()
 
     def test_full_registration(self):
         """ Run through an entire registration flow. """
@@ -1133,6 +1191,37 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
             self.assertFormRedirects(response, confirm_url)
             reg.refresh_from_db()
             self.assertTrue(reg.status.REGISTERED)
+
+    @parameterized.expand(itertools.product(
+        registration_steps,
+        (EventState.HIDDEN, EventState.NOT_OPEN_YET_PENDING, EventState.CLOSED_AGAIN),
+        UserType,
+        # Only check DRAFT, finalized registrations can still be edited after registration close
+        {None} | Registration.statuses.DRAFT,
+    ))
+    def test_registration_steps_closed(self, viewname, event_state, user_type, status):
+        """ Check that registration steps refuse or allow appropriately when registration is not open. """
+        self.set_event_state_helper(event_state)
+        user = self.login_user_helper(user_type)
+
+        if status is None:
+            registration = None
+            # Only start makes sense without registration
+            if viewname not in self.start_steps:
+                self.skipTest("needs registration")
+        else:
+            registration = RegistrationFactory(event=self.event, user=user, status=status)
+
+        url = self.reverse_step(viewname, registration)
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 404, msg=str(response))
+
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 404)
+        if registration:
+            self.assertEqual(Registration.objects.all().count(), 1)
+        else:
+            self.assertEqual(Registration.objects.all().count(), 0)
 
     def test_registration_closes(self):
         """ Check that finalcheck regenerates a response after registration opens. """

@@ -144,6 +144,13 @@ class RegistrationStepMixinBase(ContextMixin):
             if self.current_step['view'] != start_view:
                 return redirect(start_view, self.event.id)
 
+        if not (
+            self.is_change
+            or self.event.registration_is_open
+            or self.event.preregistration_is_open
+        ):
+            raise Http404("Registration not open (anymore)")
+
         if self.registration and self.registration.status not in self.current_step['statuses']:
             if self.registration.status.PREPARATION_IN_PROGRESS:
                 view = 'registrations:step_registration_options'
@@ -467,13 +474,6 @@ class FinalCheck(RegistrationStepMixin, FormView):
         ))
 
     def get_context_data(self, **kwargs):
-        # This would be more logical to check in check_request, but putting it here ensures this code does not run for
-        # the POST request handling, which should be as fast as possible (and finalize_registration needs to query
-        # event already for locking it, and already checks registration_is_open), so it's ok to not run this check
-        # there.
-        if not self.event.registration_is_open and not self.event.preregistration_is_open:
-            raise Http404("Registration is not open")
-
         personal_details = Address.objects.filter(user=self.request.user).first()
         medical_details = MedicalDetails.objects.filter(user=self.request.user).first()
         emergency_contacts = self.request.user.emergency_contacts.all()

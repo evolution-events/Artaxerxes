@@ -16,7 +16,7 @@ from .factories import RegistrationFactory, RegistrationFieldFactory, Registrati
 
 class TestCaching(TestCase):
     def setUp(self):
-        self.event = EventFactory(registration_opens_in_days=-1, public=True)
+        self.event = EventFactory(starts_in_days=2, registration_opens_in_days=-1, public=True)
 
         self.type = RegistrationFieldFactory(event=self.event, name="type")
         self.player = RegistrationFieldOptionFactory(field=self.type, title="Player")

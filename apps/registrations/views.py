@@ -136,7 +136,7 @@ class RegistrationStepMixinBase(ContextMixin):
         These checks are not run when CacheUsingTimestampsMixin decides the cache is still valid, but in general
         anything that changes these checks should also cause the cache to become invalid.
         """
-        if self.registration.has_conflicting_registrations:
+        if self.registration and self.registration.has_conflicting_registrations:
             return redirect('registrations:conflicting_registrations', self.registration.id)
 
         if self.is_change and not self.event.allow_change:
@@ -144,7 +144,7 @@ class RegistrationStepMixinBase(ContextMixin):
             if self.current_step['view'] != start_view:
                 return redirect(start_view, self.event.id)
 
-        if self.registration.status not in self.current_step['statuses']:
+        if self.registration and self.registration.status not in self.current_step['statuses']:
             if self.registration.status.PREPARATION_IN_PROGRESS:
                 view = 'registrations:step_registration_options'
             elif self.registration.status.PREPARATION_COMPLETE:
@@ -223,12 +223,6 @@ class RegistrationStart(RegistrationStepMixin, TemplateView):
     @cached_property
     def event(self):
         return get_object_or_404(Event.objects.for_user(self.request.user), pk=self.kwargs['eventid'])
-
-    def check_request(self):
-        if self.registration:
-            # If a registration already exists, let our parent figure out where to redirect
-            return super().check_request()
-        return None
 
     def post(self, request, eventid):
         with reversion.create_revision():

@@ -152,7 +152,14 @@ class RegistrationStepMixinBase(ContextMixin):
         ):
             raise Http404("Registration not open (anymore)")
 
-        if self.registration and self.registration.status not in self.current_step['statuses']:
+        if (
+            self.event.can_preview
+            and self.current_step['view'] == 'registrations:registration_confirmation'
+            and self.registration.status.DRAFT
+        ):
+            # Make an exception to the the normal status check for confirmation preview
+            pass
+        elif self.registration and self.registration.status not in self.current_step['statuses']:
             if self.registration.status.PREPARATION_IN_PROGRESS:
                 view = 'registrations:step_registration_options'
             elif self.registration.status.PREPARATION_COMPLETE:
@@ -413,6 +420,9 @@ class FinalCheck(RegistrationStepMixin, FormView):
         # maybe we can do this more elegantly?
         return reverse(self.steps[1]['view'], args=(self.registration.pk,))
 
+    def get_confirm_url(self):
+        return reverse('registrations:registration_confirmation', args=(self.registration.pk,))
+
     def form_valid(self, form):
         try:
             # This intentionally does *not* create a revision for performance reasons (to make the registration request
@@ -496,6 +506,7 @@ class FinalCheck(RegistrationStepMixin, FormView):
             'options_by_section': RegistrationFieldValue.group_by_section(options),
             'total_price': total_price,
             'modify_url': self.get_modify_url(),
+            'confirm_url': self.get_confirm_url(),
         })
         return super().get_context_data(**kwargs)
 
@@ -547,12 +558,14 @@ class ConflictingRegistrations(LoginRequiredMixin, DetailView):
         return super().render_to_response(context)
 
 
-class PaymentStatus(LoginRequiredMixin, DetailView):
+class PaymentStatus(LoginRequiredMixin, TemplateView):
     """ Show the payment status of a given event. """
 
     template_name = 'registrations/payment_status.html'
-    model = Event
-    context_object_name = 'event'
+
+    @cached_property
+    def event(self):
+        return get_object_or_404(Event.objects.for_user(self.request.user), pk=self.kwargs['pk'])
 
     @cached_property
     def registration(self):
@@ -567,6 +580,7 @@ class PaymentStatus(LoginRequiredMixin, DetailView):
         completed_payments = self.registration.payments.filter(status=Payment.statuses.COMPLETED).order_by('timestamp')
 
         kwargs.update({
+            'event': self.event,
             'registration': self.registration,
             'priced_options': priced_options,
             'price_corrections': price_corrections,
@@ -575,7 +589,10 @@ class PaymentStatus(LoginRequiredMixin, DetailView):
         return super().get_context_data(**kwargs)
 
     def get(self, request, pk):
-        if not self.registration.status.FINALIZED:
+        if (
+            not self.registration.status.FINALIZED
+            and not self.event.can_preview
+        ):
             return redirect('registrations:registration_start', self.kwargs['pk'])
         return super().get(request, pk)
 

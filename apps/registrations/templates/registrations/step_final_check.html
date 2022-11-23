@@ -125,4 +125,7 @@
     {% endif %}
     </button>
   {% endif %}
+  {% if event.can_preview %}
+    <a href="{{ confirm_url }}" class="btn btn-success" role="button">{% trans 'Preview registration confirmation' %}</a>
+  {% endif %}
 {% endblock buttons %}

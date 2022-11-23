@@ -67,7 +67,7 @@
           </p>
         {% endif %}
 
-        {% if registration.payment_status.PAYABLE %}
+        {% if registration.payment_status.PAYABLE or event.can_preview %}
           <p>
           {% blocktrans with email='penningmeester@evolution-events.nl'|urlize %}
           All payments are handled through our payment provider, Mollie.
@@ -99,13 +99,15 @@
             </li>
           </ul>
           &nbsp;
-          <p class="text-right">
-            <button class="btn btn-success" type="submit">
-              {% blocktrans with amount=registration.amount_due|moneyformat %}
-              Pay {{amount}} now
-              {% endblocktrans %}
-            </button>
-          </p>
+          {% if registration.payment_status.PAYABLE %}
+            <p class="text-right">
+              <button class="btn btn-success" type="submit">
+                {% blocktrans with amount=registration.amount_due|moneyformat %}
+                Pay {{amount}} now
+                {% endblocktrans %}
+              </button>
+            </p>
+          {% endif %}
         {% endif %}
       </div>
     </div>

@@ -15,7 +15,7 @@
 {% endblock pagetitle%}
 
 {% block beforeform %}
-  {% if registration.status.PENDING %}
+  {% if registration.status.PENDING or event.can_preview and not event.admit_immediately %}
     {% if registration.event.pending_mail_text %}
       {{ registration.event.pending_mail_text }}
     {% else %}
@@ -25,7 +25,7 @@
       {{eventurl}}.
       {% endblocktrans %}
     {% endif %}
-  {% elif registration.status.REGISTERED %}
+  {% elif registration.status.REGISTERED or event.can_preview %}
     <p>
     {% blocktrans with event=registration.event eventurl=registration.event.display_url|urlize %}
     Your registration for {{event}} was completed. Your spot is secured for
@@ -35,7 +35,13 @@
     </p>
     <p>
     {% url 'registrations:payment_status' registration.event.pk as pay_url %}
-    <a href="{{pay_url}}" class="btn btn-success">{% trans "Pay now" %}</a>
+    <a href="{{pay_url}}" class="btn btn-success">
+    {% if event.can_preview %}
+    {% trans "Preview payment" %}
+    {% else %}
+    {% trans "Pay now" %}
+    {% endif %}
+    </a>
     </p>
   {% else %}
     <p>

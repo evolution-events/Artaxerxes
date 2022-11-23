@@ -176,10 +176,28 @@ class FinalCheckForm(forms.Form):
     agree = forms.BooleanField(label=_('I have read the house rules and agree to the above conditions'), required=True)
 
 
-class RegistrationOptionField(forms.ModelChoiceField):
-    """ Field that allows selecting from multiple options, including price and status info. """
+class RegistrationOptionFieldWidget(forms.widgets.Select):
+    """ Widget that handles adding data-depends attribute to option tags. """
 
-    def label_from_instance(self, obj):
+    def create_option(self, name, value, label, *args, **kwargs):
+        # This relies on RegistrationOptionField to have a label_from_instance that returns the original
+        # RegistrationFieldOption object instead of a string, so we get access to the original instance. Here, we
+        # translate the object to a string before passing to our super, so nobody will notice, and set the appropriate
+        # dependency attributes if needed.
+        if isinstance(label, RegistrationFieldOption):
+            obj = label
+            label = self.real_label_from_instance(obj)
+        else:
+            obj = None
+
+        context = super().create_option(name, value, label, *args, **kwargs)
+        if obj and obj.depends:
+            context['attrs']['data-depends-name'] = obj.depends.field.name
+            context['attrs']['data-depends-value'] = obj.depends.pk
+
+        return context
+
+    def real_label_from_instance(self, obj):
         label = obj.title
         extras = []
         if obj.price is not None:
@@ -189,6 +207,19 @@ class RegistrationOptionField(forms.ModelChoiceField):
         if extras:
             label = "{} ({})".format(label, ", ".join(extras))
         return label
+
+
+class RegistrationOptionField(forms.ModelChoiceField):
+    """ Field that allows selecting from multiple options, including price and status info. """
+
+    def __init__(self, *args, **kwargs):
+        if 'widget' not in kwargs:
+            kwargs['widget'] = RegistrationOptionFieldWidget
+        super().__init__(*args, **kwargs)
+
+    def label_from_instance(self, obj):
+        # Pass the original object unchanged, it will be converted to a string by RegistrationFieldOptionWidget later.
+        return obj
 
 
 class RegistrationOptionsForm(forms.Form):

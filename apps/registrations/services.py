@@ -127,7 +127,6 @@ class RegistrationStatusService:
             # queryset count() method does not respect select_for_update.
             if len(ArtaUser.objects.select_for_update().filter(pk=registration.user_id).values('id')) != 1:
                 raise RuntimeError("User does not exist?")
-            event.used_slots = Event.objects.used_slots_for(event)
 
             if not event.registration_is_open:
                 raise ValidationError(_("Registration is not open"))
@@ -147,24 +146,23 @@ class RegistrationStatusService:
             else:
                 # This selects all options that are associated with the current registration and that have non-null
                 # slots. annotated with the number of slots used.
-                options_with_slots = RegistrationFieldOption.objects.with_used_slots().filter(
+                options = RegistrationFieldOption.objects.with_used_slots().filter(
                     Q(registrationfieldvalue__registration=registration)
-                    & Q(registrationfieldvalue__active=True)
-                    & ~Q(slots=None),
+                    & Q(registrationfieldvalue__active=True),
                 )
 
-                # If the event has slots defined, we can treat it just like any option with slots
-                if event.slots is not None:
-                    options_with_slots = [*options_with_slots, event]
+                # We can check the event slots and full flag just like options
+                event.used_slots = Event.objects.used_slots_for(event)
+                options = [*options, event]
 
-                if any(o.full or o.used_slots >= o.slots for o in options_with_slots):
+                if any(o.full or (o.slots is not None and o.used_slots >= o.slots) for o in options):
                     registration.status = Registration.statuses.WAITINGLIST
                 else:
                     registration.status = Registration.statuses.REGISTERED
 
                     # Set full for any options (or the event as a whole) where we used the last slot
-                    for o in options_with_slots:
-                        if o.slots - o.used_slots == 1:
+                    for o in options:
+                        if o.slots is not None and o.slots - o.used_slots == 1:
                             o.full = True
                             o.save()
 

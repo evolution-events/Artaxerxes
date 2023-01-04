@@ -12,7 +12,7 @@ from apps.events.tests.factories import EventFactory
 from apps.people.models import ArtaUser
 from apps.people.tests.factories import AddressFactory, EmergencyContactFactory, GroupFactory
 
-from ..models import Registration, RegistrationField, RegistrationFieldValue
+from ..models import Registration, RegistrationField, RegistrationFieldOption, RegistrationFieldValue
 from ..services import RegistrationStatusService
 from .factories import RegistrationFactory, RegistrationFieldFactory, RegistrationFieldOptionFactory
 
@@ -281,6 +281,52 @@ class TestRegistrationStatusService(TestCase):
         )
         RegistrationStatusService.finalize_registration(reg)
         self.assertEqual(reg.status, Registration.statuses.WAITINGLIST)
+
+    def test_register_with_event_full_flag(self):
+        """ Check that the full flag on the event takes effect, even if slots are still (again) available. """
+        e = Event.objects.get(pk=self.event.pk)
+
+        e.full = True
+        e.save()
+
+        reg = RegistrationFactory(
+            event=e, preparation_complete=True,
+            options=self.default_options,
+        )
+        RegistrationStatusService.finalize_registration(reg)
+        self.assertEqual(reg.status, Registration.statuses.WAITINGLIST)
+
+    def test_register_with_option_full_flag(self):
+        """ Check that the full flag on a chosen option takes effect, even if slots are still (again) available. """
+        e = self.event
+
+        self.assertIn(self.player, self.default_options)
+        option = RegistrationFieldOption.objects.get(pk=self.player.pk)
+        option.full = True
+        option.save()
+
+        reg = RegistrationFactory(
+            event=e, preparation_complete=True,
+            options=self.default_options,
+        )
+        RegistrationStatusService.finalize_registration(reg)
+        self.assertEqual(reg.status, Registration.statuses.WAITINGLIST)
+
+    def test_register_with_other_option_full_flag(self):
+        """ Check that the full flag on an option not chose has no effect. """
+        e = self.event
+
+        self.assertNotIn(self.crew, self.default_options)
+        option = RegistrationFieldOption.objects.get(pk=self.crew.pk)
+        option.full = True
+        option.save()
+
+        reg = RegistrationFactory(
+            event=e, preparation_complete=True,
+            options=self.default_options,
+        )
+        RegistrationStatusService.finalize_registration(reg)
+        self.assertEqual(reg.status, Registration.statuses.REGISTERED)
 
     def test_register_until_event_full(self):
         """ Register until the event slots are taken and the next registration ends up on the waiting list. """

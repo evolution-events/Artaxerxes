@@ -67,7 +67,7 @@
           </p>
         {% endif %}
 
-        {% if registration.payment_status.PAYABLE or event.can_preview %}
+        {% if payable or event.can_preview %}
           <p>
           {% blocktrans with email='penningmeester@evolution-events.nl'|urlize %}
           All payments are handled through our payment provider, Mollie.
@@ -98,15 +98,39 @@
             {% endfor %}
           </ul>
           &nbsp;
-          {% if registration.payment_status.PAYABLE %}
+          {% if custom_amount %}
+          <h3>{% trans "Enter amount to pay" %}</h3>
+          {{ form.errors.amount }}
+          <ul class="list-group">
+            <li class="list-group-item">
+              <p><span class="currency-prefix">€</span>{{ form.amount }}
+              <p>{% blocktrans %}
+              Here you can select a different amount to pay, for example to
+              pay in multiple installments, or to voluntarily pay extra.
+              This option should only be used after being instructed to do
+              so by the organisation!
+              {% endblocktrans %}</p>
+            </li>
+          </ul>
+          {% else %}
+            <a href="?custom-amount">&gt;&gt; Pay a different amount instead</a>
+          {% endif %}
+          &nbsp;
+          {% if payable %}
             <p class="text-right">
               <button class="btn btn-success" type="submit">
-                {% blocktrans with amount=registration.amount_due|moneyformat %}
-                Pay {{amount}} now
-                {% endblocktrans %}
+                {% if custom_amount %}
+                  {% trans "Pay now" %}
+                {% else %}
+                  {% blocktrans with amount=registration.amount_due|moneyformat %}
+                  Pay {{amount}} now
+                  {% endblocktrans %}
+                {% endif %}
               </button>
             </p>
           {% endif %}
+        {% else %}
+          <a href="?custom-amount">&gt;&gt; Pay something anyway</a>
         {% endif %}
       </div>
     </div>

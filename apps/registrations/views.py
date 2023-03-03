@@ -579,6 +579,7 @@ class PaymentStatus(LoginRequiredMixin, FormView):
         priced_options = options.exclude(option=None).exclude(option__price=None)
         price_corrections = self.registration.price_corrections.with_active().order_by('created_at')
         completed_payments = self.registration.payments.filter(status=Payment.statuses.COMPLETED).order_by('timestamp')
+        custom_amount = ('custom-amount' in self.request.GET)
 
         kwargs.update({
             'event': self.event,
@@ -586,6 +587,8 @@ class PaymentStatus(LoginRequiredMixin, FormView):
             'priced_options': priced_options,
             'price_corrections': price_corrections,
             'completed_payments': completed_payments,
+            'payable': self.registration.payment_status.PAYABLE or custom_amount,
+            'custom_amount': custom_amount,
         })
         return super().get_context_data(**kwargs)
 
@@ -597,11 +600,19 @@ class PaymentStatus(LoginRequiredMixin, FormView):
             return redirect('registrations:registration_start', self.kwargs['pk'])
         return super().dispatch(*args, **kwargs)
 
+    def get_initial(self):
+        return {
+            'amount': self.registration.amount_due,
+        }
 
     def form_valid(self, form):
-        amount = self.registration.amount_due
-        if not amount or amount <= 0:
+        custom_amount = form.cleaned_data['amount']
+
+        # Likely the payment was processed while this page was still open, so prevent double payments
+        if not self.registration.payment_status.PAYABLE and not custom_amount:
             return redirect(self.request.path)
+
+        amount = custom_amount if custom_amount is not None else self.registration.amount_due
 
         with reversion.create_revision():
             payment = Payment.objects.create(

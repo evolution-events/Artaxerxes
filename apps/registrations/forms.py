@@ -449,3 +449,4 @@ class PaymentForm(forms.Form):
         ('ideal', _('iDeal online payment')),
         ('banktransfer', _('Bank transfer')),
     ], required=True, widget=forms.RadioSelect)
+    amount = forms.DecimalField(min_value=1, decimal_places=2, required=False)

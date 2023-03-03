@@ -120,3 +120,16 @@ class TestPayment(MockMollieMixin, AssertHTMLMixin, TestCase):
 
         response = self.client.post(status_url, {'method': 'ideal'}, follow=False)
         self.assertRedirects(response, start_url, target_status_code=302)
+
+    def test_custom_amount(self):
+        """ Check that a custom amount is respected """
+        reg = RegistrationFactory(event=self.event, options=[self.player], user=self.user, registered=True)
+
+        # Start the payment
+        status_url = reverse('registrations:payment_status', args=(reg.event.pk,))
+        response = self.client.post(status_url, {'method': 'ideal', 'amount': '123'})
+        checkout_url = response.url
+        payment = Payment.objects.get()
+        next_url = reverse('registrations:payment_done', args=(payment.pk,))
+
+        self.assert_single_payment_started(payment, reg, 123, next_url, checkout_url)

@@ -21,7 +21,7 @@ from apps.payments.services import PaymentService, PaymentStatusService
 from apps.people.models import Address, ArtaUser, EmergencyContact, MedicalDetails
 from arta.common.views import CacheUsingTimestampsMixin
 
-from .forms import (EmergencyContactFormSet, FinalCheckForm, MedicalDetailForm, PersonalDetailForm,
+from .forms import (EmergencyContactFormSet, FinalCheckForm, MedicalDetailForm, PaymentForm, PersonalDetailForm,
                     RegistrationOptionsForm)
 from .models import Registration, RegistrationFieldOption, RegistrationFieldValue
 from .services import RegistrationNotifyService, RegistrationStatusService
@@ -558,10 +558,11 @@ class ConflictingRegistrations(LoginRequiredMixin, DetailView):
         return super().render_to_response(context)
 
 
-class PaymentStatus(LoginRequiredMixin, TemplateView):
+class PaymentStatus(LoginRequiredMixin, FormView):
     """ Show the payment status of a given event. """
 
     template_name = 'registrations/payment_status.html'
+    form_class = PaymentForm
 
     @cached_property
     def event(self):
@@ -597,7 +598,7 @@ class PaymentStatus(LoginRequiredMixin, TemplateView):
         return super().dispatch(*args, **kwargs)
 
 
-    def post(self, request, pk):
+    def form_valid(self, form):
         amount = self.registration.amount_due
         if not amount or amount <= 0:
             return redirect(self.request.path)
@@ -605,11 +606,11 @@ class PaymentStatus(LoginRequiredMixin, TemplateView):
         with reversion.create_revision():
             payment = Payment.objects.create(
                 registration=self.registration,
-                amount=self.registration.amount_due,
+                amount=amount,
             )
             next_url = reverse('registrations:payment_done', args=(payment.pk,))
             method = self.request.POST.get('method', '')
-            url = PaymentService.start_payment(request, payment, next_url, method)
+            url = PaymentService.start_payment(self.request, payment, next_url, method)
 
             reversion.set_user(self.request.user)
             reversion.set_comment(_("Payment via {} started via frontend ({} / {}).").format(

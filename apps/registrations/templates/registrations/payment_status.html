@@ -77,26 +77,25 @@
           {% endblocktrans %}
           </p>
           <h3>{% trans "Select payment method" %}</h3>
+          {{ form.errors.method }}
           <ul class="list-group">
-            <li class="list-group-item">
-                <input type="radio" name="method" value="ideal" id="method_ideal">
-                <label for="method_ideal">{% trans "iDeal online payment" %}</label>
+            {% for method in form.method %}
+              <li class="list-group-item">
+                {{ method }}
+                {% if method.data.value == "ideal" %}
                 <p>Ideal can be used with most Dutch bank accounts to directly
                 pay using your own bank's online banking environment. You will
                 be redirected via our payment provider Mollie to the website
                 of your own bank to handle they payment.</p>
-            </li>
-            <li class="list-group-item">
-                <input type="radio" name="method" value="banktransfer" id="method_banktransfer">
-                <label for="method_banktransfer">{% trans "Bank transfer" %}</label>
-                <p>
-                Bank transfer can be used with most European bank accounts.
+                {% elif method.data.value == "banktransfer" %}
+                <p>Bank transfer can be used with most European bank accounts.
                 You will be redirected to our payment provider Mollie and
                 receive payment details from them. You will then transfer the
                 amount to a Mollie account in one of several countries, which will
-                then forward the payment to us.
-                </p>
-            </li>
+                then forward the payment to us.</p>
+                {% endif %}
+              </li>
+            {% endfor %}
           </ul>
           &nbsp;
           {% if registration.payment_status.PAYABLE %}

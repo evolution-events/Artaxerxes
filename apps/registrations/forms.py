@@ -442,3 +442,10 @@ class RegistrationOptionsForm(forms.Form):
             else:
                 value.string_value = d[field.name]
             value.save()
+
+
+class PaymentForm(forms.Form):
+    method = forms.ChoiceField(choices=[
+        ('ideal', _('iDeal online payment')),
+        ('banktransfer', _('Bank transfer')),
+    ], required=True, widget=forms.RadioSelect)

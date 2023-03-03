@@ -115,7 +115,9 @@ label {
     color: var(--light);
 }
 
-input[type="radio"] ~ label {
+input[type="radio"] ~ label,
+label:has(input[type="radio"])
+{
     color: inherit;
 }
 

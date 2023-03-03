@@ -9,6 +9,7 @@ from apps.events.tests.factories import EventFactory
 from apps.payments.models import Payment
 from apps.payments.tests.utils import MockMollieMixin
 from apps.people.tests.factories import ArtaUserFactory
+from apps.registrations.models import Registration
 
 from .factories import RegistrationFactory, RegistrationFieldFactory, RegistrationFieldOptionFactory
 
@@ -104,3 +105,18 @@ class TestPayment(MockMollieMixin, AssertHTMLMixin, TestCase):
             self.assertContains(response, "completely paid")
         else:
             self.assertContains(response, "needs payment")
+
+    @parameterized.expand(itertools.product(
+        Registration.statuses.DRAFT,
+    ))
+    def test_not_finalized(self, status):
+        """ Check that only finalized registrations can be paid """
+        reg = RegistrationFactory(event=self.event, options=[self.player], user=self.user, status=status)
+
+        start_url = reverse('registrations:registration_start', args=(reg.event.pk,))
+        status_url = reverse('registrations:payment_status', args=(reg.event.pk,))
+        response = self.client.get(status_url, follow=False)
+        self.assertRedirects(response, start_url, target_status_code=302)
+
+        response = self.client.post(status_url, {'method': 'ideal'}, follow=False)
+        self.assertRedirects(response, start_url, target_status_code=302)

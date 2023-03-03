@@ -588,13 +588,14 @@ class PaymentStatus(LoginRequiredMixin, TemplateView):
         })
         return super().get_context_data(**kwargs)
 
-    def get(self, request, pk):
+    def dispatch(self, *args, **kwargs):
         if (
             not self.registration.status.FINALIZED
             and not self.event.can_preview
         ):
             return redirect('registrations:registration_start', self.kwargs['pk'])
-        return super().get(request, pk)
+        return super().dispatch(*args, **kwargs)
+
 
     def post(self, request, pk):
         amount = self.registration.amount_due

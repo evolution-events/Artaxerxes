@@ -69,6 +69,8 @@
       <h3>{% trans 'Options chosen for registration' %}</h3>
       {% include 'registrations/snippets/registration_options.html' with registration=reg %}
 
+      <p><a href="{% url 'registrations:payment_status' e.pk %}">&gt;&gt; {% trans "View payment status" %}</a></p>
+
       {% if reg.status.ACTIVE and not e.in_the_past %}
         <h3>{% trans 'Making changes to your registration' %}</h3>
         {% if not e.allow_change %}

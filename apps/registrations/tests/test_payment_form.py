@@ -50,7 +50,7 @@ class TestPayment(MockMollieMixin, AssertHTMLMixin, TestCase):
         self.assertContains(response, "needs payment")
 
         # Start the payment
-        response = self.client.post(status_url, {'method': 'method_ideal'})
+        response = self.client.post(status_url, {'method': 'ideal'})
         checkout_url = response.url
         payment = Payment.objects.get()
         next_url = reverse('registrations:payment_done', args=(payment.pk,))

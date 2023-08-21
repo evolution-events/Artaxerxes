@@ -114,6 +114,59 @@ def annotation_list_filter(field_name, field):
     return AnnotationListFilter
 
 
+def registration_field_list_filter(field):
+    """ Generate a filter class that can be used to filter Registrations on their associated RegistrationFields. """
+
+    class RegistrationFieldListFilter(admin.SimpleListFilter):
+        title = field.title
+        parameter_name = f'registration_field_{field.name}'
+
+        def lookups(self, request, model_admin):
+            # We cannot apply all filters (if any) yet, since we have insufficient info here (the list of filters is
+            # still being built). But we can shortcut and apply at least the event filter that caused this registration
+            # field filter to be shown.
+            registrations = model_admin.get_queryset(request).filter(event=field.event_id)
+            values = RegistrationFieldValue.objects.filter(registration__in=registrations).filter(field=field)
+
+            if field.field_type.CHOICE:
+                result = [(option.pk, option.title) for option in field.options.all()]
+            elif field.field_type.CHECKBOX or field.field_type.UNCHECKBOX:
+                result = [
+                    (RegistrationFieldValue.CHECKBOX_VALUES[True], _('Yes')),
+                    (RegistrationFieldValue.CHECKBOX_VALUES[False], _('No')),
+                ]
+            elif field.field_type.STRING:
+                result = [
+                    (value.string_value, value.string_value or _("Empty"))
+                    for value in values
+                ]
+            # TODO: Implement RATING5? TEXT and IMAGE probably do not make sense
+            else:
+                return None
+
+            if registrations.exclude(options__field=field).exists():
+                # Registrations exist that do *not* have this field
+                result.append(("VALUE_MISSING", _("Missing")))
+
+            return result
+
+        def queryset(self, request, queryset):
+            value = self.value()
+            if value == "VALUE_MISSING":
+                return queryset.exclude(options__field=field)
+            elif value is not None:
+                if field.field_type.CHOICE:
+                    return queryset.filter(options__field=field, options__option=value)
+                elif field.field_type.CHECKBOX or field.field_type.UNCHECKBOX or field.field_type.STRING:
+                    return queryset.filter(options__field=field, options__string_value=value)
+                else:
+                    raise ValueError("Passed filter value for unsupported field type?")
+            else:
+                return queryset
+
+    return RegistrationFieldListFilter
+
+
 # TODO: This should probably use a intermediate view to ask the target status, do additional limitation on acceptable
 # status changes and do additional actions, such as updating the "full" statuses (and probably delegate the status
 # changes to a service).
@@ -220,6 +273,23 @@ class RegistrationAdmin(HijackRelatedAdminMixin, VersionAdmin):
             "\n".join("{} <{}>,".format(u.full_name, u.email) for u in users),
             content_type="text/plain; charset=utf-8",
         )
+
+    def get_list_filter(self, request):
+        filters = super().get_list_filter(request)
+
+        # This is a bit of a hack, since it bypasss the normal ListFilter abstractions and peeks at the GET params
+        # directly (and making assumptions about the parameter name), but the relevant info is not otherwise known or
+        # accessible from here, so this is probably the best we can do...
+        event_id = request.GET.get('event__id__exact', None)
+        if event_id is not None:
+            qs = Event.objects.prefetch_related('registration_fields').prefetch_related('registration_fields__options')
+            event = qs.get(pk=event_id)
+            return filters + [
+                registration_field_list_filter(field)
+                for field in event.registration_fields.all()
+            ]
+        else:
+            return filters
 
 
 class RegistrationFieldOptionInline(LimitDependsMixin, admin.TabularInline):

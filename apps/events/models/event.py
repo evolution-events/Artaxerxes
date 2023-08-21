@@ -33,8 +33,6 @@ class EventQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
         user_pk = user.pk if isinstance(user, ArtaUser) else user
 
         now = timezone.now()
-        # This does not use the user yet, but this makes it easier to change that later
-        # This essentially duplicates the similarly-named methods on the model below.
         # Split into multiple annotates to allow using annotations in subsequent annotations (the order of these can
         # not be guaranteed in the kwargs across systems)
         qs = self.annotate(

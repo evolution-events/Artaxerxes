@@ -74,3 +74,21 @@ To check your code complies to the formatting guidelines and passes
 tests, run:
 
         make check
+
+Copying an event to another installation
+========================================
+To copy an event with its fields and options, not registrations, to
+another installation (e.g. to locally reproduce a problem with options
+or so), you can use dumpdata along with some manual work. Start by
+dumping the relevant models:
+
+    ./manage.py dumpdata --format yaml --natural-primary --natural-foreign -o dump.yaml events.series events.event registrations.registrationfield registrations.registrationfieldoption
+
+This dumps *all* instances, so this needs manual pruning (but instances
+are typically ordered by insertion order, so removing all but the most
+recent event is doable). In addition, remove any references to models
+that are not dumped (e.g. groups).
+
+Then simply import the pruned file with:
+
+    ./manager.py loaddata pruned.yaml

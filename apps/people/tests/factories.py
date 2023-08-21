@@ -1,5 +1,5 @@
 import factory
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, Permission
 
 from ..models import Address, ArtaUser, EmergencyContact, MedicalDetails
 
@@ -10,6 +10,17 @@ class ArtaUserFactory(factory.django.DjangoModelFactory):
     first_name = factory.Faker('first_name')
     last_name = factory.Faker('last_name')
     email = factory.Faker('email')
+
+    @factory.post_generation
+    def permissions(self, create, value, **kwargs):
+        assert(create)  # Need id
+
+        if value is not None:
+            for perm in value:
+                app_label, codename = perm.split('.')
+                # No need to match content_type model, since that is duplicated in the codename
+                permission = Permission.objects.get(content_type__app_label=app_label, codename=codename)
+                self.user_permissions.add(permission)
 
 
 class MedicalDetailsFactory(factory.django.DjangoModelFactory):

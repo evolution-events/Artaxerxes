@@ -6,12 +6,15 @@ import import_export.formats.base_formats
 import import_export.resources
 from django.contrib import admin, messages
 from django.http import HttpResponse
+from django.urls import path, reverse
+from django.utils.html import format_html
 from reversion.admin import VersionAdmin
 
 from apps.registrations.admin import RegistrationFieldInline
 from apps.registrations.models import Registration, RegistrationField
 from arta.common.admin import MonetaryResourceWidget
 
+from .adminviews import EventCopyFieldsView
 from .models import Event, Series
 
 
@@ -77,6 +80,7 @@ class EventAdmin(VersionAdmin):
 
     ordering = ('start_date',)
     date_hierarchy = 'start_date'
+    readonly_fields = ('actions_field',)
 
     def export_active_registrations(self, request, queryset):
         try:
@@ -101,6 +105,22 @@ class EventAdmin(VersionAdmin):
             event.name, datetime.datetime.now().strftime('%Y-%m-%d'), file_format.get_extension(),
         )
         return response
+
+    def get_urls(self):
+        # Prepend new path so it is before the catchall that ModelAdmin adds
+        return [
+            path('<path:pk>/copy-options/',
+                 self.admin_site.admin_view(EventCopyFieldsView.as_view(admin_site=self.admin_site)),
+                 name='copy_event_fields'),
+        ] + super().get_urls()
+
+    def actions_field(self, obj):
+        return format_html(
+            '<a class="button" href="{}">Copy fields from other event</a>&nbsp;',
+            reverse('admin:copy_event_fields', args=[obj.pk]),
+        )
+    actions_field.short_description = "Event Actions"
+    actions_field.allow_tags = True
 
 
 @admin.register(Series)

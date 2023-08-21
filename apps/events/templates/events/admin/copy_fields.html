@@ -1,0 +1,43 @@
+{% extends "admin/change_form.html" %}
+
+{% load i18n %}
+{% load crispy_forms_filters %}
+
+{% load i18n admin_static admin_modify %}
+{% block content %}
+  <div id="content-main">
+    <form action="" method="POST">
+      {% csrf_token %}
+      <p>
+        {% blocktrans %}
+          Copying fields to {{copy_to}}. Existing fields:
+        {% endblocktrans %}
+      </p>
+      <ul>
+        {% for field in copy_to.registration_fields.all %}
+          <li>{{field}}</li>
+        {% empty %}
+          <li>{% trans "No existing fields" %}</li>
+        {% endfor %}
+      </ul>
+
+      {% if copy_from %}
+        <p>
+          {% blocktrans %}
+            Copying fields from {{copy_from}}.
+          {% endblocktrans %}
+        </p>
+      {% endif %}
+
+      {{ form | crispy }}
+
+      <div class="submit-row">
+        {% if copy_from %}
+        <input class="default" type="submit" value="{% trans 'Copy selected options' %}" />
+        {% else %}
+        <input class="default" type="submit" value="{% trans 'Next' %}" />
+        {% endif %}
+      </div>
+    </form>
+  </div>
+{% endblock %}

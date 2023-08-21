@@ -1,0 +1,29 @@
+{% extends "admin/change_form.html" %}
+
+{% load i18n %}
+{% load crispy_forms_filters %}
+{% load admin_urls %}
+
+{% load i18n admin_static admin_modify %}
+{% block content %}
+  <div id="content-main">
+      <p>{% blocktrans %}
+        Copied fields from {{copy_from}} to {{copy_to}}.
+      {% endblocktrans %}</p>
+      <p>{% blocktrans with fields=fields|join:", " %}
+        Copied fields: {{fields}}
+      {% endblocktrans %}</p>
+      {% if dropped_depends %}
+        <p>{% trans "Dropped dependencies:" %}<p>
+        <ul>
+        {% for from, to in dropped_depends.items %}
+          <li>{% blocktrans with tofield=to.field tovalue=to %}
+            {{from}} dependency on {{tofield}}: {{tovalue}} dropped, since the latter was not copied.
+          {% endblocktrans %}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+
+      <a class="button" href="{% url opts|admin_urlname:'change' copy_to.pk %}">{% trans "Back" %}</a>
+
+{% endblock %}

@@ -36,7 +36,7 @@ class EventQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
         # Split into multiple annotates to allow using annotations in subsequent annotations (the order of these can
         # not be guaranteed in the kwargs across systems)
         qs = self.annotate(
-            is_visible=F('public'),
+            is_visible=QExpr(Q(public=True) & ~Q(registration_opens_at=None)),
         ).annotate(
             registration_has_closed=QExpr(
                 Q(start_date__lte=now)
@@ -46,7 +46,6 @@ class EventQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
         ).annotate(
             registration_is_open=QExpr(
                 Q(is_visible=True)
-                & ~Q(registration_opens_at=None)
                 & Q(registration_opens_at__lte=now)
                 & Q(registration_has_closed=False),
             ),
@@ -197,8 +196,8 @@ class Event(models.Model):
         help_text=_('At this time registration closes again. When empty, registration closes on the start date.'))
     public = models.BooleanField(
         verbose_name=_('Public'), default=False,
-        help_text=_('When checked, the event is visible to users. If registration is not open yet, they can prepare a '
-                    'registration already.'))
+        help_text=_('When checked and a open date is set, the event is visible to users. If registration is not open '
+                    'yet, they can preview or (when admit_immediately is set) prepare a registration already.'))
     allow_change_until = models.DateField(
         null=True, blank=True,
         help_text=_('Registrations for this event can be changed until (including) this date. If empty, registrations '

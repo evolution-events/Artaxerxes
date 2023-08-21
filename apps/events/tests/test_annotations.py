@@ -91,15 +91,12 @@ class TestOpenedAnnotations(TestCase):
                 annotated = Event.objects.for_user(None)
                 visible = set(annotated.filter(is_visible=True))
                 self.assertEventsWithTitles(visible, {
-                    'future_public_closed',
                     'future_public_open_now',
                     'future_public_open_now_with_close',
                     'future_public_closed_again',
                     'future_public_opens_soon',
-                    'future_pending_public_closed',
                     'future_pending_public_open_now',
                     'future_pending_public_opens_soon',
-                    'past_public_closed',
                     'past_public_opens_soon',
                     'past_public_open_now',
                     'past_public_closed_again',
@@ -116,6 +113,7 @@ class TestOpenedAnnotations(TestCase):
                     'future_hidden_closed',
                     'future_hidden_open_now',
                     'future_hidden_opens_soon',
+                    'future_public_closed',
                     'future_pending_public_opens_soon',
                     'future_pending_public_closed',
                 })
@@ -158,7 +156,6 @@ class TestOpenedAnnotations(TestCase):
         is_open = set(annotated.filter(preregistration_is_open=True))
         self.assertEventsWithTitles(is_open, {
             'future_public_opens_soon',
-            'future_public_closed',
         })
 
     def test_registration_and_preregistration(self):

@@ -13,6 +13,7 @@ class EventFactory(factory.django.DjangoModelFactory):
         starts_in_days = 1
         duration_days = 3
         registration_opens_in_days = None
+        invitee_registration_opens_in_days = None
         registration_closes_in_days = None
         allow_change_days = None
 
@@ -25,10 +26,16 @@ class EventFactory(factory.django.DjangoModelFactory):
     url = "http://eventname.evolution-events.nl"
 
     @factory.lazy_attribute
-    def registration_opens_at(obj):
+    def public_registration_opens_at(obj):
         if obj.registration_opens_in_days is None:
             return None
         return datetime.now(timezone.utc) + timedelta(days=obj.registration_opens_in_days)
+
+    @factory.lazy_attribute
+    def invitee_registration_opens_at(obj):
+        if obj.invitee_registration_opens_in_days is None:
+            return None
+        return datetime.now(timezone.utc) + timedelta(days=obj.invitee_registration_opens_in_days)
 
     @factory.lazy_attribute
     def registration_closes_at(obj):

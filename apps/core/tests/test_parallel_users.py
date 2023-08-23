@@ -155,7 +155,7 @@ class TestParallelUsers(TransactionTestCase):
 
         timeout = 20
         registration_start = 5
-        self.event.registration_opens_at = datetime.now(timezone.utc) + timedelta(seconds=registration_start)
+        self.event.public_registration_opens_at = datetime.now(timezone.utc) + timedelta(seconds=registration_start)
         self.event.save()
 
         def thread_func(client, user, index, done):

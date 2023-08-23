@@ -57,3 +57,13 @@ class TestConstraints(TestCase):
         e.email = ''
         e.series = SeriesFactory()
         e.save()
+
+    @skipUnlessDBFeature('supports_table_check_constraints')
+    def test_invitee_opens_before_public_fail(self):
+        with self.assertRaises(IntegrityError):
+            EventFactory(registration_opens_in_days=1, invitee_registration_opens_in_days=2)
+
+    def test_invitee_opens_before_public_ok(self):
+        EventFactory(registration_opens_in_days=2, invitee_registration_opens_in_days=1)
+        EventFactory(registration_opens_in_days=2)
+        EventFactory(invitee_registration_opens_in_days=1)

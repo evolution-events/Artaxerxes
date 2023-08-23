@@ -31,8 +31,8 @@ from apps.registrations.models import Registration
 from apps.events.models import Event
 from datetime import datetime, timedelta, timezone
 from django.db.models import Count
-Event.objects.all().update(registration_opens_at=datetime.now(timezone.utc))
-Event.objects.all().update(registration_opens_at=datetime.now(timezone.utc) + timedelta(days=1))
+Event.objects.all().update(public_registration_opens_at=datetime.now(timezone.utc))
+Event.objects.all().update(public_registration_opens_at=datetime.now(timezone.utc) + timedelta(days=1))
 Registration.objects.all().update(status=Registration.statuses.PREPARATION_COMPLETE)
 # Counts per registration status
 Registration.objects.all().values('status').annotate(count=Count('status'))
@@ -42,10 +42,10 @@ Registration.objects.all().values('user').filter(
 
 # The update() calls above don't work right now (See TODO in arta.common.db), so you can use these instead:
 e = Event.objects.get()
-e.registration_opens_at=datetime.now(timezone.utc)
+e.public_registration_opens_at=datetime.now(timezone.utc)
 e.save()
 e = Event.objects.get()
-e.registration_opens_at=datetime.now(timezone.utc) + timedelta(days=1)
+e.public_registration_opens_at=datetime.now(timezone.utc) + timedelta(days=1)
 e.save()
 for r in Registration.objects.all():
     r.status=Registration.statuses.PREPARATION_COMPLETE

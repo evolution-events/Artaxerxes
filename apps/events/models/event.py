@@ -36,6 +36,18 @@ class EventQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
         # Split into multiple annotates to allow using annotations in subsequent annotations (the order of these can
         # not be guaranteed in the kwargs across systems)
         qs = self.annotate(
+            # This does a subquery instead of just a normal filter in the registration_opens_at annotation below, since
+            # that would create a join that duplicates results (https://code.djangoproject.com/ticket/10060)
+            user_is_invitee=Exists(Event.objects.filter(pk=OuterRef('pk'), invitee_group__user=user_pk)),
+        ).annotate(
+            registration_opens_at=Case(
+                When(
+                    condition=(~Q(invitee_registration_opens_at=None) & Q(user_is_invitee=True)),
+                    then=F('invitee_registration_opens_at'),
+                ),
+                default=F('public_registration_opens_at'),
+            ),
+        ).annotate(
             is_visible=QExpr(Q(public=True) & ~Q(registration_opens_at=None)),
         ).annotate(
             registration_has_closed=QExpr(
@@ -60,8 +72,8 @@ class EventQuerySet(UpdatedAtQuerySetMixin, models.QuerySet):
             # This does a subquery instead of using user.is_superuser in the filter directly, to allow passing user pk
             # instead of object
             user_is_superuser=Subquery(ArtaUser.objects.filter(pk=user_pk).values('is_superuser')),
-            # This does a subquery instead of just a normal filter inline below, since that creates a join that
-            # duplicates results.
+            # This does a subquery instead of just a normal filter in the can_preview annotation below, since that
+            # would create a join that duplicates results (https://code.djangoproject.com/ticket/10060)
             user_is_organizer=Exists(Event.objects.filter(pk=OuterRef('pk'), organizer_group__user=user_pk)),
         ).annotate(
             can_preview=QExpr(
@@ -186,11 +198,15 @@ class Event(models.Model):
         help_text=_('Place to be prefilled in registration form for signature place.'))
     organizer_group = models.ForeignKey(
         Group, null=True, blank=True, on_delete=models.SET_NULL, verbose_name=_('Organizer group'),
+        related_name='organized_events',
         help_text=_('Group of users that can view all information about this event.'))
 
-    registration_opens_at = models.DateTimeField(
-        verbose_name=_('Registration opens at'), null=True, blank=True,
+    public_registration_opens_at = models.DateTimeField(
+        verbose_name=_('Public registration opens at'), null=True, blank=True,
         help_text=_('At this time registration is open for everyone.'))
+    invitee_registration_opens_at = models.DateTimeField(
+        verbose_name=_('Invitee registration opens at'), null=True, blank=True,
+        help_text=_('At this time registration is open for people in the invited group.'))
     registration_closes_at = models.DateTimeField(
         verbose_name=_('Registration closes at'), null=True, blank=True,
         help_text=_('At this time registration closes again. When empty, registration closes on the start date.'))
@@ -205,6 +221,12 @@ class Event(models.Model):
                     'etc.'),
     )
 
+    invitee_group = models.ForeignKey(
+        'auth.Group', null=True, blank=True, on_delete=models.SET_NULL,
+        related_name='invited_events',
+        help_text=_('Group of users that can register early or exclusively when the public registration open date '
+                    'is unset.'),
+    )
     admit_immediately = models.BooleanField(
         verbose_name=_('Admit registrations immediately (i.e. "first come, first served")'), default=True,
         help_text=_('When checked, registrations are admitted immediately when finalized (subject to available '
@@ -300,4 +322,10 @@ class Event(models.Model):
         ]
         constraints = [
             models.CheckConstraint(check=~Q(email='') | ~Q(series=None), name='has_email_or_series'),
+            models.CheckConstraint(
+                check=Q(public_registration_opens_at=None)
+                | Q(invitee_registration_opens_at=None)
+                | Q(invitee_registration_opens_at__lt=F('public_registration_opens_at')),
+                name='invitee_opens_before_public',
+            ),
         ]

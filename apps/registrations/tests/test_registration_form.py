@@ -263,9 +263,9 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         if state == EventState.HIDDEN:
             e.public = False
         elif state == EventState.NOT_OPEN_YET:
-            e.registration_opens_at = timezone.now() + timedelta(days=1)
+            e.public_registration_opens_at = timezone.now() + timedelta(days=1)
         elif state == EventState.NOT_OPEN_YET_PENDING:
-            e.registration_opens_at = timezone.now() + timedelta(days=1)
+            e.public_registration_opens_at = timezone.now() + timedelta(days=1)
             e.admit_immediately = False
         elif state == EventState.OPEN:
             pass
@@ -1166,7 +1166,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
     def test_registration_opens(self):
         """ Check that finalcheck is closed until the right time and then opens. """
         reg = RegistrationFactory(event=self.event, user=self.user, preparation_complete=True)
-        opens_at = self.event.registration_opens_at
+        opens_at = self.event.public_registration_opens_at
         before_opens_at = opens_at - timedelta(seconds=1)
         final_check_url = self.reverse_step('registrations:step_final_check', reg)
         confirm_url = self.reverse_step('registrations:registration_confirmation', reg)

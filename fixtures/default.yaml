@@ -189,7 +189,7 @@
     location_name: De Hammermolen
     location_url: 'https://www.hammermolen.nl/'
     location_info: "Hammermolen 15\r\n6086 BE  Neer"
-    registration_opens_at: "2019-11-01 20:00:00+01:00"
+    public_registration_opens_at: "2019-11-01 20:00:00+01:00"
     public: True
 - model: events.event
   fields:

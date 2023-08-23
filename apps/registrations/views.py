@@ -2,7 +2,7 @@
 import reversion
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Case, F, When
+from django.db.models import Case, F, Q, When
 from django.forms import ValidationError
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
@@ -460,8 +460,8 @@ class FinalCheck(RegistrationStepMixin, FormView):
         yield EmergencyContact.objects.filter(user=user.pk)
 
         # The event has a virtual updated timestamp at the moment registration opens (e.g. when registration is open
-        # and the event was not updated *after* the registration opened, use registration_opens_at instead of
-        # updated_at).
+        # and the event was not updated *after* the registration opened, use
+        # public_registration_opens_at/invitee_registrations_opens_at (whichever is later) instead of updated_at).
         # Calling values() without arguments clears field list and allows redefining updated_at with a different value.
         event_qs = Event.objects.filter(registrations=self.registration_id)
         yield event_qs.values().values(updated_at=Case(
@@ -477,9 +477,17 @@ class FinalCheck(RegistrationStepMixin, FormView):
             #     then=Cast(F('start_date'), output_field=DateTimeField()),
             # ),
             When(
-                registration_opens_at__lte=timezone.now(),
-                registration_opens_at__gt=F('updated_at'),
-                then=F('registration_opens_at'),
+                condition=Q(public_registration_opens_at__lte=timezone.now())
+                & (
+                    Q(invitee_registration_opens_at=None)
+                    | Q(public_registration_opens_at__gt=F('invitee_registration_opens_at'))
+                ) & Q(public_registration_opens_at__gt=F('updated_at')),
+                then=F('public_registration_opens_at'),
+            ),
+            When(
+                condition=Q(invitee_registration_opens_at__lte=timezone.now())
+                & Q(invitee_registration_opens_at__gt=F('updated_at')),
+                then=F('invitee_registration_opens_at'),
             ),
             default=F('updated_at'),
         ))

@@ -73,10 +73,10 @@ class TestCaching(TestCase):
     def test_finalcheck_registration_opens(self):
         """ Check that finalcheck regenerates a response after registration opens. """
         # Make sure registration_opens_at is in the future (and newer than all updated_at timestamps)
-        self.event.registration_opens_at = timezone.now() + timedelta(days=1)
+        self.event.public_registration_opens_at = timezone.now() + timedelta(days=1)
         self.event.save()
 
-        opens_at = self.event.registration_opens_at
+        opens_at = self.event.public_registration_opens_at
         before_opens_at = opens_at - timedelta(seconds=1)
 
         response = self.client.get(self.final_check_url)

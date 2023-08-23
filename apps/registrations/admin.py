@@ -3,6 +3,7 @@ from django.contrib import admin, messages
 from django.db import transaction
 from django.db.models.functions import Concat
 from django.http import HttpResponse
+from django.shortcuts import redirect
 from django.utils import timezone
 from django.utils.html import format_html_join
 from django.utils.safestring import mark_safe
@@ -219,6 +220,7 @@ class RegistrationAdmin(HijackRelatedAdminMixin, VersionAdmin):
 
     actions = [
         'make_mailing_list',
+        'add_users_to_group',
         change_status_action(Registration.statuses.PENDING, Registration.statuses.REGISTERED),
         change_status_action(Registration.statuses.PENDING, Registration.statuses.CANCELLED),
         change_status_action(Registration.statuses.PENDING, Registration.statuses.WAITINGLIST),
@@ -266,6 +268,10 @@ class RegistrationAdmin(HijackRelatedAdminMixin, VersionAdmin):
         return format_html_join(mark_safe("<br>"), "{}={}", ((value.field, value) for value in obj.active_options))
     selected_options.short_description = _("Selected Options")
     selected_options.allow_tags = True
+
+    def add_users_to_group(self, request, queryset):
+        userids = ArtaUser.objects.filter(registrations__pk__in=queryset).values_list('pk', flat=True)
+        return redirect('admin:add_users_to_group', ','.join(map(str, userids)))
 
     def make_mailing_list(self, request, queryset):
         users = ArtaUser.objects.filter(registrations__in=queryset).distinct()

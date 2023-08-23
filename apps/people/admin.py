@@ -6,10 +6,13 @@ from django.contrib import admin
 from django.contrib.auth.admin import GroupAdmin, UserAdmin
 from django.contrib.auth.models import Group
 from django.http import HttpResponse
+from django.shortcuts import redirect
+from django.urls import path
 from django.utils.translation import ugettext_lazy as _
 from hijack_admin.admin import HijackUserAdminMixin
 from reversion.admin import VersionAdmin
 
+from .adminviews import AddUsersToGroupView
 from .models import Address, ArtaUser, EmergencyContact
 
 
@@ -59,7 +62,7 @@ class ArtaUserAdmin(import_export.admin.ExportMixin, UserAdmin, HijackUserAdminM
     search_fields = ('first_name', 'last_name', 'email')
     list_filter = UserAdmin.list_filter + ('consent_announcements_nl', 'consent_announcements_en')
     ordering = ('email',)
-    actions = ['make_mailing_list']
+    actions = ['make_mailing_list', 'add_users_to_group']
     resource_class = ArtaUserResource  # For ExportMixin
 
     fieldsets = (
@@ -76,6 +79,18 @@ class ArtaUserAdmin(import_export.admin.ExportMixin, UserAdmin, HijackUserAdminM
             'fields': ('email', 'password1', 'password2'),
         }),
     )
+
+    def get_urls(self):
+        # Prepend new path so it is before the catchall that ModelAdmin adds
+        return [
+            path('<path:userids>/add-to-group/',
+                 self.admin_site.admin_view(AddUsersToGroupView.as_view(admin_site=self.admin_site)),
+                 name='add_users_to_group'),
+        ] + super().get_urls()
+
+    def add_users_to_group(self, request, queryset):
+        userids = queryset.values_list('pk', flat=True)
+        return redirect('admin:add_users_to_group', ','.join(map(str, userids)))
 
     def make_mailing_list(self, request, queryset):
         return HttpResponse(

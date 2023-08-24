@@ -29,10 +29,10 @@ class TestCopyFieldsView(TestCase):
         cls.field_with_depends_2 = RegistrationFieldOptionFactory(
             field=cls.field_with_depends, title="Field with depends 2")
 
-        cls.field_with_option_with_depends = RegistrationFieldFactory(
-            event=cls.copy_from, name="field_with_option_with_depends")
-        cls.field_with_option_with_depends_1 = RegistrationFieldOptionFactory(
-            field=cls.field_with_option_with_depends, title="Field with options with depends 1",
+        cls.field_opt_depends = RegistrationFieldFactory(
+            event=cls.copy_from, name="field_opt_depends")
+        cls.field_opt_depends_1 = RegistrationFieldOptionFactory(
+            field=cls.field_opt_depends, title="Field with options with depends 1",
             depends=cls.type_2)
 
         cls.duplicate = RegistrationFieldFactory(event=cls.copy_from, name="duplicate")
@@ -49,12 +49,12 @@ class TestCopyFieldsView(TestCase):
     def test_copy_all(self):
         """ Check that copying all non-duplicate fields works and copies depends as well. """
         self.copy_helper(
-            fields=[self.type, self.field_with_depends, self.field_with_option_with_depends],
+            fields=[self.type, self.field_with_depends, self.field_opt_depends],
             expected_fields={
                 'duplicate': set(),
                 'type': {'Type 1', 'Type 2'},
                 'field_with_depends': {'Field with depends 1', 'Field with depends 2'},
-                'field_with_option_with_depends': {'Field with options with depends 1'},
+                'field_opt_depends': {'Field with options with depends 1'},
             },
             expected_depends={
                 'field_with_depends': 'Type 1',
@@ -65,11 +65,11 @@ class TestCopyFieldsView(TestCase):
     def test_copy_missing_depends(self):
         """ Check that not copying a depended-on option is shown to the user. """
         self.copy_helper(
-            fields=[self.field_with_depends, self.field_with_option_with_depends],
+            fields=[self.field_with_depends, self.field_opt_depends],
             expected_fields={
                 'duplicate': set(),
                 'field_with_depends': {'Field with depends 1', 'Field with depends 2'},
-                'field_with_option_with_depends': {'Field with options with depends 1'},
+                'field_opt_depends': {'Field with options with depends 1'},
             },
             expected_depends={},
             dropped_depends={

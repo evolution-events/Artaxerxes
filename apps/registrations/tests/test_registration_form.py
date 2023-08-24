@@ -65,6 +65,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
     all_steps_except_start = set(registration_steps_except_start + edit_steps)
     all_steps = all_steps_except_start | {'registrations:registration_start'}
     start_steps = {'registrations:registration_start', 'registrations:registration_start'}
+    event_param_steps = start_steps | {'registrations:edit_start'}
 
     @classmethod
     def setUpTestData(cls):
@@ -237,7 +238,7 @@ class TestRegistrationForm(TestCase, AssertHTMLMixin):
         self.assertRedirects(response, next_url)
 
     def reverse_step(self, viewname, reg):
-        if viewname in self.start_steps:
+        if viewname in self.event_param_steps:
             args = (reg.event_id,) if reg else (self.event.pk,)
         else:
             args = (reg.pk,)

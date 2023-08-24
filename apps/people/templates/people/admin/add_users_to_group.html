@@ -1,0 +1,25 @@
+{% extends "admin/change_form.html" %}
+
+{% load i18n %}
+{% load crispy_forms_filters %}
+
+{% load i18n admin_static admin_modify %}
+{% block content %}
+  <div id="content-main">
+    <form action="" method="POST">
+      {% csrf_token %}
+      <p>
+        {# This prints an ugly list of users, but it works (and just getting all names and joining them with commas seemed impossible without involving the view, oh well... #}
+        {% blocktrans %}
+        Users to add to group: {{users}}
+        {% endblocktrans %}
+      </p>
+
+      {{ form | crispy }}
+
+      <div class="submit-row">
+        <input class="default" type="submit" value="{% trans 'Add users to group' %}" />
+      </div>
+    </form>
+  </div>
+{% endblock %}

@@ -602,7 +602,8 @@ class PaymentStatus(LoginRequiredMixin, FormView):
 
     def dispatch(self, *args, **kwargs):
         if (
-            not self.registration.status.FINALIZED
+            self.request.user.is_authenticated
+            and not self.registration.status.FINALIZED
             and not self.event.can_preview
         ):
             return redirect('registrations:registration_start', self.kwargs['pk'])

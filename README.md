@@ -23,11 +23,12 @@ and enter it, run:
 
 Then, inside this shell, install dependencies using
 
-	poetry install
+	poetry install --no-root
 
 This uses the version from the `poetry.lock` file, recreating exactly the
 environment used to commit that file. This command can also be used
-later, after puling an updated `poetry.lock` file.
+later, after puling an updated `poetry.lock` file. `--no-root` tells it
+to install only dependencies, not the application itself.
 
 To create a database, run django's `migrate` command:
 
@@ -65,7 +66,7 @@ dependencies, use:
 Production vs development
 =========================
 By default, `poetry` installs the development dependencies. To install
-just production dependencies, add `--no-dev` to e.g. `poetry install`
+just production dependencies, add `--without-dev` to e.g. `poetry install`
 and `poetry update`.
 
 Before committing / pushing

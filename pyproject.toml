@@ -5,7 +5,7 @@ description = ""
 authors = []
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = "^3.11"
 django = "^2.2"
 django-reversion = "*"
 django-allauth = "*"
@@ -14,7 +14,7 @@ django-airplane = "^1.0.0"
 django-phonenumber-field = {extras = ["phonenumbers"], version = "^4.0.0"}
 # Use git master for unreleased BCC support, see https://github.com/perenecabuto/django-sendmail-backend/issues/14
 django_sendmail_backend = { git = "https://github.com/perenecabuto/django-sendmail-backend", rev = "43d239f" }
-poetry = {version = "^1.0.7", optional = true}
+poetry = {version = "^2.3.4", optional = true}
 mysqlclient = {version = "^1.4.6", optional = true}
 django-hijack = "^2.1.10"
 django-hijack-admin = "^2.1.10"
